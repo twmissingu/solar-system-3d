@@ -151,6 +151,14 @@ export const achievements: Achievement[] = [
     rarity: 'rare',
     condition: { type: 'explore', bodyId: '*' },
   },
+  {
+    id: 'space_explorer',
+    name: '太空探险家',
+    description: '查看过任意航天器的轨迹',
+    icon: '🛰️',
+    rarity: 'common',
+    condition: { type: 'explore', bodyId: '*' },
+  },
 ];
 
 export function getAchievementById(id: string): Achievement | undefined {

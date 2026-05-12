@@ -43,12 +43,15 @@ export default function Controls() {
     setScaleMode,
     setShowMissionPanel,
     setShowAchievementPanel,
+    setShowSpacecraftPanel,
     setJourneyMode,
     setCurrentJourneyIndex,
     addMissionObservedEvent,
     activeMissionId,
     setShowPredictionGame,
     setShowSandbox,
+    setShowHohmannDesigner,
+    setShowEclipseLab,
   } = useStore()
 
   const lifetimeData = useMemo(() => {
@@ -326,6 +329,18 @@ export default function Controls() {
               <span className="sm:hidden">任务</span>
             </button>
             <button
+              onClick={() => setShowSpacecraftPanel(true)}
+              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
+            >
+              🛰️ <span className="hidden sm:inline">航天器</span><span className="sm:hidden">航天</span>
+            </button>
+            <button
+              onClick={() => setShowHohmannDesigner(true)}
+              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
+            >
+              🛸 <span className="hidden sm:inline">轨道设计</span><span className="sm:hidden">轨道</span>
+            </button>
+            <button
               onClick={() => setShowAchievementPanel(true)}
               className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
             >
@@ -333,12 +348,10 @@ export default function Controls() {
               <span className="sm:hidden">徽章</span>
             </button>
             <button
-              onClick={handleLunarEclipse}
-              className="sci-button-primary text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
-              title="跳转到2025年3月14日月全食时刻"
+              onClick={() => setShowEclipseLab(true)}
+              className="sci-button-primary text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
             >
-              🌑 <span className="hidden sm:inline">月全食演示</span>
-              <span className="sm:hidden">月食</span>
+              🧪 <span className="hidden sm:inline">月食实验</span><span className="sm:hidden">月食</span>
             </button>
             <button
               onClick={resetView}

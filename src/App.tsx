@@ -13,10 +13,14 @@ import JourneyMode from './components/JourneyMode'
 import JourneyHUD from './components/JourneyHUD'
 import PredictionGame from './components/PredictionGame'
 import SandboxPanel from './components/SandboxPanel'
+import Spacecraft from './components/Spacecraft'
+import SpacecraftPanel from './components/SpacecraftPanel'
+import HohmannDesigner from './components/HohmannDesigner'
+import EclipseLab from './components/EclipseLab'
 import { useStore } from './store/useStore'
 
 export default function App() {
-  const { showMissionPanel, setShowMissionPanel, showAchievementPanel, setShowAchievementPanel, showPredictionGame, showSandbox } = useStore()
+  const { showMissionPanel, setShowMissionPanel, showAchievementPanel, setShowAchievementPanel, showPredictionGame, showSandbox, showSpacecraftPanel, showHohmannDesigner, showEclipseLab } = useStore()
   return (
     <div className="relative w-full h-full">
       {/* 3D Canvas */}
@@ -60,6 +64,7 @@ export default function App() {
             speed={0.5}
           />
           <SolarSystem />
+          <Spacecraft />
         </Suspense>
 
         <OrbitControls
@@ -87,6 +92,9 @@ export default function App() {
       {showAchievementPanel && <AchievementPanel onClose={() => setShowAchievementPanel(false)} />}
       {showPredictionGame && <PredictionGame />}
       {showSandbox && <SandboxPanel />}
+      {showSpacecraftPanel && <SpacecraftPanel />}
+      {showHohmannDesigner && <HohmannDesigner />}
+      {showEclipseLab && <EclipseLab />}
     </div>
   )
 }

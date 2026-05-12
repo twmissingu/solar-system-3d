@@ -1,13 +1,15 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '../store/useStore'
 import { knowledgeData } from '../data/knowledge'
 import { getKnowledgeForBody } from '../data/knowledgeV2'
 import KnowledgeExplorer from './KnowledgeExplorer'
+import InstrumentsPanel from './InstrumentsPanel'
 import { getRealVisualRadius, EARTH_RADIUS_KM, dwarfPlanets } from '../data/celestialData'
 
 export default function InfoPanel() {
   const { selectedBody, showKnowledge, setShowKnowledge, scaleMode } = useStore()
+  const [infoTab, setInfoTab] = useState<'knowledge' | 'instruments'>('knowledge')
 
   const knowledge = useMemo(() => {
     if (!selectedBody) return null
@@ -95,15 +97,45 @@ export default function InfoPanel() {
               </div>
             )}
 
-            {/* 科普知识 */}
+            {/* Tabs */}
+            <div className="px-4 sm:px-5 pt-3 border-b border-sci-cyan/10 shrink-0">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setInfoTab('knowledge')}
+                  className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 border ${
+                    infoTab === 'knowledge'
+                      ? 'bg-sci-cyan/20 text-sci-cyan border-sci-cyan/30'
+                      : 'text-sci-white/50 hover:text-sci-white/70 border-transparent'
+                  }`}
+                >
+                  知识探索
+                </button>
+                <button
+                  onClick={() => setInfoTab('instruments')}
+                  className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 border ${
+                    infoTab === 'instruments'
+                      ? 'bg-sci-cyan/20 text-sci-cyan border-sci-cyan/30'
+                      : 'text-sci-white/50 hover:text-sci-white/70 border-transparent'
+                  }`}
+                >
+                  科学仪器
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0">
-              {knowledgeV2 ? (
-                <KnowledgeExplorer knowledge={knowledgeV2} />
+              {infoTab === 'knowledge' ? (
+                knowledgeV2 ? (
+                  <KnowledgeExplorer knowledge={knowledgeV2} />
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-sci-white/40 italic mb-2">暂无该天体的详细科普内容。</p>
+                    <p className="text-xs text-sci-white/30">完成任务可以解锁更多知识！</p>
+                  </div>
+                )
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-sm text-sci-white/40 italic mb-2">暂无该天体的详细科普内容。</p>
-                  <p className="text-xs text-sci-white/30">完成任务可以解锁更多知识！</p>
-                </div>
+                <InstrumentsPanel bodyId={selectedBody.id} />
               )}
             </div>
 

@@ -101,6 +101,22 @@ interface AppState {
   sandboxOrbitAU: number;
   setSandboxOrbitAU: (au: number) => void;
 
+  // Spacecraft panel
+  showSpacecraftPanel: boolean;
+  setShowSpacecraftPanel: (show: boolean) => void;
+  selectedSpacecraft: string | null;
+  setSelectedSpacecraft: (id: string | null) => void;
+
+  // Hohmann transfer designer
+  showHohmannDesigner: boolean;
+  setShowHohmannDesigner: (show: boolean) => void;
+  hohmannTarget: string;
+  setHohmannTarget: (id: string) => void;
+
+  // Lunar eclipse lab
+  showEclipseLab: boolean;
+  setShowEclipseLab: (show: boolean) => void;
+
   // Mission system (needed by Task 2)
   activeMissionId: string | null;
   setActiveMissionId: (id: string | null) => void;
@@ -306,6 +322,19 @@ export const useStore = create<AppState>((set) => ({
         ? state.completedMissions
         : [...state.completedMissions, id],
     })),
+  showSpacecraftPanel: false,
+  setShowSpacecraftPanel: (show) => set({ showSpacecraftPanel: show }),
+  selectedSpacecraft: null,
+  setSelectedSpacecraft: (id) => set({ selectedSpacecraft: id }),
+
+  showHohmannDesigner: false,
+  setShowHohmannDesigner: (show) => set({ showHohmannDesigner: show }),
+  hohmannTarget: 'mars',
+  setHohmannTarget: (id) => set({ hohmannTarget: id }),
+
+  showEclipseLab: false,
+  setShowEclipseLab: (show) => set({ showEclipseLab: show }),
+
   showMissionPanel: false,
   setShowMissionPanel: (show) => set({ showMissionPanel: show }),
   currentHintIndex: 0,
