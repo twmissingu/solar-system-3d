@@ -5,11 +5,14 @@ import { knowledgeData } from '../data/knowledge'
 import { getKnowledgeForBody } from '../data/knowledgeV2'
 import KnowledgeExplorer from './KnowledgeExplorer'
 import InstrumentsPanel from './InstrumentsPanel'
+import InterdisciplinaryPanel from './InterdisciplinaryPanel'
+import ObservationGuide from './ObservationGuide'
+import ScienceFrontiers from './ScienceFrontiers'
 import { getRealVisualRadius, EARTH_RADIUS_KM, dwarfPlanets } from '../data/celestialData'
 
 export default function InfoPanel() {
   const { selectedBody, showKnowledge, setShowKnowledge, scaleMode } = useStore()
-  const [infoTab, setInfoTab] = useState<'knowledge' | 'instruments'>('knowledge')
+  const [infoTab, setInfoTab] = useState<'knowledge' | 'instruments' | 'interdisciplinary' | 'observation' | 'frontiers'>('knowledge')
 
   const knowledge = useMemo(() => {
     if (!selectedBody) return null
@@ -99,10 +102,10 @@ export default function InfoPanel() {
 
             {/* Tabs */}
             <div className="px-4 sm:px-5 pt-3 border-b border-sci-cyan/10 shrink-0">
-              <div className="flex gap-2">
+              <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
                 <button
                   onClick={() => setInfoTab('knowledge')}
-                  className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 border ${
+                  className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 border whitespace-nowrap ${
                     infoTab === 'knowledge'
                       ? 'bg-sci-cyan/20 text-sci-cyan border-sci-cyan/30'
                       : 'text-sci-white/50 hover:text-sci-white/70 border-transparent'
@@ -112,7 +115,7 @@ export default function InfoPanel() {
                 </button>
                 <button
                   onClick={() => setInfoTab('instruments')}
-                  className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 border ${
+                  className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 border whitespace-nowrap ${
                     infoTab === 'instruments'
                       ? 'bg-sci-cyan/20 text-sci-cyan border-sci-cyan/30'
                       : 'text-sci-white/50 hover:text-sci-white/70 border-transparent'
@@ -120,23 +123,65 @@ export default function InfoPanel() {
                 >
                   科学仪器
                 </button>
+                <button
+                  onClick={() => setInfoTab('interdisciplinary')}
+                  className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 border whitespace-nowrap ${
+                    infoTab === 'interdisciplinary'
+                      ? 'bg-sci-cyan/20 text-sci-cyan border-sci-cyan/30'
+                      : 'text-sci-white/50 hover:text-sci-white/70 border-transparent'
+                  }`}
+                >
+                  跨学科
+                </button>
+                <button
+                  onClick={() => setInfoTab('observation')}
+                  className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 border whitespace-nowrap ${
+                    infoTab === 'observation'
+                      ? 'bg-sci-cyan/20 text-sci-cyan border-sci-cyan/30'
+                      : 'text-sci-white/50 hover:text-sci-white/70 border-transparent'
+                  }`}
+                >
+                  今晚观测
+                </button>
+                <button
+                  onClick={() => setInfoTab('frontiers')}
+                  className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 border whitespace-nowrap ${
+                    infoTab === 'frontiers'
+                      ? 'bg-sci-cyan/20 text-sci-cyan border-sci-cyan/30'
+                      : 'text-sci-white/50 hover:text-sci-white/70 border-transparent'
+                  }`}
+                >
+                  科学前沿
+                </button>
               </div>
             </div>
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0">
-              {infoTab === 'knowledge' ? (
-                knowledgeV2 ? (
-                  <KnowledgeExplorer knowledge={knowledgeV2} />
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-sm text-sci-white/40 italic mb-2">暂无该天体的详细科普内容。</p>
-                    <p className="text-xs text-sci-white/30">完成任务可以解锁更多知识！</p>
-                  </div>
-                )
-              ) : (
-                <InstrumentsPanel bodyId={selectedBody.id} />
-              )}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={infoTab}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {infoTab === 'knowledge' && (
+                    knowledgeV2 ? (
+                      <KnowledgeExplorer knowledge={knowledgeV2} />
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-sm text-sci-white/40 italic mb-2">暂无该天体的详细科普内容。</p>
+                        <p className="text-xs text-sci-white/30">完成任务可以解锁更多知识！</p>
+                      </div>
+                    )
+                  )}
+                  {infoTab === 'instruments' && <InstrumentsPanel bodyId={selectedBody.id} />}
+                  {infoTab === 'interdisciplinary' && <InterdisciplinaryPanel bodyId={selectedBody.id} />}
+                  {infoTab === 'observation' && <ObservationGuide bodyId={selectedBody.id} />}
+                  {infoTab === 'frontiers' && <ScienceFrontiers bodyId={selectedBody.id} />}
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             {/* 底部操作 */}

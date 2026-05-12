@@ -159,6 +159,30 @@ export const achievements: Achievement[] = [
     rarity: 'common',
     condition: { type: 'explore', bodyId: '*' },
   },
+  {
+    id: 'interdisciplinary',
+    name: '跨界学者',
+    description: '查看过跨学科连接',
+    icon: '🔗',
+    rarity: 'common',
+    condition: { type: 'explore', bodyId: '*' },
+  },
+  {
+    id: 'stargazer',
+    name: '观星者',
+    description: '查看过观测指南',
+    icon: '🔭',
+    rarity: 'common',
+    condition: { type: 'explore', bodyId: '*' },
+  },
+  {
+    id: 'scientist_vote',
+    name: '小小科学家',
+    description: '参与过科学争议投票',
+    icon: '🗳️',
+    rarity: 'common',
+    condition: { type: 'explore', bodyId: '*' },
+  },
 ];
 
 export function getAchievementById(id: string): Achievement | undefined {

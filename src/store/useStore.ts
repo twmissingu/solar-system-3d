@@ -117,6 +117,10 @@ interface AppState {
   showEclipseLab: boolean;
   setShowEclipseLab: (show: boolean) => void;
 
+  // Voting
+  userVotes: Record<string, string>;
+  setUserVote: (controversyId: string, optionId: string) => void;
+
   // Mission system (needed by Task 2)
   activeMissionId: string | null;
   setActiveMissionId: (id: string | null) => void;
@@ -341,5 +345,15 @@ export const useStore = create<AppState>((set) => ({
   nextHint: () =>
     set((state) => ({
       currentHintIndex: state.currentHintIndex + 1,
+    })),
+
+  // Voting
+  userVotes: {},
+  setUserVote: (controversyId, optionId) =>
+    set((state) => ({
+      userVotes: {
+        ...state.userVotes,
+        [controversyId]: optionId,
+      },
     })),
 }));
