@@ -50,9 +50,10 @@ function jdToGregorian(jd: number): [number, number, number] {
  * @returns Formatted string like "2000年1月1日"
  */
 export function formatSimulationDate(daysOffset: number): string {
+  if (!Number.isFinite(daysOffset)) return '日期无效';
   const jd = J2000 + daysOffset;
   const [year, month, day] = jdToGregorian(jd);
-  return `${year}年${month}月${Math.floor(day)}日`;
+  return `${year}年${month}月${Math.round(day)}日`;
 }
 
 /**
@@ -61,6 +62,7 @@ export function formatSimulationDate(daysOffset: number): string {
  * @returns Full description like "2000年1月1日（J2000.0 + 0天）"
  */
 export function formatSimulationDateFull(daysOffset: number): string {
+  if (!Number.isFinite(daysOffset)) return '日期无效（J2000.0）';
   const dateStr = formatSimulationDate(daysOffset);
   const sign = daysOffset >= 0 ? '+' : '';
   return `${dateStr}（J2000.0 ${sign}${Math.round(daysOffset)}天）`;

@@ -60,13 +60,7 @@ export default function JourneyMode() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [journeyMode, flyToStop]);
-
-  useEffect(() => {
-    if (journeyMode === 'paused' && timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-  }, [journeyMode]);
+  }, [journeyMode, currentJourneyIndex, flyToStop]);
 
   return null;
 }

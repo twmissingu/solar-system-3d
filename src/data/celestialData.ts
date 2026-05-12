@@ -513,7 +513,7 @@ export const lunarEclipseDemo = {
   julianDay: 2460747.5,
   description:
     "2025年3月14日发生了一次月全食。此时地球正好位于太阳和月球之间，地球的阴影完全覆盖了月球，月球呈现出暗红色。",
-  targetBody: "Moon",
+  targetBody: "moon",
   cameraPosition: [0, 0, 0] as [number, number, number], // 相对于月球的位置
 };
 
@@ -540,6 +540,30 @@ export const dwarfPlanets: CelestialBody[] = [
     axialTilt: 122.5,
     description:
       "冥王星是1930年发现的第一颗矮行星，曾被列为第九大行星。它有一颗大卫星卡戎，两者甚至形成了一个双星系统。",
+    satellites: [
+      {
+        id: "charon",
+        name: "Charon",
+        nameZh: "卡戎",
+        radiusKm: 606.0,
+        visualRadius: 0.1,
+        color: "#A0A0A0",
+        textureColor: "#A0A0A0",
+        orbit: {
+          a: 0.000117,
+          e: 0.0022,
+          i: 0.001,
+          L: 0,
+          longPeri: 0,
+          longNode: 0,
+          period: 6.387,
+        },
+        rotationPeriod: 153.29,
+        axialTilt: 0,
+        description: "卡戎是冥王星最大的卫星，与冥王星形成了相互潮汐锁定的双星系统。",
+        isTidallyLocked: true,
+      },
+    ],
   },
   {
     id: "ceres",
@@ -628,6 +652,52 @@ export const dwarfPlanets: CelestialBody[] = [
     axialTilt: 0.0,
     description:
       "妊神星是一颗快速自转的矮行星，自转周期不到4小时，这使得它呈椭球形。它有两颗已知的卫星。",
+    satellites: [
+      {
+        id: "hi-iaka",
+        name: "Hiʻiaka",
+        nameZh: "希亚卡",
+        radiusKm: 160.0,
+        visualRadius: 0.06,
+        color: "#C0C0C0",
+        textureColor: "#C0C0C0",
+        orbit: {
+          a: 0.000325,
+          e: 0.0513,
+          i: 126.1,
+          L: 0,
+          longPeri: 0,
+          longNode: 0,
+          period: 49.12,
+        },
+        rotationPeriod: 49.12,
+        axialTilt: 0,
+        description: "希亚卡是妊神星最大的卫星，以夏威夷神话中的舞蹈女神命名。",
+        isTidallyLocked: true,
+      },
+      {
+        id: "namaka",
+        name: "Namaka",
+        nameZh: "纳马卡",
+        radiusKm: 85.0,
+        visualRadius: 0.04,
+        color: "#B0B0B0",
+        textureColor: "#B0B0B0",
+        orbit: {
+          a: 0.00017,
+          e: 0.249,
+          i: 126.1,
+          L: 0,
+          longPeri: 0,
+          longNode: 0,
+          period: 18.278,
+        },
+        rotationPeriod: 18.278,
+        axialTilt: 0,
+        description: "纳马卡是妊神星的第二颗卫星，以夏威夷神话中的海之女神命名。",
+        isTidallyLocked: true,
+      },
+    ],
   },
 ];
 

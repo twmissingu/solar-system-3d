@@ -20,19 +20,22 @@ export function evaluateAchievements() {
         }
         break;
       case 'explore_all':
+        shouldUnlock = cond.bodyIds.every((id) => exploredBodies.includes(id));
+        break;
+      case 'explore_any':
         shouldUnlock = cond.bodyIds.some((id) => exploredBodies.includes(id));
         break;
       case 'mission_complete':
         shouldUnlock = completedMissionCount >= cond.count;
         break;
       case 'knowledge_unlock':
-        shouldUnlock = unlockedKnowledgeCount[cond.level] >= cond.count;
+        shouldUnlock = (unlockedKnowledgeCount[cond.level] ?? 0) >= cond.count;
         break;
       case 'time_travel':
         shouldUnlock = totalTimeAdvanced >= cond.days;
         break;
       case 'eclipse_witness':
-        // Handled separately in Controls.tsx
+        // 月食见证者成就由 Controls.tsx 手动解锁
         break;
     }
 

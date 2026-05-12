@@ -20,7 +20,7 @@ export const quizQuestions: QuizQuestion[] = [
     correctIndex: 1,
     explanation:
       "地球的自转轴倾斜约23.5°，在公转过程中，北半球和南半球会交替朝向或背离太阳，造成阳光直射和斜射的变化，从而形成四季。",
-    relatedBody: "Earth",
+    relatedBody: "earth",
   },
   {
     id: "q2",
@@ -34,7 +34,7 @@ export const quizQuestions: QuizQuestion[] = [
     correctIndex: 2,
     explanation:
       "月球自己不会发光，它反射太阳光。随着月球绕地球公转，我们从地球上能看到被太阳照亮的部分不断变化，这就是月相。",
-    relatedBody: "Moon",
+    relatedBody: "moon",
   },
   {
     id: "q3",
@@ -62,7 +62,7 @@ export const quizQuestions: QuizQuestion[] = [
     correctIndex: 1,
     explanation:
       "土星环由无数大小不等的冰块和岩石碎片组成，从沙粒大小到房子大小不等。它们的厚度只有约1公里，但宽度可达28万公里。",
-    relatedBody: "Saturn",
+    relatedBody: "saturn",
   },
   {
     id: "q5",
@@ -76,7 +76,7 @@ export const quizQuestions: QuizQuestion[] = [
     correctIndex: 1,
     explanation:
       "大红斑是木星上一个巨大的反气旋风暴，大到可以装下整个地球。它已经存在了至少350年，是太阳系中持续时间最长的风暴。",
-    relatedBody: "Jupiter",
+    relatedBody: "jupiter",
   },
   {
     id: "q6",
@@ -90,7 +90,7 @@ export const quizQuestions: QuizQuestion[] = [
     correctIndex: 0,
     explanation:
       "太阳核心温度高达约1500万K，在极端高温高压下，氢原子发生核聚变反应（4个氢原子合成1个氦原子），释放出巨大能量。",
-    relatedBody: "Sun",
+    relatedBody: "sun",
   },
   {
     id: "q7",
@@ -132,7 +132,7 @@ export const quizQuestions: QuizQuestion[] = [
     correctIndex: 2,
     explanation:
       "海王星是八大行星中离太阳最远的一个。冥王星在2006年被重新分类为矮行星，不再属于大行星。海王星的风速可达每小时2100公里，是太阳系中风最强的行星。",
-    relatedBody: "Neptune",
+    relatedBody: "neptune",
   },
   {
     id: "q10",
@@ -152,7 +152,7 @@ export const quizQuestions: QuizQuestion[] = [
 
 export function getQuizResultText(score: number, total: number): string {
   const ratio = score / total;
-  if (ratio === 1) return "太棒了！10/10 — 你是真正的天文小专家！🌟";
+  if (ratio === 1) return `太棒了！${total}/${total} — 你是真正的天文小专家！🌟`;
   if (ratio >= 0.8) return `不错哦！${score}/${total} — 继续探索宇宙的奥秘吧！✨`;
   if (ratio >= 0.6) return `${score}/${total} — 已经掌握了很多知识，再加油！🚀`;
   return `${score}/${total} — 宇宙的知识无穷无尽，继续学习吧！📚`;

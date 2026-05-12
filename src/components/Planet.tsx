@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html, Line } from '@react-three/drei'
 import * as THREE from 'three'
@@ -17,9 +17,28 @@ interface PlanetProps {
 export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite = false }: PlanetProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const droneCleanupRef = useRef<(() => void) | undefined>(undefined)
-  const { currentDay, selectedBody, setSelectedBody, showLabels, showOrbits, scaleMode, addExploredBody, addMissionExploredBody, activeMissionId } = useStore()
+  const isHoveredRef = useRef(false)
+  const currentDay = useStore((s) => s.currentDay)
+  const selectedBody = useStore((s) => s.selectedBody)
+  const setSelectedBody = useStore((s) => s.setSelectedBody)
+  const showLabels = useStore((s) => s.showLabels)
+  const showOrbits = useStore((s) => s.showOrbits)
+  const scaleMode = useStore((s) => s.scaleMode)
+  const addExploredBody = useStore((s) => s.addExploredBody)
+  const addMissionExploredBody = useStore((s) => s.addMissionExploredBody)
+  const activeMissionId = useStore((s) => s.activeMissionId)
 
   const isSelected = selectedBody?.id === body.id
+
+  // 组件卸载时清理音频资源
+  useEffect(() => {
+    return () => {
+      if (droneCleanupRef.current) {
+        droneCleanupRef.current()
+        droneCleanupRef.current = undefined
+      }
+    }
+  }, [])
 
   // 根据尺度模式计算实际显示半径
   const effectiveRadius = useMemo(() => {
@@ -40,7 +59,7 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
       pos[1] + parentPosition[1],
       pos[2] + parentPosition[2],
     ] as [number, number, number]
-  }, [body, currentDay, parentPosition, isSatellite])
+  }, [body.id, body.orbit, currentDay, parentPosition[0], parentPosition[1], parentPosition[2], isSatellite])
 
   // 自转动画 / 潮汐锁定
   useFrame((_, delta) => {
@@ -53,34 +72,35 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
       // 固定一个轴旋转，避免翻滚
       meshRef.current.rotateZ(Math.PI)
     } else if (body.rotationPeriod > 0) {
-      // 正常自转
+      // 正常自转（归一化到 [0, 2π) 避免角度无限累积）
       const rotationSpeed = (delta * 0.5) / (body.rotationPeriod / 24)
-      meshRef.current.rotation.y += rotationSpeed
+      meshRef.current.rotation.y = (meshRef.current.rotation.y + rotationSpeed) % (Math.PI * 2)
     }
   })
 
   // 生成轨道线（仅行星）
   const orbitPoints = useMemo(() => {
     if (isSatellite || body.id === 'sun') return null
-    const points: THREE.Vector3[] = []
+    const points: [number, number, number][] = []
     const steps = 128
     for (let i = 0; i <= steps; i++) {
       const day = (body.orbit.period * i) / steps
       const pos = getHeliocentricPosition(body.orbit, day)
-      points.push(new THREE.Vector3(pos[0], pos[1], pos[2]))
+      points.push([pos[0], pos[1], pos[2]])
     }
     return points
-  }, [body, isSatellite])
+  }, [body.id, body.orbit, isSatellite])
 
   // 材质颜色
   const baseColor = useMemo(() => new THREE.Color(body.color), [body.color])
+  const blackColor = useMemo(() => new THREE.Color(0x000000), [])
 
   return (
     <group position={position}>
       {/* 轨道线 */}
       {showOrbits && orbitPoints && orbitPoints.length > 0 && (
         <Line
-          points={orbitPoints.map((p) => [p.x, p.y, p.z] as [number, number, number])}
+          points={orbitPoints}
           color={body.color}
           lineWidth={1}
           transparent
@@ -93,7 +113,13 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
         <mesh
           ref={meshRef}
           onPointerOver={() => {
-            playUISound('hover');
+            if (!isHoveredRef.current) {
+              isHoveredRef.current = true
+              playUISound('hover')
+            }
+          }}
+          onPointerOut={() => {
+            isHoveredRef.current = false
           }}
           onClick={(e) => {
             e.stopPropagation()
@@ -118,7 +144,7 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
             color={baseColor}
             roughness={0.7}
             metalness={0.1}
-            emissive={body.id === 'sun' ? baseColor : new THREE.Color(0x000000)}
+            emissive={body.id === 'sun' ? baseColor : blackColor}
             emissiveIntensity={body.id === 'sun' ? 0.8 : 0}
           />
         </mesh>
@@ -206,3 +232,5 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
     </group>
   )
 }
+
+

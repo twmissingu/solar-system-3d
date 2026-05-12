@@ -9,6 +9,7 @@ export default function LoadingScreen() {
   useEffect(() => {
     const steps = [12, 30, 48, 65, 82, 94, 100]
     let idx = 0
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
     const timer = setInterval(() => {
       if (idx < steps.length) {
         setProgress(steps[idx])
@@ -16,10 +17,13 @@ export default function LoadingScreen() {
       } else {
         clearInterval(timer)
         setStatus('ready')
-        setTimeout(() => setVisible(false), 800)
+        timeoutId = setTimeout(() => setVisible(false), 800)
       }
     }, 320)
-    return () => clearInterval(timer)
+    return () => {
+      clearInterval(timer)
+      if (timeoutId) clearTimeout(timeoutId)
+    }
   }, [])
 
   return (

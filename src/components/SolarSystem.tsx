@@ -1,13 +1,27 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useStore } from '../store/useStore'
 import { celestialBodies, dwarfPlanets } from '../data/celestialData'
 import Planet from './Planet'
 import AsteroidBelt from './AsteroidBelt'
 import * as THREE from 'three'
+import type { TimeSpeed } from '../store/useStore'
+
+const SPEED_MAP: Record<Exclude<TimeSpeed, 'pause'>, number> = {
+  '1x': 1,
+  '10x': 10,
+  '100x': 100,
+  '1000x': 1000,
+}
 
 export default function SolarSystem() {
-  const { setCurrentDay, timeSpeed, cameraTarget, setCameraTarget, cameraLookAt, setCameraLookAt, addTimeAdvanced } = useStore()
+  const setCurrentDay = useStore((s) => s.setCurrentDay)
+  const timeSpeed = useStore((s) => s.timeSpeed)
+  const cameraTarget = useStore((s) => s.cameraTarget)
+  const setCameraTarget = useStore((s) => s.setCameraTarget)
+  const cameraLookAt = useStore((s) => s.cameraLookAt)
+  const setCameraLookAt = useStore((s) => s.setCameraLookAt)
+  const addTimeAdvanced = useStore((s) => s.addTimeAdvanced)
   const { camera } = useThree()
 
   // 相机动画状态 ref（避免重渲染）
@@ -20,7 +34,10 @@ export default function SolarSystem() {
   } | null>(null)
 
   // 标记动画是否刚完成（用于在 useEffect 外触发清理）
-  const animJustFinishedRef = useRef(false)
+  const [animFinished, setAnimFinished] = useState(false)
+
+  // lookAt 目标缓存，避免每帧创建 Vector3
+  const lookAtTargetRef = useRef(new THREE.Vector3())
 
   // lookAt 动画
   const lookAtAnimRef = useRef<{
@@ -34,15 +51,10 @@ export default function SolarSystem() {
   // 时间推进 + 相机动画 - 统一在 useFrame 中处理
   useFrame((_, delta) => {
     // 时间推进
+    const clampedDelta = Math.min(delta, 0.1)
+
     if (timeSpeed !== 'pause') {
-      const speedMap = {
-        '1x': 1,
-        '10x': 10,
-        '100x': 100,
-        '1000x': 1000,
-      }
-      const speed = speedMap[timeSpeed] || 1
-      const clampedDelta = Math.min(delta, 0.1)
+      const speed = SPEED_MAP[timeSpeed] || 1
       const dayDelta = clampedDelta * speed * 0.5
       setCurrentDay((prev) => prev + dayDelta)
       addTimeAdvanced(Math.abs(dayDelta))
@@ -51,7 +63,7 @@ export default function SolarSystem() {
     // 相机动画
     if (cameraAnimRef.current?.active) {
       const anim = cameraAnimRef.current
-      anim.elapsed += delta
+      anim.elapsed += clampedDelta
       const t = Math.min(anim.elapsed / anim.duration, 1)
       // easeInOutCubic
       const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
@@ -59,18 +71,18 @@ export default function SolarSystem() {
 
       if (t >= 1) {
         anim.active = false
-        animJustFinishedRef.current = true
+        setAnimFinished(true)
       }
     }
 
     // lookAt 动画
     if (lookAtAnimRef.current?.active) {
       const anim = lookAtAnimRef.current
-      anim.elapsed += delta
+      anim.elapsed += clampedDelta
       const t = Math.min(anim.elapsed / anim.duration, 1)
       const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
-      const currentTarget = new THREE.Vector3().lerpVectors(anim.startTarget, anim.endTarget, ease)
-      camera.lookAt(currentTarget)
+      lookAtTargetRef.current.lerpVectors(anim.startTarget, anim.endTarget, ease)
+      camera.lookAt(lookAtTargetRef.current)
 
       if (t >= 1) {
         anim.active = false
@@ -80,12 +92,12 @@ export default function SolarSystem() {
 
   // 动画完成后异步清理状态（避免在 useFrame 中直接 setState）
   useEffect(() => {
-    if (animJustFinishedRef.current) {
-      animJustFinishedRef.current = false
+    if (animFinished) {
+      setAnimFinished(false)
       setCameraTarget(null)
       setCameraLookAt(null)
     }
-  })
+  }, [animFinished, setCameraTarget, setCameraLookAt])
 
   // 启动相机动画
   useEffect(() => {
@@ -107,7 +119,7 @@ export default function SolarSystem() {
         duration: 2,
       }
     }
-  }, [cameraTarget, cameraLookAt, camera, setCameraTarget])
+  }, [cameraTarget, cameraLookAt, camera])
 
   return (
     <group>

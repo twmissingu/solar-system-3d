@@ -25,6 +25,7 @@ export function solarIrradiance(distanceAU: number): number {
  * 格式化光行时间
  */
 export function formatLightTime(minutes: number): string {
+  if (!Number.isFinite(minutes) || minutes <= 0) return minutes === 0 ? '0秒' : '未知';
   if (minutes < 1) {
     return `${(minutes * 60).toFixed(0)}秒`;
   }
@@ -47,6 +48,7 @@ export function habitableZone(): { inner: number; outer: number } {
  * 开普勒第三定律：半长轴→周期（年）
  */
 export function keplerThirdLaw(semiMajorAxisAU: number): number {
+  if (semiMajorAxisAU <= 0) return 0;
   return Math.pow(semiMajorAxisAU, 1.5);
 }
 
@@ -54,6 +56,7 @@ export function keplerThirdLaw(semiMajorAxisAU: number): number {
  * 一生视角下某行星的公转圈数
  */
 export function lifetimeOrbits(orbitalPeriodDays: number, lifetimeYears: number = 80): number {
+  if (!Number.isFinite(orbitalPeriodDays) || orbitalPeriodDays <= 0) return 0;
   return lifetimeYears / (orbitalPeriodDays / 365.25);
 }
 
@@ -62,6 +65,8 @@ export function lifetimeOrbits(orbitalPeriodDays: number, lifetimeYears: number 
  */
 export function estimatedSurfaceTemperature(distanceAU: number, albedo: number = 0.3): number {
   const earthTemp = 288;
-  const fluxRatio = solarIrradiance(distanceAU) * (1 - albedo) / (1 - 0.3);
+  const safeAlbedo = Math.max(0, Math.min(1, albedo));
+  const fluxRatio = solarIrradiance(distanceAU) * (1 - safeAlbedo) / 0.7;
+  if (fluxRatio <= 0) return 0;
   return earthTemp * Math.pow(fluxRatio, 0.25);
 }

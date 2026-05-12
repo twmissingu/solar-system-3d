@@ -14,6 +14,14 @@ export default function QuizPanel({ onClose }: QuizPanelProps) {
   const [answered, setAnswered] = useState(false)
   const [history, setHistory] = useState<{ correct: boolean; index: number }[]>([])
 
+  if (quizQuestions.length === 0) {
+    return (
+      <div className="fixed inset-0 z-40 flex items-center justify-center" style={{ background: 'rgba(5, 11, 20, 0.92)' }}>
+        <div className="text-sci-white/50 text-center">暂无题目</div>
+      </div>
+    )
+  }
+
   const question = quizQuestions[currentIndex]
   const isCorrect = selectedOption === question.correctIndex
 

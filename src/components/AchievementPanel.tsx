@@ -11,7 +11,7 @@ export default function AchievementPanel({ onClose }: AchievementPanelProps) {
 
   const unlockedCount = unlockedAchievements.length;
   const totalCount = achievements.length;
-  const progressPercent = (unlockedCount / totalCount) * 100;
+  const progressPercent = totalCount > 0 ? (unlockedCount / totalCount) * 100 : 0;
 
   return (
     <motion.div

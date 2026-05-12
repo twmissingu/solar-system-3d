@@ -66,7 +66,6 @@ function getMissionProgress(
 
 export default function MissionPanel({ onClose }: MissionPanelProps) {
   const [tab, setTab] = useState<'available' | 'active' | 'completed'>('available');
-  const [hintIndex, setHintIndex] = useState(0);
 
   const {
     activeMissionId,
@@ -77,6 +76,8 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
     resetMissionProgress,
     unlockAchievement,
     incrementMissionCount,
+    currentHintIndex,
+    nextHint,
   } = useStore();
 
   const activeMission = activeMissionId ? getMissionById(activeMissionId) : null;
@@ -93,15 +94,12 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
 
   const handleAcceptMission = (missionId: string) => {
     setActiveMissionId(missionId);
-    resetMissionProgress();
-    setHintIndex(0);
     setTab('active');
   };
 
   const handleAbandonMission = () => {
     setActiveMissionId(null);
-    resetMissionProgress();
-    setHintIndex(0);
+    setTab('available');
   };
 
   const handleCompleteMission = () => {
@@ -112,8 +110,6 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
       unlockAchievement(activeMission.rewardAchievementId);
     }
     setActiveMissionId(null);
-    resetMissionProgress();
-    setHintIndex(0);
     setTab('completed');
   };
 
@@ -344,7 +340,7 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
                     <div className="space-y-2">
                       <h4 className="text-xs font-bold text-sci-white/50 uppercase tracking-wider">提示</h4>
                       <div className="flex flex-col gap-1.5">
-                        {activeMission.hints.slice(0, hintIndex + 1).map((hint, i) => (
+                        {activeMission.hints.slice(0, currentHintIndex + 1).map((hint, i) => (
                           <motion.div
                             key={i}
                             initial={{ opacity: 0, x: -10 }}
@@ -356,9 +352,9 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
                           </motion.div>
                         ))}
                       </div>
-                      {hintIndex < activeMission.hints.length - 1 && (
+                      {currentHintIndex < activeMission.hints.length - 1 && (
                         <button
-                          onClick={() => setHintIndex((i) => i + 1)}
+                          onClick={() => nextHint()}
                           className="sci-button text-xs px-3 py-1.5"
                         >
                           还需要更多提示？

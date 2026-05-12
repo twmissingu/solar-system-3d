@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, SkipForward, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
@@ -25,17 +26,24 @@ export default function JourneyHUD() {
 
   const handlePause = () => setJourneyMode('paused');
   const handleContinue = () => setJourneyMode('running');
+  const skipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handleSkip = () => {
+    if (skipTimerRef.current) clearTimeout(skipTimerRef.current);
     if (currentJourneyIndex < journeyStops.length - 1) {
       setJourneyMode('paused');
       setCurrentJourneyIndex(currentJourneyIndex + 1);
-      setTimeout(() => setJourneyMode('running'), 0);
+      skipTimerRef.current = setTimeout(() => setJourneyMode('running'), 0);
     } else {
       setJourneyMode('completed');
       setShowJourneyHUD(false);
     }
   };
   const handleExit = () => {
+    if (skipTimerRef.current) {
+      clearTimeout(skipTimerRef.current);
+      skipTimerRef.current = null;
+    }
     setJourneyMode('idle');
     setCurrentJourneyIndex(0);
     setShowJourneyHUD(false);

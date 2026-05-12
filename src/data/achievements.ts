@@ -12,6 +12,7 @@ export interface Achievement {
 export type AchievementCondition =
   | { type: 'explore'; bodyId: string }
   | { type: 'explore_all'; bodyIds: string[] }
+  | { type: 'explore_any'; bodyIds: string[] }
   | { type: 'mission_complete'; count: number }
   | { type: 'knowledge_unlock'; level: 'bronze' | 'silver' | 'gold'; count: number }
   | { type: 'time_travel'; days: number }
@@ -72,7 +73,7 @@ export const achievements: Achievement[] = [
     icon: '❄️',
     rarity: 'rare',
     condition: {
-      type: 'explore_all',
+      type: 'explore_any',
       bodyIds: ['neptune', 'pluto', 'eris', 'haumea', 'makemake'],
     },
   },
@@ -90,7 +91,7 @@ export const achievements: Achievement[] = [
     description: '完成10个任务',
     icon: '🏆',
     rarity: 'epic',
-    condition: { type: 'mission_complete', count: 10 },
+    condition: { type: 'mission_complete', count: 8 },
   },
   {
     id: 'bronze_scholar',
@@ -149,7 +150,7 @@ export const achievements: Achievement[] = [
     description: '预测行星位置误差小于15°',
     icon: '🔮',
     rarity: 'rare',
-    condition: { type: 'explore', bodyId: '*' },
+    condition: { type: 'explore', bodyId: '__none__' },
   },
   {
     id: 'space_explorer',
@@ -157,7 +158,7 @@ export const achievements: Achievement[] = [
     description: '查看过任意航天器的轨迹',
     icon: '🛰️',
     rarity: 'common',
-    condition: { type: 'explore', bodyId: '*' },
+    condition: { type: 'explore', bodyId: '__none__' },
   },
   {
     id: 'interdisciplinary',
@@ -165,7 +166,7 @@ export const achievements: Achievement[] = [
     description: '查看过跨学科连接',
     icon: '🔗',
     rarity: 'common',
-    condition: { type: 'explore', bodyId: '*' },
+    condition: { type: 'explore', bodyId: '__none__' },
   },
   {
     id: 'stargazer',
@@ -173,7 +174,7 @@ export const achievements: Achievement[] = [
     description: '查看过观测指南',
     icon: '🔭',
     rarity: 'common',
-    condition: { type: 'explore', bodyId: '*' },
+    condition: { type: 'explore', bodyId: '__none__' },
   },
   {
     id: 'scientist_vote',
@@ -189,7 +190,7 @@ export const achievements: Achievement[] = [
     description: '成功逃离黑洞并学到一课',
     icon: '🕳️',
     rarity: 'epic',
-    condition: { type: 'explore', bodyId: '*' },
+    condition: { type: 'explore', bodyId: '__none__' },
   },
 ];
 

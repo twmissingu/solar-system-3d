@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { achievements, getAchievementById } from '../data/achievements';
@@ -13,20 +13,32 @@ const spaceQuotes = [
   '宇宙没有义务让我们理解它。—— 尼尔·德格拉斯·泰森',
 ];
 
+const planetNames: Record<string, string> = {
+  sun: '太阳', mercury: '水星', venus: '金星', earth: '地球',
+  mars: '火星', jupiter: '木星', saturn: '土星', uranus: '天王星',
+  neptune: '海王星', pluto: '冥王星', moon: '月球',
+};
+
 export default function SharePanel() {
   const { showSharePanel, setShowSharePanel, exploredBodies, unlockedAchievements, completedMissions } = useStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [generated, setGenerated] = useState(false);
   const [copied, setCopied] = useState(false);
+  const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const favoritePlanet = exploredBodies.length > 0 ? exploredBodies[exploredBodies.length - 1] : 'earth';
-  const planetNames: Record<string, string> = {
-    sun: '太阳', mercury: '水星', venus: '金星', earth: '地球',
-    mars: '火星', jupiter: '木星', saturn: '土星', uranus: '天王星',
-    neptune: '海王星', pluto: '冥王星', moon: '月球',
-  };
 
-  const quote = spaceQuotes[Math.floor(Math.random() * spaceQuotes.length)];
+  const quote = useMemo(() => spaceQuotes[Math.floor(Math.random() * spaceQuotes.length)], []);
+
+  // 组件卸载时清理复制定时器
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+        copyTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const unlockedData = unlockedAchievements
     .map((id) => getAchievementById(id))
@@ -248,21 +260,32 @@ export default function SharePanel() {
     const link = document.createElement('a');
     link.download = `太阳系探索报告_${new Date().toLocaleDateString('zh-CN')}.png`;
     link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   }, []);
 
   const handleCopyText = useCallback(() => {
     playUISound('click');
     const text = `太阳系探索报告\n日期：${new Date().toLocaleDateString('zh-CN')}\n\n探索了 ${exploredBodies.length} 颗天体\n解锁了 ${unlockedAchievements.length} 个徽章\n完成了 ${completedMissions.length} 个任务\n\n最近探索：${planetNames[favoritePlanet] || favoritePlanet}\n\n${quote}`;
 
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        setCopied(true);
+        if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+        copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {
+        // 剪贴板写入失败，静默处理
+      });
   }, [exploredBodies.length, unlockedAchievements.length, completedMissions.length, favoritePlanet, quote]);
 
   const handleClose = useCallback(() => {
     playUISound('click');
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = null;
+    }
     setShowSharePanel(false);
     setGenerated(false);
   }, [setShowSharePanel]);

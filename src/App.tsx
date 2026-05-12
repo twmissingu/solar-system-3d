@@ -25,7 +25,19 @@ import SharePanel from './components/SharePanel'
 import { useStore } from './store/useStore'
 
 export default function App() {
-  const { showMissionPanel, setShowMissionPanel, showAchievementPanel, setShowAchievementPanel, showPredictionGame, showSandbox, showSpacecraftPanel, showHohmannDesigner, showEclipseLab, showBlackHole, showNarrative, showSharePanel } = useStore()
+  const showMissionPanel = useStore((s) => s.showMissionPanel)
+  const setShowMissionPanel = useStore((s) => s.setShowMissionPanel)
+  const showAchievementPanel = useStore((s) => s.showAchievementPanel)
+  const setShowAchievementPanel = useStore((s) => s.setShowAchievementPanel)
+  const showPredictionGame = useStore((s) => s.showPredictionGame)
+  const showSandbox = useStore((s) => s.showSandbox)
+  const showSpacecraftPanel = useStore((s) => s.showSpacecraftPanel)
+  const showHohmannDesigner = useStore((s) => s.showHohmannDesigner)
+  const showEclipseLab = useStore((s) => s.showEclipseLab)
+  const showBlackHole = useStore((s) => s.showBlackHole)
+  const showNarrative = useStore((s) => s.showNarrative)
+  const showSharePanel = useStore((s) => s.showSharePanel)
+  const showJourneyHUD = useStore((s) => s.showJourneyHUD)
   return (
     <div className="relative w-full h-full">
       {/* 3D Canvas */}
@@ -41,18 +53,26 @@ export default function App() {
         {/* 环境光 - 微弱的蓝灰色，模拟星际空间 */}
         <ambientLight intensity={0.08} color="#2A3F5F" />
 
-        {/* 太阳光 - 点光源，位于太阳位置 */}
+        {/* 太阳光 - 方向光源替代点光源的 castShadow，避免 PointLight 6-pass CubeCamera 阴影性能灾难 */}
+        <directionalLight
+          position={[0, 0, 0]}
+          intensity={2}
+          color="#FFF8DC"
+          castShadow
+          shadow-mapSize={[1024, 1024]}
+          shadow-camera-near={0.5}
+          shadow-camera-far={1000}
+          shadow-camera-left={-200}
+          shadow-camera-right={200}
+          shadow-camera-top={200}
+          shadow-camera-bottom={-200}
+        />
         <pointLight
           position={[0, 0, 0]}
           intensity={1000}
           color="#FFF8DC"
           distance={600}
           decay={1.2}
-          castShadow
-          shadow-mapSize-width={2048}
-          shadow-mapSize-height={2048}
-          shadow-camera-near={0.5}
-          shadow-camera-far={100}
         />
 
         {/* 方向光补充 - 模拟远处星光 */}
@@ -91,7 +111,7 @@ export default function App() {
       <InfoPanel />
       <Controls />
       <JourneyMode />
-      <JourneyHUD />
+      {showJourneyHUD && <JourneyHUD />}
       {showMissionPanel && <MissionPanel onClose={() => setShowMissionPanel(false)} />}
       <AchievementToast />
       {showAchievementPanel && <AchievementPanel onClose={() => setShowAchievementPanel(false)} />}

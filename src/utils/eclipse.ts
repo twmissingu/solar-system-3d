@@ -22,7 +22,8 @@ export function calculateEarthShadow(
   // 本影锥半顶角
   // tan(umbraAngle) = (SUN_RADIUS - EARTH_RADIUS) / (1AU - earthMoonDistance)
   // 简化计算：本影锥在月球距离处的截面
-  const umbraRadius = EARTH_RADIUS_KM - earthMoonDistance * Math.tan(solarAngularRadius);
+  const rawUmbra = EARTH_RADIUS_KM - earthMoonDistance * Math.tan(solarAngularRadius);
+  const umbraRadius = Math.max(0, rawUmbra);
 
   // 半影锥截面半径
   const penumbraRadius = EARTH_RADIUS_KM + earthMoonDistance * Math.tan(solarAngularRadius);
@@ -75,6 +76,7 @@ export function getLunarEclipsePhase(
   // 投影到垂直于阴影轴的平面
   const shadowAxis = sunToEarth;
   const shadowAxisLen = Math.sqrt(shadowAxis[0] ** 2 + shadowAxis[1] ** 2 + shadowAxis[2] ** 2);
+  if (shadowAxisLen === 0) return { phase: 'none', coverage: 0 };
   const shadowAxisUnit = [
     shadowAxis[0] / shadowAxisLen,
     shadowAxis[1] / shadowAxisLen,
@@ -89,7 +91,7 @@ export function getLunarEclipsePhase(
 
   // 月球到阴影轴的垂直距离
   const perpOffset = Math.sqrt(
-    earthMoonDistance ** 2 - moonDotAxis ** 2
+    Math.max(0, earthMoonDistance ** 2 - moonDotAxis ** 2)
   );
 
   // 将垂直距离缩放到 km

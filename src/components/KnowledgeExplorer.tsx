@@ -55,9 +55,14 @@ export default function KnowledgeExplorer({ knowledge }: KnowledgeExplorerProps)
   // Track first visit for each level
   useEffect(() => {
     if (!isLevelUnlocked(activeLevel)) return
-    const visitedKey = `visited-${knowledge.id}-${activeLevel}`
-    if (!localStorage.getItem(visitedKey)) {
-      localStorage.setItem(visitedKey, 'true')
+    try {
+      const visitedKey = `visited-${knowledge.id}-${activeLevel}`
+      if (!localStorage.getItem(visitedKey)) {
+        localStorage.setItem(visitedKey, 'true')
+        incrementKnowledgeCount(activeLevel)
+      }
+    } catch {
+      // localStorage 不可用（如隐私模式），直接计数
       incrementKnowledgeCount(activeLevel)
     }
   }, [activeLevel, knowledge.id, isLevelUnlocked, incrementKnowledgeCount])

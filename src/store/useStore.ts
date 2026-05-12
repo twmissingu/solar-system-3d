@@ -5,6 +5,7 @@ export type ViewMode = 'overview' | 'focused';
 export type TimeSpeed = 'pause' | '1x' | '10x' | '100x' | '1000x';
 export type ScaleMode = 'exaggerated' | 'realistic';
 export type TimeMode = 'simulation' | 'light-speed' | 'lifetime';
+export type JourneyMode = 'idle' | 'running' | 'paused' | 'completed';
 
 interface AppState {
   // 当前选中天体
@@ -76,8 +77,8 @@ interface AppState {
   addTimeAdvanced: (days: number) => void;
 
   // Journey mode
-  journeyMode: 'idle' | 'running' | 'paused' | 'completed';
-  setJourneyMode: (mode: 'idle' | 'running' | 'paused' | 'completed') => void;
+  journeyMode: JourneyMode;
+  setJourneyMode: (mode: JourneyMode) => void;
   currentJourneyIndex: number;
   setCurrentJourneyIndex: (index: number) => void;
   showJourneyHUD: boolean;
@@ -199,6 +200,13 @@ export const useStore = create<AppState>((set) => ({
       cameraLookAt: null,
       showKnowledge: false,
       scaleMode: 'exaggerated',
+      timeSpeed: '1x',
+      timeMode: 'simulation',
+      showOrbits: true,
+      showLabels: true,
+      journeyMode: 'idle',
+      currentJourneyIndex: 0,
+      showJourneyHUD: false,
     }),
 
   // Achievement system
@@ -206,7 +214,7 @@ export const useStore = create<AppState>((set) => ({
   unlockAchievement: (id) =>
     set((state) => {
       if (state.unlockedAchievements.includes(id)) {
-        return {};
+        return state;
       }
       return {
         unlockedAchievements: [...state.unlockedAchievements, id],
@@ -215,9 +223,10 @@ export const useStore = create<AppState>((set) => ({
     }),
   achievementQueue: [],
   dequeueAchievement: () =>
-    set((state) => ({
-      achievementQueue: state.achievementQueue.slice(1),
-    })),
+    set((state) => {
+      if (state.achievementQueue.length === 0) return state;
+      return { achievementQueue: state.achievementQueue.slice(1) };
+    }),
   showAchievementPanel: false,
   setShowAchievementPanel: (show) => set({ showAchievementPanel: show }),
 
@@ -254,7 +263,7 @@ export const useStore = create<AppState>((set) => ({
   totalTimeAdvanced: 0,
   addTimeAdvanced: (days) =>
     set((state) => ({
-      totalTimeAdvanced: state.totalTimeAdvanced + days,
+      totalTimeAdvanced: state.totalTimeAdvanced + Math.max(0, days),
     })),
 
   // Journey mode
@@ -286,14 +295,17 @@ export const useStore = create<AppState>((set) => ({
   // Mission system
   activeMissionId: null,
   setActiveMissionId: (id) =>
-    set({
-      activeMissionId: id,
-      missionProgress: {
-        exploredBodiesInMission: [],
-        compareBodies: [],
-        observedEvents: [],
-      },
-      currentHintIndex: 0,
+    set((state) => {
+      if (state.activeMissionId === id) return state;
+      return {
+        activeMissionId: id,
+        missionProgress: {
+          exploredBodiesInMission: [],
+          compareBodies: [],
+          observedEvents: [],
+        },
+        currentHintIndex: 0,
+      };
     }),
   missionProgress: {
     exploredBodiesInMission: [],
@@ -363,7 +375,7 @@ export const useStore = create<AppState>((set) => ({
   currentHintIndex: 0,
   nextHint: () =>
     set((state) => ({
-      currentHintIndex: state.currentHintIndex + 1,
+      currentHintIndex: Math.min(state.currentHintIndex + 1, 999),
     })),
 
   // Voting
@@ -380,7 +392,7 @@ export const useStore = create<AppState>((set) => ({
   showNarrative: false,
   setShowNarrative: (show) => set({ showNarrative: show }),
   activeNarrative: null,
-  setActiveNarrative: (id) => set({ activeNarrative: id }),
+  setActiveNarrative: (id) => set({ activeNarrative: id, narrativeStep: 0 }),
   narrativeStep: 0,
   setNarrativeStep: (step) => set({ narrativeStep: step }),
 

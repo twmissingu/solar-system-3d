@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { useMemo } from 'react'
 import { useStore } from '../store/useStore'
-import { presetViews, lunarEclipseDemo, celestialBodies } from '../data/celestialData'
+import { presetViews, lunarEclipseDemo, celestialBodies, dwarfPlanets } from '../data/celestialData'
 import { evaluateAchievements } from '../utils/achievements'
 import { getHeliocentricPosition } from '../utils/orbit'
 import { formatSimulationDate } from '../utils/date'
@@ -59,7 +59,7 @@ export default function Controls() {
   } = useStore()
 
   const lifetimeData = useMemo(() => {
-    return celestialBodies
+    return [...celestialBodies, ...dwarfPlanets]
       .filter((b) => b.id !== 'sun')
       .map((body) => ({
         ...body,
@@ -69,17 +69,17 @@ export default function Controls() {
 
   const handlePresetView = (view: typeof presetViews[0]) => {
     let basePos: [number, number, number] = [0, 0, 0]
+    let lookAt: [number, number, number] = view.lookAt
 
     if (view.id === 'from-earth') {
-      basePos = getHeliocentricPosition(
-        { a: 1.0, e: 0.0167, i: 0, L: 100.466, longPeri: 102.947, longNode: 348.739, period: 365.25 },
-        currentDay
-      )
+      const earth = celestialBodies.find((b) => b.id === 'earth')
+      if (earth) basePos = getHeliocentricPosition(earth.orbit, currentDay)
     } else if (view.id === 'saturn-rings') {
-      basePos = getHeliocentricPosition(
-        { a: 9.5826, e: 0.0565, i: 2.485, L: 50.077, longPeri: 92.431, longNode: 113.665, period: 10759.22 },
-        currentDay
-      )
+      const saturn = celestialBodies.find((b) => b.id === 'saturn')
+      if (saturn) {
+        basePos = getHeliocentricPosition(saturn.orbit, currentDay)
+        lookAt = basePos
+      }
     }
 
     const target: [number, number, number] = [
@@ -88,7 +88,7 @@ export default function Controls() {
       basePos[2] + view.cameraPosition[2],
     ]
     setCameraTarget(target)
-    setCameraLookAt(view.lookAt)
+    setCameraLookAt(lookAt)
     setSelectedBody(null)
   }
 
@@ -96,6 +96,7 @@ export default function Controls() {
     setCurrentDay(lunarEclipseDemo.julianDay - 2451545.0)
     setCameraTarget([18, 4, 12])
     setCameraLookAt([0, 0, 0])
+    setSelectedBody(null)
 
     // Mission progress
     if (activeMissionId) {
@@ -104,6 +105,9 @@ export default function Controls() {
 
     // Achievement
     evaluateAchievements()
+    // 手动解锁月食见证者成就
+    const { unlockAchievement } = useStore.getState()
+    unlockAchievement('eclipse_witness')
   }
 
   return (
@@ -129,13 +133,13 @@ export default function Controls() {
       </motion.div>
 
       {/* 选中天体提示 - 避开标题栏和右侧面板 */}
-      {selectedBody && (
+      {selectedBody && showKnowledge && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           className="fixed top-3 sm:top-4 right-3 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 z-20"
-          style={showKnowledge ? { right: '1rem', left: 'auto', transform: 'none' } : undefined}
+          style={showKnowledge ? { right: '1rem', left: 'auto', transform: 'none' } : {}}
         >
           <div className="sci-panel px-3 py-1.5 sm:px-4 sm:py-2 text-center">
             <p className="text-xs sm:text-sm text-sci-cyan">
@@ -363,14 +367,14 @@ export default function Controls() {
               <span className="sm:hidden">徽章</span>
             </button>
             <button
-              onClick={() => { playUISound('click'); setShowEclipseLab(true); }}
+              onClick={() => { playUISound('click'); handleLunarEclipse(); }}
               onMouseEnter={() => playUISound('hover')}
               className="sci-button-primary text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
             >
               🧪 <span className="hidden sm:inline">月食实验</span><span className="sm:hidden">月食</span>
             </button>
             <button
-              onClick={() => setShowBlackHole(true)}
+              onClick={() => { playUISound('click'); setShowBlackHole(true); }}
               onMouseEnter={() => playUISound('hover')}
               className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
             >

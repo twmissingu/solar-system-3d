@@ -13,6 +13,7 @@ function solveKepler(M: number, e: number, maxIter = 50, epsilon = 1e-8): number
   for (let i = 0; i < maxIter; i++) {
     const f = E - e * Math.sin(E) - M;
     const fp = 1 - e * Math.cos(E);
+    if (Math.abs(fp) < 1e-12) return E;
     const delta = f / fp;
     E -= delta;
     if (Math.abs(delta) < epsilon) break;
@@ -32,13 +33,13 @@ export function getHeliocentricPosition(
 ): [number, number, number] {
   const { a, e, i, longNode, period } = orbit;
 
-  if (a === 0) return [0, 0, 0]; // 太阳
+  if (a === 0 || period === 0) return [0, 0, 0]; // 太阳或静止天体
 
   // 平均运动 (rad/day)
   const n = (2 * Math.PI) / period;
 
-  // 平近点角
-  const M = n * days;
+  // 平近点角（归一化到 [0, 2π) 避免长时间模拟精度损失）
+  const M = (n * days) % (2 * Math.PI);
 
   // 解开普勒方程得偏近点角
   const E = solveKepler(M, e);
@@ -91,7 +92,7 @@ export function getSatellitePosition(
 
   // 平均运动
   const n = (2 * Math.PI) / period;
-  const M = n * days;
+  const M = (n * days) % (2 * Math.PI);
 
   // 解开普勒方程
   const E = solveKepler(M, e);

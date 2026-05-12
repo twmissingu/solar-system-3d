@@ -106,7 +106,10 @@ export default function PredictionGame() {
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (!dialRef.current || predictionResult) return;
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      const target = e.target as Element;
+      if ('setPointerCapture' in target) {
+        (target as Element & { setPointerCapture: (id: number) => void }).setPointerCapture(e.pointerId);
+      }
       setIsDragging(true);
       const angle = getAngleFromEvent(e.clientX, e.clientY);
       setPredictionUserAngle(angle);
@@ -123,14 +126,19 @@ export default function PredictionGame() {
     [isDragging, getAngleFromEvent, setPredictionUserAngle, predictionResult]
   );
 
-  const handlePointerUp = useCallback(() => {
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
     setIsDragging(false);
+    const target = e.target as Element;
+    if ('releasePointerCapture' in target) {
+      (target as Element & { releasePointerCapture: (id: number) => void }).releasePointerCapture(e.pointerId);
+    }
   }, []);
 
   useEffect(() => {
     if (!showPredictionGame) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.stopPropagation();
         handleClose();
       }
     };
@@ -230,7 +238,10 @@ export default function PredictionGame() {
                         min={1}
                         max={10000}
                         value={predictionDays}
-                        onChange={(e) => setPredictionDays(Math.max(1, Math.min(10000, Number(e.target.value))))}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value);
+                          setPredictionDays(Number.isNaN(val) ? 100 : Math.max(1, Math.min(10000, val)));
+                        }}
                         className="w-16 bg-space-700/50 border border-sci-cyan/20 rounded px-1.5 py-0.5 text-xs text-sci-white font-mono text-center mx-1 focus:outline-none focus:border-sci-cyan/50"
                         disabled={!!predictionResult}
                       />

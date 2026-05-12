@@ -60,7 +60,7 @@ export default function WelcomeOverlay() {
         setStep(current - 1)
       }
     }
-  }, [])
+  }, [setVisible, setAutoPlay, setStep])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)

@@ -1,23 +1,22 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '../store/useStore'
-import { knowledgeData } from '../data/knowledge'
 import { getKnowledgeForBody } from '../data/knowledgeV2'
 import KnowledgeExplorer from './KnowledgeExplorer'
 import InstrumentsPanel from './InstrumentsPanel'
 import InterdisciplinaryPanel from './InterdisciplinaryPanel'
 import ObservationGuide from './ObservationGuide'
 import ScienceFrontiers from './ScienceFrontiers'
-import { getRealVisualRadius, EARTH_RADIUS_KM, dwarfPlanets } from '../data/celestialData'
+import { getRealVisualRadius, dwarfPlanets } from '../data/celestialData'
 
 export default function InfoPanel() {
   const { selectedBody, showKnowledge, setShowKnowledge, scaleMode } = useStore()
   const [infoTab, setInfoTab] = useState<'knowledge' | 'instruments' | 'interdisciplinary' | 'observation' | 'frontiers'>('knowledge')
 
-  const knowledge = useMemo(() => {
-    if (!selectedBody) return null
-    return knowledgeData.find((k) => k.targetBody === selectedBody.id) || null
-  }, [selectedBody])
+  // 切换天体时重置 tab 到知识探索
+  useEffect(() => {
+    setInfoTab('knowledge')
+  }, [selectedBody?.id])
 
   const knowledgeV2 = useMemo(() => {
     if (!selectedBody) return null
@@ -95,7 +94,10 @@ export default function InfoPanel() {
             {scaleMode === 'exaggerated' && selectedBody.id !== 'sun' && (
               <div className="px-4 sm:px-5 py-2 border-b border-sci-cyan/10 bg-sci-cyan/5">
                 <p className="text-[10px] text-sci-cyan/70">
-                  当前显示直径已放大 {(selectedBody.visualRadius / getRealVisualRadius(selectedBody.radiusKm)).toFixed(1)} 倍，真实比例下此天体极小
+                  当前显示直径已放大 {(() => {
+                    const realRadius = getRealVisualRadius(selectedBody.radiusKm)
+                    return realRadius > 0 ? (selectedBody.visualRadius / realRadius).toFixed(1) : '—'
+                  })()} 倍，真实比例下此天体极小
                 </p>
               </div>
             )}

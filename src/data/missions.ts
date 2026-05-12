@@ -25,7 +25,7 @@ export const missions: Mission[] = [
     target: { bodyId: 'mars' },
     hints: ['火星是红色的行星', '它位于地球轨道外侧', '找一找那颗红色的行星'],
     rewardAchievementId: 'mars_pioneer',
-    knowledgeId: 'mars-exploration',
+    knowledgeId: 'seasons',
     difficulty: 1,
   },
   {
@@ -56,7 +56,7 @@ export const missions: Mission[] = [
     description: '找到离太阳最远的巨行星——海王星。',
     target: { bodyId: 'neptune' },
     hints: ['它是最远的巨行星', '它的颜色是深蓝色', '风速可达2100公里/小时'],
-    knowledgeId: 'neptune',
+    knowledgeId: 'seasons',
     difficulty: 2,
   },
   {
@@ -101,7 +101,7 @@ export const missions: Mission[] = [
     description: '找到自转轴倾角接近98度的天王星。',
     target: { bodyId: 'uranus' },
     hints: ['它的自转轴倾角接近98度', '它是冰巨星', '它位于土星之外'],
-    knowledgeId: 'neptune',
+    knowledgeId: 'seasons',
     difficulty: 2,
   },
   {

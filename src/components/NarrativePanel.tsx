@@ -160,7 +160,7 @@ export default function NarrativePanel() {
     setSelectedMissionId(null);
     setActiveNarrative(null);
     setNarrativeStep(0);
-  }, [setShowNarrative, setActiveNarrative, setNarrativeStep]);
+  }, [setShowNarrative, setSelectedMissionId, setActiveNarrative, setNarrativeStep]);
 
   if (!showNarrative) return null;
 

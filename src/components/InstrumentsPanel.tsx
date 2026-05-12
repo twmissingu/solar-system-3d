@@ -93,7 +93,7 @@ function getDistanceAU(body: CelestialBody): number {
 function Spectrometer({ bodyId }: { bodyId: string }) {
   const elements = spectrometerData[bodyId]
   const maxPercent = useMemo(() => {
-    if (!elements) return 100
+    if (!elements || elements.length === 0) return 100
     return Math.max(...elements.map((e) => e.percent))
   }, [elements])
 

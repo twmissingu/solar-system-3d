@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getControversiesForBody, Controversy } from '../data/controversies';
 import { useStore } from '../store/useStore';
@@ -157,7 +157,7 @@ function ControversyCard({
 }
 
 export default function ScienceFrontiers({ bodyId }: ScienceFrontiersProps) {
-  const controversies = getControversiesForBody(bodyId);
+  const controversies = useMemo(() => getControversiesForBody(bodyId), [bodyId]);
   const { setUserVote, userVotes, unlockAchievement } = useStore();
   const [localVotes, setLocalVotes] = useState<Record<string, string>>({});
 
@@ -169,7 +169,7 @@ export default function ScienceFrontiers({ bodyId }: ScienceFrontiersProps) {
       if (stored) map[c.id] = stored;
     }
     setLocalVotes(map);
-  }, [bodyId, controversies]);
+  }, [bodyId]);
 
   const handleVote = useCallback(
     (controversyId: string, optionId: string) => {

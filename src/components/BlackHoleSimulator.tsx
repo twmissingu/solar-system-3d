@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
 
@@ -24,24 +24,28 @@ export default function BlackHoleSimulator() {
   const [distance, setDistance] = useState(3.0);
   const [hasSurvived, setHasSurvived] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
+  const [hasEnteredDanger, setHasEnteredDanger] = useState(false);
 
   const handleClose = useCallback(() => {
     setShowBlackHole(false);
     setShowFailure(false);
     setDistance(3.0);
     setHasSurvived(false);
-  }, [setShowBlackHole]);
+    setHasEnteredDanger(false);
+  }, [setShowBlackHole, setShowFailure, setDistance, setHasSurvived, setHasEnteredDanger]);
 
   const handleReset = useCallback(() => {
     setDistance(3.0);
     setShowFailure(false);
     setHasSurvived(false);
+    setHasEnteredDanger(false);
   }, []);
 
   useEffect(() => {
     if (!showBlackHole) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.stopPropagation();
         handleClose();
       }
     };
@@ -50,18 +54,19 @@ export default function BlackHoleSimulator() {
   }, [showBlackHole, handleClose]);
 
   useEffect(() => {
-    if (distance <= EVENT_HORIZON && !showFailure) {
-      setShowFailure(true);
+    if (distance <= EVENT_HORIZON) {
+      if (!showFailure) setShowFailure(true);
+      if (!hasEnteredDanger) setHasEnteredDanger(true);
+    } else {
+      // 安全区域
+      if (showFailure) setShowFailure(false);
+      if (hasEnteredDanger && !hasSurvived) {
+        setHasSurvived(true);
+        // 只有先进入危险区域再撤退才解锁成就
+        unlockAchievement('black_hole_survivor');
+      }
     }
-    if (distance > EVENT_HORIZON && showFailure) {
-      setShowFailure(false);
-    }
-    if (distance > EVENT_HORIZON && !hasSurvived) {
-      setHasSurvived(true);
-      // Unlock achievement when they successfully retreat
-      unlockAchievement('black_hole_survivor');
-    }
-  }, [distance, showFailure, hasSurvived, unlockAchievement]);
+  }, [distance, showFailure, hasEnteredDanger, hasSurvived, unlockAchievement]);
 
   const tidalForce = useMemo(() => {
     return 1 / (distance * distance * distance);
@@ -73,20 +78,28 @@ export default function BlackHoleSimulator() {
 
   const status = useMemo(() => getStatus(distance), [distance]);
 
+  // 基础星星数据（挂载时一次性生成，避免闪烁）
+  const baseStars = useRef(
+    Array.from({ length: 60 }, () => ({
+      angle: Math.random() * Math.PI * 2,
+      r: 40 + Math.random() * 140,
+      size: Math.random() * 1.5 + 0.5,
+      opacity: Math.random() * 0.6 + 0.3,
+    }))
+  ).current;
+
   // Starfield with gravitational lensing effect
   const stars = useMemo(() => {
-    return Array.from({ length: 60 }, (_, i) => {
-      const angle = (i / 60) * Math.PI * 2;
-      const r = 40 + Math.random() * 140;
-      const sx = 200 + Math.cos(angle) * r;
-      const sy = 200 + Math.sin(angle) * r;
+    return baseStars.map((s) => {
+      const sx = 200 + Math.cos(s.angle) * s.r;
+      const sy = 200 + Math.sin(s.angle) * s.r;
       // Bend stars slightly toward center when closer
       const bend = distance < 1.5 ? (1.5 - distance) * 10 : 0;
-      const bx = 200 + (sx - 200) * (1 - bend / r);
-      const by = 200 + (sy - 200) * (1 - bend / r);
-      return { x: bx, y: by, size: Math.random() * 1.5 + 0.5, opacity: Math.random() * 0.6 + 0.3 };
+      const bx = 200 + (sx - 200) * (1 - bend / s.r);
+      const by = 200 + (sy - 200) * (1 - bend / s.r);
+      return { x: bx, y: by, size: s.size, opacity: s.opacity };
     });
-  }, [distance]);
+  }, [distance, baseStars]);
 
   if (!showBlackHole) return null;
 
