@@ -6,6 +6,7 @@ import { evaluateAchievements } from '../utils/achievements'
 import { getHeliocentricPosition } from '../utils/orbit'
 import { formatSimulationDate } from '../utils/date'
 import { lightTravelMinutes, formatLightTime, lifetimeOrbits } from '../utils/physics'
+import { playUISound } from '../utils/audio'
 
 const speeds = [
   { value: 'pause' as const, label: '⏸ 暂停' },
@@ -52,6 +53,9 @@ export default function Controls() {
     setShowSandbox,
     setShowHohmannDesigner,
     setShowEclipseLab,
+    setShowBlackHole,
+    setShowNarrative,
+    setShowSharePanel,
   } = useStore()
 
   const lifetimeData = useMemo(() => {
@@ -160,11 +164,13 @@ export default function Controls() {
                 <button
                   key={t.mode}
                   onClick={() => {
+                    playUISound('click');
                     setTimeMode(t.mode)
                     if (t.mode !== 'simulation') {
                       setTimeSpeed('1000x')
                     }
                   }}
+                  onMouseEnter={() => playUISound('hover')}
                   className={`px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium transition-all ${
                     timeMode === t.mode
                       ? 'bg-sci-cyan/80 text-space-900'
@@ -260,10 +266,11 @@ export default function Controls() {
           {/* 显示控制 */}
           <div className="sci-panel p-2 sm:p-3 flex items-center gap-2">
             <span className="text-[10px] sm:text-xs text-sci-white/50 mr-1 shrink-0">显示</span>
-            <ToggleButton active={showOrbits} onClick={() => setShowOrbits(!showOrbits)} label="轨道" />
-            <ToggleButton active={showLabels} onClick={() => setShowLabels(!showLabels)} label="标签" />
+            <ToggleButton active={showOrbits} onClick={() => { playUISound('click'); setShowOrbits(!showOrbits); }} label="轨道" />
+            <ToggleButton active={showLabels} onClick={() => { playUISound('click'); setShowLabels(!showLabels); }} label="标签" />
             <button
-              onClick={() => setScaleMode(scaleMode === 'exaggerated' ? 'realistic' : 'exaggerated')}
+              onClick={() => { playUISound('click'); setScaleMode(scaleMode === 'exaggerated' ? 'realistic' : 'exaggerated'); }}
+              onMouseEnter={() => playUISound('hover')}
               className={`px-2 py-1 rounded text-[10px] sm:text-xs font-medium transition-all ${
                 scaleMode === 'realistic'
                   ? 'bg-sci-blue/20 text-sci-blue border border-sci-blue/40'
@@ -299,62 +306,93 @@ export default function Controls() {
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => {
+                playUISound('click');
                 setJourneyMode('running');
                 setCurrentJourneyIndex(0);
               }}
+              onMouseEnter={() => playUISound('hover')}
               className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
             >
               ✨ <span className="hidden sm:inline">光速旅程</span>
               <span className="sm:hidden">旅程</span>
             </button>
             <button
-              onClick={() => setShowPredictionGame(true)}
+              onClick={() => { playUISound('click'); setShowPredictionGame(true); }}
+              onMouseEnter={() => playUISound('hover')}
               className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
             >
               🔮 <span className="hidden sm:inline">预测挑战</span>
               <span className="sm:hidden">预测</span>
             </button>
             <button
-              onClick={() => setShowSandbox(true)}
+              onClick={() => { playUISound('click'); setShowSandbox(true); }}
+              onMouseEnter={() => playUISound('hover')}
               className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
             >
               🧪 <span className="hidden sm:inline">沙盘实验</span>
               <span className="sm:hidden">沙盘</span>
             </button>
             <button
-              onClick={() => setShowMissionPanel(true)}
+              onClick={() => { playUISound('click'); setShowMissionPanel(true); }}
+              onMouseEnter={() => playUISound('hover')}
               className="sci-button-primary text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
             >
               🚀 <span className="hidden sm:inline">探索任务</span>
               <span className="sm:hidden">任务</span>
             </button>
             <button
-              onClick={() => setShowSpacecraftPanel(true)}
+              onClick={() => { playUISound('click'); setShowSpacecraftPanel(true); }}
+              onMouseEnter={() => playUISound('hover')}
               className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
             >
               🛰️ <span className="hidden sm:inline">航天器</span><span className="sm:hidden">航天</span>
             </button>
             <button
-              onClick={() => setShowHohmannDesigner(true)}
+              onClick={() => { playUISound('click'); setShowHohmannDesigner(true); }}
+              onMouseEnter={() => playUISound('hover')}
               className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
             >
               🛸 <span className="hidden sm:inline">轨道设计</span><span className="sm:hidden">轨道</span>
             </button>
             <button
-              onClick={() => setShowAchievementPanel(true)}
+              onClick={() => { playUISound('click'); setShowAchievementPanel(true); }}
+              onMouseEnter={() => playUISound('hover')}
               className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
             >
               🏅 <span className="hidden sm:inline">探索徽章</span>
               <span className="sm:hidden">徽章</span>
             </button>
             <button
-              onClick={() => setShowEclipseLab(true)}
+              onClick={() => { playUISound('click'); setShowEclipseLab(true); }}
+              onMouseEnter={() => playUISound('hover')}
               className="sci-button-primary text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
             >
               🧪 <span className="hidden sm:inline">月食实验</span><span className="sm:hidden">月食</span>
             </button>
             <button
-              onClick={resetView}
+              onClick={() => setShowBlackHole(true)}
+              onMouseEnter={() => playUISound('hover')}
+              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
+            >
+              🕳️ <span className="hidden sm:inline">黑洞探险</span><span className="sm:hidden">黑洞</span>
+            </button>
+            <button
+              onClick={() => { playUISound('click'); setShowNarrative(true); }}
+              onMouseEnter={() => playUISound('hover')}
+              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
+            >
+              📖 <span className="hidden sm:inline">故事任务</span><span className="sm:hidden">故事</span>
+            </button>
+            <button
+              onClick={() => { playUISound('click'); setShowSharePanel(true); }}
+              onMouseEnter={() => playUISound('hover')}
+              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
+            >
+              📸 <span className="hidden sm:inline">探索报告</span><span className="sm:hidden">报告</span>
+            </button>
+            <button
+              onClick={() => { playUISound('click'); resetView(); }}
+              onMouseEnter={() => playUISound('hover')}
               className="sci-button text-[10px] sm:text-xs py-1.5 px-2 sm:py-2 sm:px-3"
             >
               重置

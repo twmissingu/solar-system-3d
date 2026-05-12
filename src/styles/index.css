@@ -125,3 +125,61 @@
     box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
   }
 }
+
+@layer utilities {
+  /* Scanlines */
+  .scanlines {
+    background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,0),
+      rgba(255,255,255,0) 50%,
+      rgba(0,0,0,0.1) 50%,
+      rgba(0,0,0,0.1)
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+  }
+
+  /* HUD corner brackets */
+  .hud-corner {
+    position: relative;
+  }
+  .hud-corner::before,
+  .hud-corner::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: rgba(78, 205, 196, 0.6);
+    border-style: solid;
+    pointer-events: none;
+  }
+  .hud-corner::before {
+    top: 0; left: 0;
+    border-width: 2px 0 0 2px;
+  }
+  .hud-corner::after {
+    bottom: 0; right: 0;
+    border-width: 0 2px 2px 0;
+  }
+
+  /* Data stream text */
+  @keyframes dataStream {
+    0% { opacity: 0; transform: translateY(-20px); }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { opacity: 0; transform: translateY(20px); }
+  }
+  .data-stream-item {
+    animation: dataStream 3s linear infinite;
+  }
+
+  /* Crosshair pulse */
+  @keyframes crosshairPulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+  .crosshair-pulse {
+    animation: crosshairPulse 2s ease-in-out infinite;
+  }
+}

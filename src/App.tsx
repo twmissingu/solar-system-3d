@@ -17,10 +17,15 @@ import Spacecraft from './components/Spacecraft'
 import SpacecraftPanel from './components/SpacecraftPanel'
 import HohmannDesigner from './components/HohmannDesigner'
 import EclipseLab from './components/EclipseLab'
+import HUDOverlay from './components/HUDOverlay'
+import BlackHoleSimulator from './components/BlackHoleSimulator'
+import NarrativePanel from './components/NarrativePanel'
+import AudioController from './components/AudioController'
+import SharePanel from './components/SharePanel'
 import { useStore } from './store/useStore'
 
 export default function App() {
-  const { showMissionPanel, setShowMissionPanel, showAchievementPanel, setShowAchievementPanel, showPredictionGame, showSandbox, showSpacecraftPanel, showHohmannDesigner, showEclipseLab } = useStore()
+  const { showMissionPanel, setShowMissionPanel, showAchievementPanel, setShowAchievementPanel, showPredictionGame, showSandbox, showSpacecraftPanel, showHohmannDesigner, showEclipseLab, showBlackHole, showNarrative, showSharePanel } = useStore()
   return (
     <div className="relative w-full h-full">
       {/* 3D Canvas */}
@@ -95,6 +100,11 @@ export default function App() {
       {showSpacecraftPanel && <SpacecraftPanel />}
       {showHohmannDesigner && <HohmannDesigner />}
       {showEclipseLab && <EclipseLab />}
+      {showBlackHole && <BlackHoleSimulator />}
+      {showNarrative && <NarrativePanel />}
+      {showSharePanel && <SharePanel />}
+      <AudioController />
+      <HUDOverlay />
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { getAchievementById, getRarityColor, getRarityLabel } from '../data/achievements';
+import { playUISound } from '../utils/audio';
 
 export default function AchievementToast() {
   const { achievementQueue, dequeueAchievement } = useStore();
@@ -11,6 +12,7 @@ export default function AchievementToast() {
 
   useEffect(() => {
     if (!currentId) return;
+    playUISound('success');
     const timer = setTimeout(() => {
       dequeueAchievement();
     }, 4000);

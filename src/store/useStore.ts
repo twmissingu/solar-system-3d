@@ -117,9 +117,25 @@ interface AppState {
   showEclipseLab: boolean;
   setShowEclipseLab: (show: boolean) => void;
 
+  // Black hole simulator
+  showBlackHole: boolean;
+  setShowBlackHole: (show: boolean) => void;
+
   // Voting
   userVotes: Record<string, string>;
   setUserVote: (controversyId: string, optionId: string) => void;
+
+  // Narrative missions
+  showNarrative: boolean;
+  setShowNarrative: (show: boolean) => void;
+  activeNarrative: string | null;
+  setActiveNarrative: (id: string | null) => void;
+  narrativeStep: number;
+  setNarrativeStep: (step: number) => void;
+
+  // Social sharing
+  showSharePanel: boolean;
+  setShowSharePanel: (show: boolean) => void;
 
   // Mission system (needed by Task 2)
   activeMissionId: string | null;
@@ -339,6 +355,9 @@ export const useStore = create<AppState>((set) => ({
   showEclipseLab: false,
   setShowEclipseLab: (show) => set({ showEclipseLab: show }),
 
+  showBlackHole: false,
+  setShowBlackHole: (show) => set({ showBlackHole: show }),
+
   showMissionPanel: false,
   setShowMissionPanel: (show) => set({ showMissionPanel: show }),
   currentHintIndex: 0,
@@ -356,4 +375,16 @@ export const useStore = create<AppState>((set) => ({
         [controversyId]: optionId,
       },
     })),
+
+  // Narrative missions
+  showNarrative: false,
+  setShowNarrative: (show) => set({ showNarrative: show }),
+  activeNarrative: null,
+  setActiveNarrative: (id) => set({ activeNarrative: id }),
+  narrativeStep: 0,
+  setNarrativeStep: (step) => set({ narrativeStep: step }),
+
+  // Social sharing
+  showSharePanel: false,
+  setShowSharePanel: (show) => set({ showSharePanel: show }),
 }));

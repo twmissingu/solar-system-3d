@@ -183,6 +183,14 @@ export const achievements: Achievement[] = [
     rarity: 'common',
     condition: { type: 'explore', bodyId: '*' },
   },
+  {
+    id: 'black_hole_survivor',
+    name: '黑洞幸存者',
+    description: '成功逃离黑洞并学到一课',
+    icon: '🕳️',
+    rarity: 'epic',
+    condition: { type: 'explore', bodyId: '*' },
+  },
 ];
 
 export function getAchievementById(id: string): Achievement | undefined {
