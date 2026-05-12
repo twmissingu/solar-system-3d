@@ -9,10 +9,14 @@ import LoadingScreen from './components/LoadingScreen'
 import MissionPanel from './components/MissionPanel'
 import AchievementToast from './components/AchievementToast'
 import AchievementPanel from './components/AchievementPanel'
+import JourneyMode from './components/JourneyMode'
+import JourneyHUD from './components/JourneyHUD'
+import PredictionGame from './components/PredictionGame'
+import SandboxPanel from './components/SandboxPanel'
 import { useStore } from './store/useStore'
 
 export default function App() {
-  const { showMissionPanel, setShowMissionPanel, showAchievementPanel, setShowAchievementPanel } = useStore()
+  const { showMissionPanel, setShowMissionPanel, showAchievementPanel, setShowAchievementPanel, showPredictionGame, showSandbox } = useStore()
   return (
     <div className="relative w-full h-full">
       {/* 3D Canvas */}
@@ -76,9 +80,13 @@ export default function App() {
       <WelcomeOverlay />
       <InfoPanel />
       <Controls />
+      <JourneyMode />
+      <JourneyHUD />
       {showMissionPanel && <MissionPanel onClose={() => setShowMissionPanel(false)} />}
       <AchievementToast />
       {showAchievementPanel && <AchievementPanel onClose={() => setShowAchievementPanel(false)} />}
+      {showPredictionGame && <PredictionGame />}
+      {showSandbox && <SandboxPanel />}
     </div>
   )
 }

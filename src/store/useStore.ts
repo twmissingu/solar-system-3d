@@ -4,6 +4,7 @@ import { CelestialBody } from '../data/celestialData';
 export type ViewMode = 'overview' | 'focused';
 export type TimeSpeed = 'pause' | '1x' | '10x' | '100x' | '1000x';
 export type ScaleMode = 'exaggerated' | 'realistic';
+export type TimeMode = 'simulation' | 'light-speed' | 'lifetime';
 
 interface AppState {
   // 当前选中天体
@@ -19,6 +20,10 @@ interface AppState {
   setTimeSpeed: (speed: TimeSpeed) => void;
   currentDay: number; // 相对于J2000.0的天数
   setCurrentDay: (day: number | ((prev: number) => number)) => void;
+
+  // 时间模式
+  timeMode: TimeMode;
+  setTimeMode: (mode: TimeMode) => void;
 
   // 是否显示轨道
   showOrbits: boolean;
@@ -70,6 +75,32 @@ interface AppState {
   totalTimeAdvanced: number;
   addTimeAdvanced: (days: number) => void;
 
+  // Journey mode
+  journeyMode: 'idle' | 'running' | 'paused' | 'completed';
+  setJourneyMode: (mode: 'idle' | 'running' | 'paused' | 'completed') => void;
+  currentJourneyIndex: number;
+  setCurrentJourneyIndex: (index: number) => void;
+  showJourneyHUD: boolean;
+  setShowJourneyHUD: (show: boolean) => void;
+
+  // Prediction game
+  showPredictionGame: boolean;
+  setShowPredictionGame: (show: boolean) => void;
+  predictionBodyId: string | null;
+  setPredictionBodyId: (id: string | null) => void;
+  predictionDays: number;
+  setPredictionDays: (days: number) => void;
+  predictionUserAngle: number;
+  setPredictionUserAngle: (angle: number) => void;
+  predictionResult: { actualAngle: number; error: number } | null;
+  setPredictionResult: (result: { actualAngle: number; error: number } | null) => void;
+
+  // Sandbox experiment
+  showSandbox: boolean;
+  setShowSandbox: (show: boolean) => void;
+  sandboxOrbitAU: number;
+  setSandboxOrbitAU: (au: number) => void;
+
   // Mission system (needed by Task 2)
   activeMissionId: string | null;
   setActiveMissionId: (id: string | null) => void;
@@ -99,6 +130,8 @@ export const useStore = create<AppState>((set) => ({
 
   timeSpeed: '1x',
   setTimeSpeed: (speed) => set({ timeSpeed: speed }),
+  timeMode: 'simulation',
+  setTimeMode: (mode) => set({ timeMode: mode }),
   currentDay: 0,
   setCurrentDay: (day) =>
     set((state) => ({
@@ -187,6 +220,32 @@ export const useStore = create<AppState>((set) => ({
     set((state) => ({
       totalTimeAdvanced: state.totalTimeAdvanced + days,
     })),
+
+  // Journey mode
+  journeyMode: 'idle',
+  setJourneyMode: (mode) => set({ journeyMode: mode }),
+  currentJourneyIndex: 0,
+  setCurrentJourneyIndex: (index) => set({ currentJourneyIndex: index }),
+  showJourneyHUD: false,
+  setShowJourneyHUD: (show) => set({ showJourneyHUD: show }),
+
+  // Prediction game
+  showPredictionGame: false,
+  setShowPredictionGame: (show) => set({ showPredictionGame: show }),
+  predictionBodyId: null,
+  setPredictionBodyId: (id) => set({ predictionBodyId: id, predictionResult: null }),
+  predictionDays: 100,
+  setPredictionDays: (days) => set({ predictionDays: days }),
+  predictionUserAngle: 0,
+  setPredictionUserAngle: (angle) => set({ predictionUserAngle: angle }),
+  predictionResult: null,
+  setPredictionResult: (result) => set({ predictionResult: result }),
+
+  // Sandbox experiment
+  showSandbox: false,
+  setShowSandbox: (show) => set({ showSandbox: show }),
+  sandboxOrbitAU: 1.0,
+  setSandboxOrbitAU: (au) => set({ sandboxOrbitAU: au }),
 
   // Mission system
   activeMissionId: null,

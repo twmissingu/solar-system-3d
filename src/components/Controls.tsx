@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion'
+import { useMemo } from 'react'
 import { useStore } from '../store/useStore'
-import { presetViews, lunarEclipseDemo } from '../data/celestialData'
+import { presetViews, lunarEclipseDemo, celestialBodies } from '../data/celestialData'
 import { evaluateAchievements } from '../utils/achievements'
 import { getHeliocentricPosition } from '../utils/orbit'
 import { formatSimulationDate } from '../utils/date'
+import { lightTravelMinutes, formatLightTime, lifetimeOrbits } from '../utils/physics'
 
 const speeds = [
   { value: 'pause' as const, label: '⏸ 暂停' },
@@ -13,10 +15,18 @@ const speeds = [
   { value: '1000x' as const, label: '1000x' },
 ]
 
+const timeModeTabs = [
+  { mode: 'simulation' as const, label: '模拟速度' },
+  { mode: 'light-speed' as const, label: '光速旅行' },
+  { mode: 'lifetime' as const, label: '一生视角' },
+]
+
 export default function Controls() {
   const {
     timeSpeed,
     setTimeSpeed,
+    timeMode,
+    setTimeMode,
     showOrbits,
     setShowOrbits,
     showLabels,
@@ -33,9 +43,22 @@ export default function Controls() {
     setScaleMode,
     setShowMissionPanel,
     setShowAchievementPanel,
+    setJourneyMode,
+    setCurrentJourneyIndex,
     addMissionObservedEvent,
     activeMissionId,
+    setShowPredictionGame,
+    setShowSandbox,
   } = useStore()
+
+  const lifetimeData = useMemo(() => {
+    return celestialBodies
+      .filter((b) => b.id !== 'sun')
+      .map((body) => ({
+        ...body,
+        orbits: lifetimeOrbits(body.orbit.period),
+      }))
+  }, [])
 
   const handlePresetView = (view: typeof presetViews[0]) => {
     let basePos: [number, number, number] = [0, 0, 0]
@@ -126,24 +149,109 @@ export default function Controls() {
         {/* 左侧控制组 */}
         <div className="flex flex-col gap-2 order-2 sm:order-1">
           {/* 时间控制 */}
-          <div className="sci-panel p-2 sm:p-3 flex flex-wrap items-center gap-1.5 sm:gap-2">
-            <span className="text-[10px] sm:text-xs text-sci-white/50 mr-1 shrink-0">时间</span>
-            {speeds.map((s) => (
-              <button
-                key={s.value}
-                onClick={() => setTimeSpeed(s.value)}
-                className={`px-2 py-1 rounded text-[10px] sm:text-xs font-medium transition-all ${
-                  timeSpeed === s.value
-                    ? 'bg-sci-cyan/80 text-space-900'
-                    : 'text-sci-white/60 hover:text-sci-white hover:bg-sci-cyan/10'
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-            <span className="text-[10px] text-sci-cyan/50 font-mono ml-1 shrink-0 hidden sm:inline">
-              {formatSimulationDate(currentDay)}
-            </span>
+          <div className="sci-panel p-2 sm:p-3 flex flex-col gap-2">
+            {/* Tab switcher */}
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="text-[10px] sm:text-xs text-sci-white/50 mr-1 shrink-0">时间</span>
+              {timeModeTabs.map((t) => (
+                <button
+                  key={t.mode}
+                  onClick={() => {
+                    setTimeMode(t.mode)
+                    if (t.mode !== 'simulation') {
+                      setTimeSpeed('1000x')
+                    }
+                  }}
+                  className={`px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium transition-all ${
+                    timeMode === t.mode
+                      ? 'bg-sci-cyan/80 text-space-900'
+                      : 'text-sci-white/60 hover:text-sci-white hover:bg-sci-cyan/10'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+              <span className="text-[10px] text-sci-cyan/50 font-mono ml-auto shrink-0 hidden sm:inline">
+                {formatSimulationDate(currentDay)}
+              </span>
+            </div>
+
+            {/* Tab: 模拟速度 */}
+            {timeMode === 'simulation' && (
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                {speeds.map((s) => (
+                  <button
+                    key={s.value}
+                    onClick={() => setTimeSpeed(s.value)}
+                    className={`px-2 py-1 rounded text-[10px] sm:text-xs font-medium transition-all ${
+                      timeSpeed === s.value
+                        ? 'bg-sci-cyan/80 text-space-900'
+                        : 'text-sci-white/60 hover:text-sci-white hover:bg-sci-cyan/10'
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Tab: 光速旅行 */}
+            {timeMode === 'light-speed' && (
+              <div className="flex flex-col gap-1.5">
+                <p className="text-[10px] sm:text-xs text-sci-white/60">
+                  以光速前进时，每秒钟你可以穿越这些距离：
+                </p>
+                <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                  {celestialBodies
+                    .filter((b) => b.id !== 'sun')
+                    .map((body) => {
+                      const minutes = lightTravelMinutes(body.orbit.a)
+                      return (
+                        <div
+                          key={body.id}
+                          className="flex flex-col items-center rounded bg-sci-cyan/5 border border-sci-cyan/10 px-1.5 py-1"
+                        >
+                          <span className="text-[10px] text-sci-white/80 font-medium">{body.nameZh}</span>
+                          <span className="text-[10px] text-sci-cyan/80 font-mono">
+                            {minutes < 1
+                              ? `${(minutes * 60).toFixed(0)}秒`
+                              : `${minutes.toFixed(1)}分钟`}
+                          </span>
+                        </div>
+                      )
+                    })}
+                </div>
+              </div>
+            )}
+
+            {/* Tab: 一生视角 */}
+            {timeMode === 'lifetime' && (
+              <div className="flex flex-col gap-1.5">
+                <p className="text-[10px] sm:text-xs text-sci-white/60">
+                  如果你活到80岁，你能看到这些变化：
+                </p>
+                <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                  {lifetimeData.map((body) => {
+                    const orbits = body.orbits
+                    const isInteger = Number.isInteger(orbits)
+                    return (
+                      <div
+                        key={body.id}
+                        className="flex flex-col items-center rounded bg-sci-cyan/5 border border-sci-cyan/10 px-1.5 py-1"
+                      >
+                        <span className="text-[10px] text-sci-white/80 font-medium">{body.nameZh}</span>
+                        <span className="text-[10px] text-sci-cyan/80 font-mono">
+                          公转 {isInteger ? orbits : orbits.toFixed(orbits < 1 ? 2 : 1)} 圈
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+                <p className="text-[10px] sm:text-xs text-sci-cyan/50 italic">
+                  你一生中，海王星还转不完一圈！
+                </p>
+              </div>
+            )}
           </div>
 
           {/* 显示控制 */}
@@ -186,6 +294,30 @@ export default function Controls() {
 
           {/* 特殊演示 */}
           <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => {
+                setJourneyMode('running');
+                setCurrentJourneyIndex(0);
+              }}
+              className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
+            >
+              ✨ <span className="hidden sm:inline">光速旅程</span>
+              <span className="sm:hidden">旅程</span>
+            </button>
+            <button
+              onClick={() => setShowPredictionGame(true)}
+              className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
+            >
+              🔮 <span className="hidden sm:inline">预测挑战</span>
+              <span className="sm:hidden">预测</span>
+            </button>
+            <button
+              onClick={() => setShowSandbox(true)}
+              className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
+            >
+              🧪 <span className="hidden sm:inline">沙盘实验</span>
+              <span className="sm:hidden">沙盘</span>
+            </button>
             <button
               onClick={() => setShowMissionPanel(true)}
               className="sci-button-primary text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"

@@ -143,6 +143,14 @@ export const achievements: Achievement[] = [
       bodyIds: ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'],
     },
   },
+  {
+    id: 'prophet',
+    name: '预言家',
+    description: '预测行星位置误差小于15°',
+    icon: '🔮',
+    rarity: 'rare',
+    condition: { type: 'explore', bodyId: '*' },
+  },
 ];
 
 export function getAchievementById(id: string): Achievement | undefined {
