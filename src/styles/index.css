@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: #050B14;
+    color: #E8F4FD;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:focus-visible,
+  [role="button"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.5);
+    border-radius: 4px;
+  }
+
+  /* 自定义滚动条 - 科幻风格 */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(78, 205, 196, 0.4) rgba(15, 31, 58, 0.5);
+  }
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(15, 31, 58, 0.5);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(78, 205, 196, 0.4);
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(78, 205, 196, 0.7);
+  }
+}
+
+@layer components {
+  .sci-panel {
+    @apply backdrop-blur-md bg-space-800/60 border border-sci-cyan/20 rounded-lg relative;
+    box-shadow: 0 0 20px rgba(78, 205, 196, 0.05), inset 0 0 60px rgba(78, 205, 196, 0.02);
+  }
+
+  .sci-button {
+    @apply px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 cursor-pointer;
+    @apply border border-sci-cyan/30 bg-sci-cyan/10 text-sci-cyan hover:bg-sci-cyan/20 hover:border-sci-cyan/60;
+    @apply active:scale-95;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sci-cyan/50 focus-visible:ring-offset-2 focus-visible:ring-offset-space-900;
+  }
+
+  .sci-button-primary {
+    @apply sci-button bg-sci-cyan/80 text-space-900 hover:bg-sci-cyan border-transparent;
+    @apply focus-visible:ring-sci-cyan/80;
+  }
+
+  .sci-text-glow {
+    text-shadow: 0 0 10px rgba(78, 205, 196, 0.4), 0 0 20px rgba(78, 205, 196, 0.2);
+  }
+
+  /* 全局交互元素聚焦样式 */
+  .focus-sci:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.5);
+    border-radius: 4px;
+  }
+
+  .sci-corner {
+    position: relative;
+  }
+  .sci-corner::before,
+  .sci-corner::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 1px solid rgba(78, 205, 196, 0.4);
+  }
+  .sci-corner::before {
+    top: -1px;
+    left: -1px;
+    border-right: none;
+    border-bottom: none;
+  }
+  .sci-corner::after {
+    bottom: -1px;
+    right: -1px;
+    border-left: none;
+    border-top: none;
+  }
+}

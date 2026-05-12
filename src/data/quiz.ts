@@ -1,0 +1,159 @@
+export interface QuizQuestion {
+  id: string
+  question: string
+  options: string[]
+  correctIndex: number
+  explanation: string
+  relatedBody: string | null
+}
+
+export const quizQuestions: QuizQuestion[] = [
+  {
+    id: "q1",
+    question: "地球为什么会有春夏秋冬四季？",
+    options: [
+      "地球离太阳的距离在一年中变化很大",
+      "地球自转轴倾斜约23.5°，加上绕太阳公转",
+      "太阳的温度在一年中不断变化",
+      "地球自转速度在一年中时快时慢",
+    ],
+    correctIndex: 1,
+    explanation:
+      "地球的自转轴倾斜约23.5°，在公转过程中，北半球和南半球会交替朝向或背离太阳，造成阳光直射和斜射的变化，从而形成四季。",
+    relatedBody: "Earth",
+  },
+  {
+    id: "q2",
+    question: "月亮为什么每天看起来形状不一样？",
+    options: [
+      "月亮自己在变形",
+      "地球的影子投射到月亮上",
+      "月球绕地球公转，我们只能看到不同比例的被太阳照亮的一面",
+      "太阳的光有时强有时弱",
+    ],
+    correctIndex: 2,
+    explanation:
+      "月球自己不会发光，它反射太阳光。随着月球绕地球公转，我们从地球上能看到被太阳照亮的部分不断变化，这就是月相。",
+    relatedBody: "Moon",
+  },
+  {
+    id: "q3",
+    question: "月全食时，月球为什么会变成暗红色（血月）？",
+    options: [
+      "月球表面本来就是红色的",
+      "地球大气层将太阳光中的红光折射到月球表面",
+      "太阳在月食时变成了红色",
+      "月球发烧了，温度升高变红",
+    ],
+    correctIndex: 1,
+    explanation:
+      "月全食时，地球挡住了直射月球的阳光，但地球大气层会将部分阳光（尤其是红光）弯曲并散射到月球表面，使月球呈现暗红色。",
+    relatedBody: "Moon",
+  },
+  {
+    id: "q4",
+    question: "土星的光环主要由什么组成？",
+    options: [
+      "一圈巨大的气体",
+      "无数冰块和岩石碎片",
+      "固态金属环",
+      "发光的等离子体",
+    ],
+    correctIndex: 1,
+    explanation:
+      "土星环由无数大小不等的冰块和岩石碎片组成，从沙粒大小到房子大小不等。它们的厚度只有约1公里，但宽度可达28万公里。",
+    relatedBody: "Saturn",
+  },
+  {
+    id: "q5",
+    question: "木星上的'大红斑'是什么？",
+    options: [
+      "一块巨大的红色岩石",
+      "一个已经持续了至少350年的巨大风暴",
+      "木星表面的火山喷发",
+      "外星人的基地",
+    ],
+    correctIndex: 1,
+    explanation:
+      "大红斑是木星上一个巨大的反气旋风暴，大到可以装下整个地球。它已经存在了至少350年，是太阳系中持续时间最长的风暴。",
+    relatedBody: "Jupiter",
+  },
+  {
+    id: "q6",
+    question: "太阳为什么会发光发热？",
+    options: [
+      "太阳是一个巨大的核反应堆，通过核聚变产生能量",
+      "太阳表面燃烧着巨大的火焰",
+      "太阳不断吸收周围的物质并释放能量",
+      "太阳内部有巨大的磁铁产生光和热",
+    ],
+    correctIndex: 0,
+    explanation:
+      "太阳核心温度高达约1500万K，在极端高温高压下，氢原子发生核聚变反应（4个氢原子合成1个氦原子），释放出巨大能量。",
+    relatedBody: "Sun",
+  },
+  {
+    id: "q7",
+    question: "一年有365天的原因是什么？",
+    options: [
+      "古人随意规定的",
+      "地球绕太阳公转一周需要约365.25天",
+      "月球绕地球转了12圈",
+      "太阳绕银河系转了一小步",
+    ],
+    correctIndex: 1,
+    explanation:
+      "地球绕太阳公转一圈（回归年）需要约365.2422天。我们日常使用365天的历法，每4年闰一天来补上0.2422天的差距。",
+    relatedBody: "Earth",
+  },
+  {
+    id: "q8",
+    question: "月球为什么不会掉下来砸到地球？",
+    options: [
+      "月球离地球太远，引力够不到",
+      "月球以高速横向飞行，引力正好提供了向心力让它绕圈",
+      "月球被一根看不见的绳子拉着",
+      "地球的磁场把月球推开了",
+    ],
+    correctIndex: 1,
+    explanation:
+      "月球以约每秒1公里的速度绕地球运动。地球的引力把它拉向中心，但它的横向速度使它不会坠落，而是沿轨道持续绕转——就像甩绳子上的球一样。",
+    relatedBody: "Moon",
+  },
+  {
+    id: "q9",
+    question: "太阳系最远的大行星是哪一个？",
+    options: [
+      "冥王星",
+      "天王星",
+      "海王星",
+      "土星",
+    ],
+    correctIndex: 2,
+    explanation:
+      "海王星是八大行星中离太阳最远的一个。冥王星在2006年被重新分类为矮行星，不再属于大行星。海王星的风速可达每小时2100公里，是太阳系中风最强的行星。",
+    relatedBody: "Neptune",
+  },
+  {
+    id: "q10",
+    question: "我们为什么只能看到月球的同一面？",
+    options: [
+      "月球自己不转",
+      "月球的自转周期和公转周期相同，这叫'潮汐锁定'",
+      "月球背面永远是黑暗的",
+      "地球的引力让月球停止自转了",
+    ],
+    correctIndex: 1,
+    explanation:
+      "月球的自转周期和绕地球的公转周期相同（约27.3天），这种现象称为'潮汐锁定'。结果是月球始终用同一面朝向地球。",
+    relatedBody: "Moon",
+  },
+];
+
+export function getQuizResultText(score: number, total: number): string {
+  const ratio = score / total;
+  if (ratio === 1) return "太棒了！10/10 — 你是真正的天文小专家！🌟";
+  if (ratio >= 0.8) return `不错哦！${score}/${total} — 继续探索宇宙的奥秘吧！✨`;
+  if (ratio >= 0.6) return `${score}/${total} — 已经掌握了很多知识，再加油！🚀`;
+  return `${score}/${total} — 宇宙的知识无穷无尽，继续学习吧！📚`;
+}

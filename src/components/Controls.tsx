@@ -1,0 +1,220 @@
+import { motion } from 'framer-motion'
+import { useStore } from '../store/useStore'
+import { presetViews, lunarEclipseDemo } from '../data/celestialData'
+import { getHeliocentricPosition } from '../utils/orbit'
+import { formatSimulationDate } from '../utils/date'
+
+const speeds = [
+  { value: 'pause' as const, label: '⏸ 暂停' },
+  { value: '1x' as const, label: '1x' },
+  { value: '10x' as const, label: '10x' },
+  { value: '100x' as const, label: '100x' },
+  { value: '1000x' as const, label: '1000x' },
+]
+
+export default function Controls() {
+  const {
+    timeSpeed,
+    setTimeSpeed,
+    showOrbits,
+    setShowOrbits,
+    showLabels,
+    setShowLabels,
+    resetView,
+    setCameraTarget,
+    setCameraLookAt,
+    setCurrentDay,
+    selectedBody,
+    setSelectedBody,
+    currentDay,
+    showKnowledge,
+    scaleMode,
+    setScaleMode,
+    showQuiz,
+    setShowQuiz,
+  } = useStore()
+
+  const handlePresetView = (view: typeof presetViews[0]) => {
+    let basePos: [number, number, number] = [0, 0, 0]
+
+    if (view.id === 'from-earth') {
+      basePos = getHeliocentricPosition(
+        { a: 1.0, e: 0.0167, i: 0, L: 100.466, longPeri: 102.947, longNode: 348.739, period: 365.25 },
+        currentDay
+      )
+    } else if (view.id === 'saturn-rings') {
+      basePos = getHeliocentricPosition(
+        { a: 9.5826, e: 0.0565, i: 2.485, L: 50.077, longPeri: 92.431, longNode: 113.665, period: 10759.22 },
+        currentDay
+      )
+    }
+
+    const target: [number, number, number] = [
+      basePos[0] + view.cameraPosition[0],
+      basePos[1] + view.cameraPosition[1],
+      basePos[2] + view.cameraPosition[2],
+    ]
+    setCameraTarget(target)
+    setCameraLookAt(view.lookAt)
+    setSelectedBody(null)
+  }
+
+  const handleLunarEclipse = () => {
+    setCurrentDay(lunarEclipseDemo.julianDay - 2451545.0)
+    setCameraTarget([18, 4, 12])
+    setCameraLookAt([0, 0, 0])
+  }
+
+  return (
+    <>
+      {/* 顶部标题栏 */}
+      <motion.div
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="fixed top-3 left-3 sm:top-4 sm:left-4 z-20"
+      >
+        <div className="sci-panel px-3 py-2 sm:px-5 sm:py-3">
+          <h1
+            className="text-base sm:text-xl font-bold text-sci-white sci-text-glow tracking-wider"
+            style={{ fontFamily: 'Orbitron, sans-serif' }}
+          >
+            SOLAR SYSTEM
+          </h1>
+          <p className="text-[10px] sm:text-xs text-sci-cyan/60 mt-0.5 hidden sm:block">
+            太阳系3D探索 · 科学教育
+          </p>
+        </div>
+      </motion.div>
+
+      {/* 选中天体提示 - 避开标题栏和右侧面板 */}
+      {selectedBody && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="fixed top-3 sm:top-4 right-3 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 z-20"
+          style={showKnowledge ? { right: '1rem', left: 'auto', transform: 'none' } : undefined}
+        >
+          <div className="sci-panel px-3 py-1.5 sm:px-4 sm:py-2 text-center">
+            <p className="text-xs sm:text-sm text-sci-cyan">
+              已选中 <span className="font-bold">{selectedBody.nameZh}</span>
+              <span className="hidden sm:inline"> — 右侧信息面板已打开</span>
+            </p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* 底部控制栏 - 响应式：移动端垂直堆叠 */}
+      <motion.div
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.8 }}
+        className="fixed bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 z-20 flex flex-col sm:flex-row items-stretch sm:items-end justify-between gap-2 sm:gap-4"
+      >
+        {/* 左侧控制组 */}
+        <div className="flex flex-col gap-2 order-2 sm:order-1">
+          {/* 时间控制 */}
+          <div className="sci-panel p-2 sm:p-3 flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span className="text-[10px] sm:text-xs text-sci-white/50 mr-1 shrink-0">时间</span>
+            {speeds.map((s) => (
+              <button
+                key={s.value}
+                onClick={() => setTimeSpeed(s.value)}
+                className={`px-2 py-1 rounded text-[10px] sm:text-xs font-medium transition-all ${
+                  timeSpeed === s.value
+                    ? 'bg-sci-cyan/80 text-space-900'
+                    : 'text-sci-white/60 hover:text-sci-white hover:bg-sci-cyan/10'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+            <span className="text-[10px] text-sci-cyan/50 font-mono ml-1 shrink-0 hidden sm:inline">
+              {formatSimulationDate(currentDay)}
+            </span>
+          </div>
+
+          {/* 显示控制 */}
+          <div className="sci-panel p-2 sm:p-3 flex items-center gap-2">
+            <span className="text-[10px] sm:text-xs text-sci-white/50 mr-1 shrink-0">显示</span>
+            <ToggleButton active={showOrbits} onClick={() => setShowOrbits(!showOrbits)} label="轨道" />
+            <ToggleButton active={showLabels} onClick={() => setShowLabels(!showLabels)} label="标签" />
+            <button
+              onClick={() => setScaleMode(scaleMode === 'exaggerated' ? 'realistic' : 'exaggerated')}
+              className={`px-2 py-1 rounded text-[10px] sm:text-xs font-medium transition-all ${
+                scaleMode === 'realistic'
+                  ? 'bg-sci-blue/20 text-sci-blue border border-sci-blue/40'
+                  : 'text-sci-white/40 border border-transparent hover:text-sci-white/60'
+              }`}
+              title={scaleMode === 'exaggerated' ? '切换到真实比例（行星会非常小）' : '切换到放大比例'}
+            >
+              {scaleMode === 'exaggerated' ? '🔍 放大比例' : '🔎 真实比例'}
+            </button>
+          </div>
+        </div>
+
+        {/* 右侧操作组 */}
+        <div className="flex flex-col gap-2 items-stretch sm:items-end order-1 sm:order-2">
+          {/* 预设视角 */}
+          <div className="sci-panel p-2 sm:p-3 flex flex-wrap gap-1.5 sm:gap-2 max-w-full sm:max-w-md">
+            <span className="text-[10px] sm:text-xs text-sci-white/50 mr-1 w-full text-left sm:text-right shrink-0">
+              预设视角
+            </span>
+            {presetViews.map((view) => (
+              <button
+                key={view.id}
+                onClick={() => handlePresetView(view)}
+                className="sci-button text-[10px] sm:text-xs py-1 px-2 sm:py-1.5 sm:px-3 flex-1 sm:flex-none text-center"
+                title={view.description}
+              >
+                {view.nameZh}
+              </button>
+            ))}
+          </div>
+
+          {/* 特殊演示 */}
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={handleLunarEclipse}
+              className="sci-button-primary text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
+              title="跳转到2025年3月14日月全食时刻"
+            >
+              🌑 <span className="hidden sm:inline">月全食演示</span>
+              <span className="sm:hidden">月食</span>
+            </button>
+            <button
+              onClick={resetView}
+              className="sci-button text-[10px] sm:text-xs py-1.5 px-2 sm:py-2 sm:px-3"
+            >
+              重置
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </>
+  )
+}
+
+function ToggleButton({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean
+  onClick: () => void
+  label: string
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-2 py-1 rounded text-[10px] sm:text-xs font-medium transition-all ${
+        active
+          ? 'bg-sci-cyan/20 text-sci-cyan border border-sci-cyan/40'
+          : 'text-sci-white/40 border border-transparent hover:text-sci-white/60'
+      }`}
+    >
+      {label}
+    </button>
+  )
+}
