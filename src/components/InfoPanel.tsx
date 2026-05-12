@@ -2,6 +2,8 @@ import { useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '../store/useStore'
 import { knowledgeData } from '../data/knowledge'
+import { getKnowledgeForBody } from '../data/knowledgeV2'
+import KnowledgeExplorer from './KnowledgeExplorer'
 import { getRealVisualRadius, EARTH_RADIUS_KM, dwarfPlanets } from '../data/celestialData'
 
 export default function InfoPanel() {
@@ -10,6 +12,11 @@ export default function InfoPanel() {
   const knowledge = useMemo(() => {
     if (!selectedBody) return null
     return knowledgeData.find((k) => k.targetBody === selectedBody.id) || null
+  }, [selectedBody])
+
+  const knowledgeV2 = useMemo(() => {
+    if (!selectedBody) return null
+    return getKnowledgeForBody(selectedBody.id) || null
   }, [selectedBody])
 
   return (
@@ -90,32 +97,13 @@ export default function InfoPanel() {
 
             {/* 科普知识 */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0">
-              {knowledge ? (
-                <>
-                  <div className="mb-4">
-                    <h3 className="text-base sm:text-lg font-bold text-sci-cyan mb-3 flex items-center gap-2">
-                      <span className="w-1 h-5 bg-sci-cyan rounded-full shrink-0" />
-                      <span className="leading-tight">{knowledge.title}</span>
-                    </h3>
-                    <p className="text-sm text-sci-white/80 leading-relaxed mb-4">
-                      {knowledge.content}
-                    </p>
-                  </div>
-
-                  <div className="bg-sci-cyan/5 border border-sci-cyan/20 rounded-lg p-4">
-                    <div className="flex items-start gap-2">
-                      <span className="text-sci-gold text-lg shrink-0">💡</span>
-                      <div>
-                        <p className="text-xs text-sci-cyan font-medium mb-1">趣味知识</p>
-                        <p className="text-sm text-sci-white/70 leading-relaxed">
-                          {knowledge.funFact}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </>
+              {knowledgeV2 ? (
+                <KnowledgeExplorer knowledge={knowledgeV2} />
               ) : (
-                <p className="text-sm text-sci-white/40 italic">暂无该天体的详细科普内容。</p>
+                <div className="text-center py-8">
+                  <p className="text-sm text-sci-white/40 italic mb-2">暂无该天体的详细科普内容。</p>
+                  <p className="text-xs text-sci-white/30">完成任务可以解锁更多知识！</p>
+                </div>
               )}
             </div>
 

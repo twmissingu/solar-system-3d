@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useStore } from '../store/useStore'
 import { presetViews, lunarEclipseDemo } from '../data/celestialData'
+import { evaluateAchievements } from '../utils/achievements'
 import { getHeliocentricPosition } from '../utils/orbit'
 import { formatSimulationDate } from '../utils/date'
 
@@ -30,8 +31,10 @@ export default function Controls() {
     showKnowledge,
     scaleMode,
     setScaleMode,
-    showQuiz,
-    setShowQuiz,
+    setShowMissionPanel,
+    setShowAchievementPanel,
+    addMissionObservedEvent,
+    activeMissionId,
   } = useStore()
 
   const handlePresetView = (view: typeof presetViews[0]) => {
@@ -63,6 +66,14 @@ export default function Controls() {
     setCurrentDay(lunarEclipseDemo.julianDay - 2451545.0)
     setCameraTarget([18, 4, 12])
     setCameraLookAt([0, 0, 0])
+
+    // Mission progress
+    if (activeMissionId) {
+      addMissionObservedEvent('moon')
+    }
+
+    // Achievement
+    evaluateAchievements()
   }
 
   return (
@@ -175,6 +186,20 @@ export default function Controls() {
 
           {/* 特殊演示 */}
           <div className="flex gap-2 justify-end">
+            <button
+              onClick={() => setShowMissionPanel(true)}
+              className="sci-button-primary text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
+            >
+              🚀 <span className="hidden sm:inline">探索任务</span>
+              <span className="sm:hidden">任务</span>
+            </button>
+            <button
+              onClick={() => setShowAchievementPanel(true)}
+              className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
+            >
+              🏅 <span className="hidden sm:inline">探索徽章</span>
+              <span className="sm:hidden">徽章</span>
+            </button>
             <button
               onClick={handleLunarEclipse}
               className="sci-button-primary text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
