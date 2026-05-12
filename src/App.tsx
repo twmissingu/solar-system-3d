@@ -6,11 +6,13 @@ import InfoPanel from './components/InfoPanel'
 import Controls from './components/Controls'
 import WelcomeOverlay from './components/WelcomeOverlay'
 import LoadingScreen from './components/LoadingScreen'
-import QuizPanel from './components/QuizPanel'
+import MissionPanel from './components/MissionPanel'
+import AchievementToast from './components/AchievementToast'
+import AchievementPanel from './components/AchievementPanel'
 import { useStore } from './store/useStore'
 
 export default function App() {
-  const { showQuiz, setShowQuiz } = useStore()
+  const { showMissionPanel, setShowMissionPanel, showAchievementPanel, setShowAchievementPanel } = useStore()
   return (
     <div className="relative w-full h-full">
       {/* 3D Canvas */}
@@ -74,7 +76,9 @@ export default function App() {
       <WelcomeOverlay />
       <InfoPanel />
       <Controls />
-      {showQuiz && <QuizPanel onClose={() => setShowQuiz(false)} />}
+      {showMissionPanel && <MissionPanel onClose={() => setShowMissionPanel(false)} />}
+      <AchievementToast />
+      {showAchievementPanel && <AchievementPanel onClose={() => setShowAchievementPanel(false)} />}
     </div>
   )
 }

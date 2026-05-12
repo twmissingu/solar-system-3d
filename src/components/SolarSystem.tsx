@@ -7,7 +7,7 @@ import AsteroidBelt from './AsteroidBelt'
 import * as THREE from 'three'
 
 export default function SolarSystem() {
-  const { setCurrentDay, timeSpeed, cameraTarget, setCameraTarget, cameraLookAt, setCameraLookAt } = useStore()
+  const { setCurrentDay, timeSpeed, cameraTarget, setCameraTarget, cameraLookAt, setCameraLookAt, addTimeAdvanced } = useStore()
   const { camera } = useThree()
 
   // 相机动画状态 ref（避免重渲染）
@@ -43,7 +43,9 @@ export default function SolarSystem() {
       }
       const speed = speedMap[timeSpeed] || 1
       const clampedDelta = Math.min(delta, 0.1)
-      setCurrentDay((prev) => prev + clampedDelta * speed * 0.5)
+      const dayDelta = clampedDelta * speed * 0.5
+      setCurrentDay((prev) => prev + dayDelta)
+      addTimeAdvanced(Math.abs(dayDelta))
     }
 
     // 相机动画

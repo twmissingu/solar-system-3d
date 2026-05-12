@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import { CelestialBody, getRealVisualRadius } from '../data/celestialData'
 import { useStore } from '../store/useStore'
 import { getHeliocentricPosition, getSatellitePosition } from '../utils/orbit'
+import { evaluateAchievements } from '../utils/achievements'
 
 interface PlanetProps {
   body: CelestialBody
@@ -14,7 +15,7 @@ interface PlanetProps {
 
 export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite = false }: PlanetProps) {
   const meshRef = useRef<THREE.Mesh>(null)
-  const { currentDay, selectedBody, setSelectedBody, showLabels, showOrbits, scaleMode } = useStore()
+  const { currentDay, selectedBody, setSelectedBody, showLabels, showOrbits, scaleMode, addExploredBody, addMissionExploredBody, activeMissionId } = useStore()
 
   const isSelected = selectedBody?.id === body.id
 
@@ -92,6 +93,11 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
           onClick={(e) => {
             e.stopPropagation()
             setSelectedBody(body)
+            addExploredBody(body.id)
+            if (activeMissionId) {
+              addMissionExploredBody(body.id)
+            }
+            evaluateAchievements()
           }}
           castShadow
           receiveShadow
