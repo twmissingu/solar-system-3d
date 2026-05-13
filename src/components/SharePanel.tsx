@@ -224,7 +224,7 @@ export default function SharePanel() {
 
     // Wrap quote text
     const maxWidth = width - 120;
-    const words = quote.split('');
+    const words = quote.split(' ');
     let line = '';
     const lines: string[] = [];
     for (let i = 0; i < words.length; i++) {

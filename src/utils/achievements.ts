@@ -35,7 +35,10 @@ export function evaluateAchievements() {
         shouldUnlock = totalTimeAdvanced >= cond.days;
         break;
       case 'eclipse_witness':
-        // 月食见证者成就由 Controls.tsx 手动解锁
+        // 由 Controls.tsx 手动解锁
+        break;
+      case 'manual':
+        // 由各自面板手动解锁
         break;
     }
 

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Ruler } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { celestialBodies, dwarfPlanets } from '../data/celestialData';
 
@@ -68,7 +69,7 @@ export default function ScaleRuler() {
               className="text-xl sm:text-2xl font-bold text-sci-white sci-text-glow"
               style={{ fontFamily: 'Orbitron, sans-serif' }}
             >
-              📏 比例尺感受器
+              <Ruler size={18} /> 比例尺感受器
             </h2>
             <p className="text-xs text-sci-white/50 mt-1">
               如果太阳是一颗篮球，太阳系会是什么样子？

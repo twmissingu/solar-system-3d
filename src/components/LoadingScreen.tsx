@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export default function LoadingScreen() {
+interface LoadingScreenProps {
+  onComplete?: () => void
+}
+
+export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const [progress, setProgress] = useState(0)
   const [visible, setVisible] = useState(true)
   const [status, setStatus] = useState<'loading' | 'ready'>('loading')
@@ -17,7 +21,10 @@ export default function LoadingScreen() {
       } else {
         clearInterval(timer)
         setStatus('ready')
-        timeoutId = setTimeout(() => setVisible(false), 800)
+        timeoutId = setTimeout(() => {
+          setVisible(false)
+          onComplete?.()
+        }, 800)
       }
     }, 320)
     return () => {
@@ -68,7 +75,7 @@ export default function LoadingScreen() {
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
-            {status === 'loading' ? `LOADING SYSTEM... ${progress}%` : 'SYSTEM READY'}
+            {status === 'loading' ? 'LOADING SYSTEM... ' + progress + '%' : 'SYSTEM READY'}
           </motion.p>
         </motion.div>
       )}

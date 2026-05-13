@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Telescope } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 const SEASONS = [
@@ -18,7 +19,7 @@ const SEASONS = [
   {
     id: 'summer',
     name: '夏季星空（6-8月）',
-    icon: '☀️',
+    icon: 'sun',
     highlights: [
       { name: '土星', desc: '傍晚出现在东南方，用小望远镜可见光环', color: '#F4D03F' },
       { name: '木星', desc: '前半夜可见，是夜空中最亮的星点之一', color: '#D4A373' },
@@ -30,7 +31,7 @@ const SEASONS = [
   {
     id: 'autumn',
     name: '秋季星空（9-11月）',
-    icon: '🍂',
+    icon: 'leaf',
     highlights: [
       { name: '木星', desc: '前半夜高悬天空，非常醒目', color: '#D4A373' },
       { name: '土星', desc: '傍晚西南方可见，光环倾斜角度每年变化', color: '#F4D03F' },
@@ -42,7 +43,7 @@ const SEASONS = [
   {
     id: 'winter',
     name: '冬季星空（12-2月）',
-    icon: '❄️',
+    icon: 'snow',
     highlights: [
       { name: '火星', desc: '傍晚高悬于东方，亮度变化大', color: '#E27B58' },
       { name: '金星', desc: '黎明前出现在东方（启明星），或日落后西方（长庚星）', color: '#E3BB76' },
@@ -72,7 +73,8 @@ export default function StarMapPanel() {
 
   if (!showStarMap) return null;
 
-  const season = SEASONS.find((s) => s.id === activeSeason)!;
+  const season = SEASONS.find((s) => s.id === activeSeason);
+  if (!season) return null;
 
   return (
     <motion.div
@@ -98,7 +100,7 @@ export default function StarMapPanel() {
               className="text-xl sm:text-2xl font-bold text-sci-white sci-text-glow"
               style={{ fontFamily: 'Orbitron, sans-serif' }}
             >
-              🌌 四季星空
+              <Telescope size={18} /> 四季星空
             </h2>
             <p className="text-xs text-sci-white/50 mt-1">
               北半球四季夜空的主要观测目标和方向指南

@@ -1,5 +1,33 @@
-import { motion } from 'framer-motion'
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  RotateCcw,
+  Eye,
+  EyeOff,
+  CircleDot,
+  Rocket,
+  Sparkles,
+  MoreHorizontal,
+  Orbit,
+  FlaskConical,
+  Satellite,
+  Compass,
+  BookOpen,
+  Ruler,
+  Microscope,
+  Telescope,
+  FileText,
+  Award,
+  Moon,
+  Pause,
+  Play,
+  Gauge,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Layers,
+  History,
+} from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { presetViews, lunarEclipseDemo, celestialBodies, dwarfPlanets } from '../data/celestialData'
 import { achievements } from '../data/achievements'
@@ -10,11 +38,11 @@ import { lightTravelMinutes, formatLightTime, lifetimeOrbits } from '../utils/ph
 import { playUISound } from '../utils/audio'
 
 const speeds = [
-  { value: 'pause' as const, label: '⏸ 暂停' },
-  { value: '1x' as const, label: '1x' },
-  { value: '10x' as const, label: '10x' },
-  { value: '100x' as const, label: '100x' },
-  { value: '1000x' as const, label: '1000x' },
+  { value: 'pause' as const, label: '暂停', icon: Pause },
+  { value: '1x' as const, label: '1x', icon: Play },
+  { value: '10x' as const, label: '10x', icon: Gauge },
+  { value: '100x' as const, label: '100x', icon: Gauge },
+  { value: '1000x' as const, label: '1kx', icon: Gauge },
 ]
 
 const timeModeTabs = [
@@ -24,50 +52,42 @@ const timeModeTabs = [
 ]
 
 export default function Controls() {
-  const {
-    timeSpeed,
-    setTimeSpeed,
-    timeMode,
-    setTimeMode,
-    showOrbits,
-    setShowOrbits,
-    showLabels,
-    setShowLabels,
-    resetView,
-    setCameraTarget,
-    setCameraLookAt,
-    setCurrentDay,
-    selectedBody,
-    setSelectedBody,
-    currentDay,
-    showKnowledge,
-    scaleMode,
-    setScaleMode,
-    setShowMissionPanel,
-    setShowAchievementPanel,
-    setShowSpacecraftPanel,
-    setJourneyMode,
-    setCurrentJourneyIndex,
-    addMissionObservedEvent,
-    activeMissionId,
-    setShowPredictionGame,
-    setShowSandbox,
-    setShowHohmannDesigner,
-    setShowEclipseLab,
-    setShowBlackHole,
-    setShowNarrative,
-    setShowSharePanel,
-    setShowScientistGallery,
-    setShowScaleRuler,
-    setShowStarMap,
-    showScientistGallery,
-    showScaleRuler,
-    showStarMap,
-    exploredBodies,
-    unlockedAchievements,
-    completedMissions,
-    totalTimeAdvanced,
-  } = useStore()
+  const timeSpeed = useStore((s) => s.timeSpeed)
+  const setTimeSpeed = useStore((s) => s.setTimeSpeed)
+  const timeMode = useStore((s) => s.timeMode)
+  const setTimeMode = useStore((s) => s.setTimeMode)
+  const showOrbits = useStore((s) => s.showOrbits)
+  const setShowOrbits = useStore((s) => s.setShowOrbits)
+  const showLabels = useStore((s) => s.showLabels)
+  const setShowLabels = useStore((s) => s.setShowLabels)
+  const resetView = useStore((s) => s.resetView)
+  const setCameraTarget = useStore((s) => s.setCameraTarget)
+  const setCameraLookAt = useStore((s) => s.setCameraLookAt)
+  const setCurrentDay = useStore((s) => s.setCurrentDay)
+  const selectedBody = useStore((s) => s.selectedBody)
+  const setSelectedBody = useStore((s) => s.setSelectedBody)
+  const currentDay = useStore((s) => s.currentDay)
+  const showKnowledge = useStore((s) => s.showKnowledge)
+  const scaleMode = useStore((s) => s.scaleMode)
+  const setScaleMode = useStore((s) => s.setScaleMode)
+  const setShowMissionPanel = useStore((s) => s.setShowMissionPanel)
+  const setShowAchievementPanel = useStore((s) => s.setShowAchievementPanel)
+  const setShowSpacecraftPanel = useStore((s) => s.setShowSpacecraftPanel)
+  const setJourneyMode = useStore((s) => s.setJourneyMode)
+  const setCurrentJourneyIndex = useStore((s) => s.setCurrentJourneyIndex)
+  const setShowPredictionGame = useStore((s) => s.setShowPredictionGame)
+  const setShowSandbox = useStore((s) => s.setShowSandbox)
+  const setShowHohmannDesigner = useStore((s) => s.setShowHohmannDesigner)
+  const setShowEclipseLab = useStore((s) => s.setShowEclipseLab)
+  const setShowBlackHole = useStore((s) => s.setShowBlackHole)
+  const setShowNarrative = useStore((s) => s.setShowNarrative)
+  const setShowSharePanel = useStore((s) => s.setShowSharePanel)
+  const setShowScientistGallery = useStore((s) => s.setShowScientistGallery)
+  const setShowScaleRuler = useStore((s) => s.setShowScaleRuler)
+  const setShowStarMap = useStore((s) => s.setShowStarMap)
+  const setShowExplorationHistory = useStore((s) => s.setShowExplorationHistory)
+
+  const [toolboxOpen, setToolboxOpen] = useState(false)
 
   const lifetimeData = useMemo(() => {
     return [...celestialBodies, ...dwarfPlanets]
@@ -78,7 +98,7 @@ export default function Controls() {
       }))
   }, [])
 
-  const handlePresetView = (view: typeof presetViews[0]) => {
+  const handlePresetView = (view: (typeof presetViews)[0]) => {
     let basePos: [number, number, number] = [0, 0, 0]
     let lookAt: [number, number, number] = view.lookAt
 
@@ -109,14 +129,12 @@ export default function Controls() {
     setCameraLookAt([0, 0, 0])
     setSelectedBody(null)
 
-    // Mission progress
+    const { activeMissionId, addMissionObservedEvent } = useStore.getState()
     if (activeMissionId) {
       addMissionObservedEvent('moon')
     }
 
-    // Achievement
     evaluateAchievements()
-    // 手动解锁月食见证者成就
     const { unlockAchievement } = useStore.getState()
     unlockAchievement('eclipse_witness')
   }
@@ -138,13 +156,13 @@ export default function Controls() {
 
     const yearsAdvanced = (state.totalTimeAdvanced / 365.25).toFixed(1)
 
-    const report = `# 🚀 我的宇宙探索报告
+    const report = `# 我的宇宙探索报告
 
 > 生成时间：${new Date().toLocaleString('zh-CN')}
 
 ---
 
-## 📊 探索数据
+## 探索数据
 
 - **已探索天体**：${exploredNames}
 - **已解锁成就**：${achievementNames}
@@ -153,7 +171,7 @@ export default function Controls() {
 
 ---
 
-## 🌍 我的宇宙足迹
+## 我的宇宙足迹
 
 ${state.exploredBodies.length > 0
   ? state.exploredBodies.map((id) => {
@@ -164,7 +182,7 @@ ${state.exploredBodies.length > 0
 
 ---
 
-## 🧠 科学态度宣言
+## 科学态度宣言
 
 > 我承诺，在这个应用里看到的一切都是科学家的**当前最佳理解**，而非永恒真理。
 > 科学的价值不在于永远正确，而在于永远好奇。
@@ -173,7 +191,7 @@ ${state.exploredBodies.length > 0
 
 *本报告由太阳系3D探索应用自动生成*
 *数据来源：简化轨道模型，仅供科普教育参考*
-`;
+`
 
     const blob = new Blob([report], { type: 'text/markdown;charset=utf-8' })
     const url = URL.createObjectURL(blob)
@@ -186,6 +204,102 @@ ${state.exploredBodies.length > 0
     URL.revokeObjectURL(url)
   }
 
+  // Dock 栏配置
+  const dockItems = [
+    {
+      id: 'reset',
+      icon: RotateCcw,
+      label: '重置视角',
+      onClick: () => { playUISound('click'); resetView(); },
+      active: false,
+    },
+    {
+      id: 'labels',
+      icon: showLabels ? Eye : EyeOff,
+      label: showLabels ? '隐藏标签' : '显示标签',
+      onClick: () => { playUISound('click'); setShowLabels(!showLabels); },
+      active: showLabels,
+    },
+    {
+      id: 'orbits',
+      icon: CircleDot,
+      label: '轨道显示',
+      onClick: () => { playUISound('click'); setShowOrbits(!showOrbits); },
+      active: showOrbits,
+    },
+    {
+      id: 'missions',
+      icon: Rocket,
+      label: '探索任务',
+      onClick: () => { playUISound('click'); setShowMissionPanel(true); },
+      active: false,
+      primary: true,
+    },
+    {
+      id: 'journey',
+      icon: Sparkles,
+      label: '光速旅程',
+      onClick: () => { playUISound('click'); setJourneyMode('running'); setCurrentJourneyIndex(0); },
+      active: false,
+    },
+    {
+      id: 'more',
+      icon: toolboxOpen ? ChevronDown : MoreHorizontal,
+      label: toolboxOpen ? '收起' : '更多工具',
+      onClick: () => { playUISound('click'); setToolboxOpen(!toolboxOpen); },
+      active: toolboxOpen,
+    },
+  ]
+
+  // 工具箱分组
+  type ToolboxItem = { icon: typeof Rocket; label: string; onClick: () => void; primary?: boolean }
+  type ToolboxSection = { title: string; items: ToolboxItem[] }
+
+  const toolboxSections: ToolboxSection[] = [
+    {
+      title: '视角',
+      items: presetViews.map((view) => ({
+        icon: Compass,
+        label: view.nameZh,
+        onClick: () => { playUISound('click'); handlePresetView(view); setToolboxOpen(false); },
+      })),
+    },
+    {
+      title: '演示',
+      items: [
+        { icon: Moon, label: '月食实验', onClick: () => { playUISound('click'); handleLunarEclipse(); setToolboxOpen(false); }, primary: true },
+        { icon: Orbit, label: '黑洞探险', onClick: () => { playUISound('click'); setShowBlackHole(true); setToolboxOpen(false); } },
+      ],
+    },
+    {
+      title: '工具',
+      items: [
+        { icon: Eye, label: '预测挑战', onClick: () => { playUISound('click'); setShowPredictionGame(true); setToolboxOpen(false); } },
+        { icon: FlaskConical, label: '沙盘实验', onClick: () => { playUISound('click'); setShowSandbox(true); setToolboxOpen(false); } },
+        { icon: Orbit, label: '轨道设计', onClick: () => { playUISound('click'); setShowHohmannDesigner(true); setToolboxOpen(false); } },
+      ],
+    },
+    {
+      title: '资料',
+      items: [
+        { icon: Satellite, label: '航天器', onClick: () => { playUISound('click'); setShowSpacecraftPanel(true); setToolboxOpen(false); } },
+        { icon: Microscope, label: '天文学家', onClick: () => { playUISound('click'); setShowScientistGallery(true); setToolboxOpen(false); } },
+        { icon: History, label: '探索历程', onClick: () => { playUISound('click'); setShowExplorationHistory(true); setToolboxOpen(false); } },
+        { icon: Telescope, label: '四季星空', onClick: () => { playUISound('click'); setShowStarMap(true); setToolboxOpen(false); } },
+        { icon: Ruler, label: '比例尺', onClick: () => { playUISound('click'); setShowScaleRuler(true); setToolboxOpen(false); } },
+      ],
+    },
+    {
+      title: '其他',
+      items: [
+        { icon: BookOpen, label: '故事任务', onClick: () => { playUISound('click'); setShowNarrative(true); setToolboxOpen(false); } },
+        { icon: Award, label: '探索徽章', onClick: () => { playUISound('click'); setShowAchievementPanel(true); setToolboxOpen(false); } },
+        { icon: FileText, label: '导出报告', onClick: () => { playUISound('click'); generateExplorationReport(); setToolboxOpen(false); } },
+        { icon: Layers, label: scaleMode === 'exaggerated' ? '真实比例' : '放大比例', onClick: () => { playUISound('click'); setScaleMode(scaleMode === 'exaggerated' ? 'realistic' : 'exaggerated'); } },
+      ],
+    },
+  ]
+
   return (
     <>
       {/* 顶部标题栏 */}
@@ -195,27 +309,27 @@ ${state.exploredBodies.length > 0
         transition={{ delay: 0.5 }}
         className="fixed top-3 left-3 sm:top-4 sm:left-4 z-20"
       >
-        <div className="sci-panel px-3 py-2 sm:px-5 sm:py-3">
+        <div className="sci-panel px-3 py-2 sm:px-5 sm:py-3 interactive-hover">
           <h1
             className="text-base sm:text-xl font-bold text-sci-white sci-text-glow tracking-wider"
             style={{ fontFamily: 'Orbitron, sans-serif' }}
           >
             SOLAR SYSTEM
           </h1>
-          <p className="text-[10px] sm:text-xs text-sci-cyan/60 mt-0.5 hidden sm:block">
+          <p className="text-[10px] sm:text-xs text-sci-cyan/50 mt-0.5 hidden sm:block">
             太阳系3D探索 · 科学教育
           </p>
         </div>
       </motion.div>
 
-      {/* 选中天体提示 - 避开标题栏和右侧面板 */}
+      {/* 选中天体提示 */}
       {selectedBody && showKnowledge && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           className="fixed top-3 sm:top-4 right-3 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 z-20"
-          style={showKnowledge ? { right: '1rem', left: 'auto', transform: 'none' } : {}}
+          style={{ right: '1rem', left: 'auto', transform: 'none' }}
         >
           <div className="sci-panel px-3 py-1.5 sm:px-4 sm:py-2 text-center">
             <p className="text-xs sm:text-sm text-sci-cyan">
@@ -226,32 +340,34 @@ ${state.exploredBodies.length > 0
         </motion.div>
       )}
 
-      {/* 底部控制栏 - 响应式：移动端垂直堆叠 */}
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="fixed bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 z-20 flex flex-col sm:flex-row items-stretch sm:items-end justify-between gap-2 sm:gap-4"
-      >
-        {/* 左侧控制组 */}
-        <div className="flex flex-col gap-2 order-2 sm:order-1">
-          {/* 时间控制 */}
+      {/* 底部区域 */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex flex-col items-center gap-2 pointer-events-none">
+        {/* 时间控制面板 */}
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="pointer-events-auto w-full max-w-xl px-3"
+        >
           <div className="sci-panel p-2 sm:p-3 flex flex-col gap-2">
             {/* Tab switcher */}
             <div className="flex flex-wrap items-center gap-1">
-              <span className="text-[10px] sm:text-xs text-sci-white/50 mr-1 shrink-0">时间</span>
+              <span className="text-[10px] sm:text-xs text-sci-white/50 mr-1 shrink-0 flex items-center gap-1">
+                <Gauge size={12} />
+                时间
+              </span>
               {timeModeTabs.map((t) => (
                 <button
                   key={t.mode}
                   onClick={() => {
-                    playUISound('click');
+                    playUISound('click')
                     setTimeMode(t.mode)
                     if (t.mode !== 'simulation') {
                       setTimeSpeed('1000x')
                     }
                   }}
                   onMouseEnter={() => playUISound('hover')}
-                  className={`px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium transition-all ${
+                  className={`px-2 py-0.5 rounded text-[10px] sm:text-xs font-medium transition-all interactive-hover ${
                     timeMode === t.mode
                       ? 'bg-sci-cyan/80 text-space-900'
                       : 'text-sci-white/60 hover:text-sci-white hover:bg-sci-cyan/10'
@@ -268,19 +384,23 @@ ${state.exploredBodies.length > 0
             {/* Tab: 模拟速度 */}
             {timeMode === 'simulation' && (
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                {speeds.map((s) => (
-                  <button
-                    key={s.value}
-                    onClick={() => setTimeSpeed(s.value)}
-                    className={`px-2 py-1 rounded text-[10px] sm:text-xs font-medium transition-all ${
-                      timeSpeed === s.value
-                        ? 'bg-sci-cyan/80 text-space-900'
-                        : 'text-sci-white/60 hover:text-sci-white hover:bg-sci-cyan/10'
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
+                {speeds.map((s) => {
+                  const Icon = s.icon
+                  return (
+                    <button
+                      key={s.value}
+                      onClick={() => setTimeSpeed(s.value)}
+                      className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] sm:text-xs font-medium transition-all interactive-hover ${
+                        timeSpeed === s.value
+                          ? 'bg-sci-cyan/80 text-space-900'
+                          : 'text-sci-white/60 hover:text-sci-white hover:bg-sci-cyan/10'
+                      }`}
+                    >
+                      <Icon size={12} />
+                      {s.label}
+                    </button>
+                  )
+                })}
               </div>
             )}
 
@@ -298,7 +418,7 @@ ${state.exploredBodies.length > 0
                       return (
                         <div
                           key={body.id}
-                          className="flex flex-col items-center rounded bg-sci-cyan/5 border border-sci-cyan/10 px-1.5 py-1"
+                          className="flex flex-col items-center rounded bg-sci-cyan/5 border border-sci-cyan/10 px-1.5 py-1 stagger-item"
                         >
                           <span className="text-[10px] text-sci-white/80 font-medium">{body.nameZh}</span>
                           <span className="text-[10px] text-sci-cyan/80 font-mono">
@@ -326,7 +446,7 @@ ${state.exploredBodies.length > 0
                     return (
                       <div
                         key={body.id}
-                        className="flex flex-col items-center rounded bg-sci-cyan/5 border border-sci-cyan/10 px-1.5 py-1"
+                        className="flex flex-col items-center rounded bg-sci-cyan/5 border border-sci-cyan/10 px-1.5 py-1 stagger-item"
                       >
                         <span className="text-[10px] text-sci-white/80 font-medium">{body.nameZh}</span>
                         <span className="text-[10px] text-sci-cyan/80 font-mono">
@@ -342,191 +462,66 @@ ${state.exploredBodies.length > 0
               </div>
             )}
           </div>
+        </motion.div>
 
-          {/* 显示控制 */}
-          <div className="sci-panel p-2 sm:p-3 flex items-center gap-2">
-            <span className="text-[10px] sm:text-xs text-sci-white/50 mr-1 shrink-0">显示</span>
-            <ToggleButton active={showOrbits} onClick={() => { playUISound('click'); setShowOrbits(!showOrbits); }} label="轨道" />
-            <ToggleButton active={showLabels} onClick={() => { playUISound('click'); setShowLabels(!showLabels); }} label="标签" />
-            <button
-              onClick={() => { playUISound('click'); setScaleMode(scaleMode === 'exaggerated' ? 'realistic' : 'exaggerated'); }}
-              onMouseEnter={() => playUISound('hover')}
-              className={`px-2 py-1 rounded text-[10px] sm:text-xs font-medium transition-all ${
-                scaleMode === 'realistic'
-                  ? 'bg-sci-blue/20 text-sci-blue border border-sci-blue/40'
-                  : 'text-sci-white/40 border border-transparent hover:text-sci-white/60'
-              }`}
-              title={scaleMode === 'exaggerated' ? '切换到真实比例（行星会非常小）' : '切换到放大比例'}
-            >
-              {scaleMode === 'exaggerated' ? '🔍 放大比例' : '🔎 真实比例'}
-            </button>
-          </div>
-        </div>
-
-        {/* 右侧操作组 */}
-        <div className="flex flex-col gap-2 items-stretch sm:items-end order-1 sm:order-2">
-          {/* 预设视角 */}
-          <div className="sci-panel p-2 sm:p-3 flex flex-wrap gap-1.5 sm:gap-2 max-w-full sm:max-w-md">
-            <span className="text-[10px] sm:text-xs text-sci-white/50 mr-1 w-full text-left sm:text-right shrink-0">
-              预设视角
-            </span>
-            {presetViews.map((view) => (
+        {/* Dock 栏 */}
+        <motion.div
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 1.0 }}
+          className="pointer-events-auto dock-container mb-3"
+        >
+          {dockItems.map((item) => {
+            const Icon = item.icon
+            return (
               <button
-                key={view.id}
-                onClick={() => handlePresetView(view)}
-                className="sci-button text-[10px] sm:text-xs py-1 px-2 sm:py-1.5 sm:px-3 flex-1 sm:flex-none text-center"
-                title={view.description}
+                key={item.id}
+                onClick={item.onClick}
+                onMouseEnter={() => playUISound('hover')}
+                className={`dock-item interactive-hover ${item.active ? 'active' : ''} ${item.primary ? 'text-sci-cyan' : ''}`}
               >
-                {view.nameZh}
+                <Icon size={18} strokeWidth={item.primary ? 2.5 : 1.5} />
+                <span className="dock-tooltip">{item.label}</span>
               </button>
-            ))}
-          </div>
+            )
+          })}
+        </motion.div>
 
-          {/* 特殊演示 */}
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={() => {
-                playUISound('click');
-                setJourneyMode('running');
-                setCurrentJourneyIndex(0);
-              }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
+        {/* 工具箱抽屉 */}
+        <AnimatePresence>
+          {toolboxOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="pointer-events-auto toolbox-drawer mb-2"
             >
-              ✨ <span className="hidden sm:inline">光速旅程</span>
-              <span className="sm:hidden">旅程</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); setShowPredictionGame(true); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
-            >
-              🔮 <span className="hidden sm:inline">预测挑战</span>
-              <span className="sm:hidden">预测</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); setShowSandbox(true); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
-            >
-              🧪 <span className="hidden sm:inline">沙盘实验</span>
-              <span className="sm:hidden">沙盘</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); setShowMissionPanel(true); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button-primary text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
-            >
-              🚀 <span className="hidden sm:inline">探索任务</span>
-              <span className="sm:hidden">任务</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); setShowSpacecraftPanel(true); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
-            >
-              🛰️ <span className="hidden sm:inline">航天器</span><span className="sm:hidden">航天</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); setShowHohmannDesigner(true); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
-            >
-              🛸 <span className="hidden sm:inline">轨道设计</span><span className="sm:hidden">轨道</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); setShowAchievementPanel(true); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center justify-center gap-1 py-1.5 px-2 sm:py-2 sm:px-3"
-            >
-              🏅 <span className="hidden sm:inline">探索徽章</span>
-              <span className="sm:hidden">徽章</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); handleLunarEclipse(); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button-primary text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
-            >
-              🧪 <span className="hidden sm:inline">月食实验</span><span className="sm:hidden">月食</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); setShowBlackHole(true); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
-            >
-              🕳️ <span className="hidden sm:inline">黑洞探险</span><span className="sm:hidden">黑洞</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); setShowNarrative(true); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
-            >
-              📖 <span className="hidden sm:inline">故事任务</span><span className="sm:hidden">故事</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); setShowScaleRuler(true); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
-            >
-              📏 <span className="hidden sm:inline">比例尺</span><span className="sm:hidden">比例</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); setShowScientistGallery(true); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
-            >
-              🔬 <span className="hidden sm:inline">天文学家</span><span className="sm:hidden">学者</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); setShowStarMap(true); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
-            >
-              🌌 <span className="hidden sm:inline">四季星空</span><span className="sm:hidden">星空</span>
-            </button>
-            <button
-              onClick={() => {
-                playUISound('click');
-                generateExplorationReport();
-              }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
-            >
-              📄 <span className="hidden sm:inline">导出报告</span><span className="sm:hidden">导出</span>
-            </button>
-            <button
-              onClick={() => { playUISound('click'); resetView(); }}
-              onMouseEnter={() => playUISound('hover')}
-              className="sci-button text-[10px] sm:text-xs py-1.5 px-2 sm:py-2 sm:px-3"
-            >
-              重置
-            </button>
-          </div>
-        </div>
-      </motion.div>
+              {toolboxSections.map((section) => (
+                <div key={section.title} className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[10px] text-sci-white/30 uppercase tracking-wider mr-1">
+                    {section.title}
+                  </span>
+                  {section.items.map((item) => {
+                    const Icon = item.icon
+                    return (
+                      <button
+                        key={item.label}
+                        onClick={item.onClick}
+                        onMouseEnter={() => playUISound('hover')}
+                        className={item.primary ? 'toolbox-item-primary' : 'toolbox-item'}
+                      >
+                        <Icon size={14} />
+                        <span>{item.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </>
-  )
-}
-
-function ToggleButton({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean
-  onClick: () => void
-  label: string
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-2 py-1 rounded text-[10px] sm:text-xs font-medium transition-all ${
-        active
-          ? 'bg-sci-cyan/20 text-sci-cyan border border-sci-cyan/40'
-          : 'text-sci-white/40 border border-transparent hover:text-sci-white/60'
-      }`}
-    >
-      {label}
-    </button>
   )
 }

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Orbit } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 const MIN_DISTANCE = 0.1;
@@ -13,10 +14,10 @@ function getStatus(distance: number, massMultiplier: number): { text: string; co
   const cautionThreshold = 2.5 / Math.sqrt(massMultiplier);
 
   if (distance > cautionThreshold) {
-    return { text: '✅ 安全区域', color: '#4ECDC4' };
+    return { text: '安全区域', color: '#4ECDC4' };
   }
   if (distance > warningThreshold) {
-    return { text: '⚠️ 警告：潮汐力开始增强', color: '#FDB813' };
+    return { text: '警告：潮汐力开始增强', color: '#FDB813' };
   }
   if (distance > dangerThreshold) {
     return { text: '🔴 危险：你的身体会被拉伸！', color: '#FF6B6B' };
@@ -35,14 +36,19 @@ function getMassLabel(mass: number): string {
 }
 
 export default function BlackHoleSimulator() {
-  const { showBlackHole, setShowBlackHole, unlockAchievement } = useStore();
+  const showBlackHole = useStore((s) => s.showBlackHole)
+  const setShowBlackHole = useStore((s) => s.setShowBlackHole)
+  const unlockAchievement = useStore((s) => s.unlockAchievement)
   const [distance, setDistance] = useState(3.0);
   const [massMultiplier, setMassMultiplier] = useState(1);
   const [hasSurvived, setHasSurvived] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
   const [hasEnteredDanger, setHasEnteredDanger] = useState(false);
 
-  const dangerThreshold = EVENT_HORIZON_BASE / Math.sqrt(massMultiplier);
+  const dangerThreshold = useMemo(
+    () => EVENT_HORIZON_BASE / Math.sqrt(massMultiplier),
+    [massMultiplier]
+  );
 
   const handleClose = useCallback(() => {
     setShowBlackHole(false);
@@ -65,7 +71,6 @@ export default function BlackHoleSimulator() {
     if (!showBlackHole) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        e.stopPropagation();
         handleClose();
       }
     };
@@ -146,7 +151,7 @@ export default function BlackHoleSimulator() {
             className="text-xl sm:text-2xl font-bold text-sci-white sci-text-glow"
             style={{ fontFamily: 'Orbitron, sans-serif' }}
           >
-            🕳️ 黑洞探险
+            <Orbit size={18} /> 黑洞探险
           </h2>
           <button
             onClick={handleClose}

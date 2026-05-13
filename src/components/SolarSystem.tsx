@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useStore } from '../store/useStore'
 import { celestialBodies, dwarfPlanets } from '../data/celestialData'
@@ -21,6 +21,7 @@ export default function SolarSystem() {
   const setCameraTarget = useStore((s) => s.setCameraTarget)
   const cameraLookAt = useStore((s) => s.cameraLookAt)
   const setCameraLookAt = useStore((s) => s.setCameraLookAt)
+  const setCameraAnimating = useStore((s) => s.setCameraAnimating)
   const addTimeAdvanced = useStore((s) => s.addTimeAdvanced)
   const { camera } = useThree()
 
@@ -33,8 +34,8 @@ export default function SolarSystem() {
     duration: number
   } | null>(null)
 
-  // 标记动画是否刚完成（用于在 useEffect 外触发清理）
-  const [animFinished, setAnimFinished] = useState(false)
+  // 动画状态管理，避免 useFrame 与 useEffect 之间的竞态
+  const animCleanupRef = useRef(false)
 
   // lookAt 目标缓存，避免每帧创建 Vector3
   const lookAtTargetRef = useRef(new THREE.Vector3())
@@ -65,13 +66,15 @@ export default function SolarSystem() {
       const anim = cameraAnimRef.current
       anim.elapsed += clampedDelta
       const t = Math.min(anim.elapsed / anim.duration, 1)
-      // easeInOutCubic
       const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
       camera.position.lerpVectors(anim.startPos, anim.endPos, ease)
 
       if (t >= 1) {
         anim.active = false
-        setAnimFinished(true)
+        animCleanupRef.current = true
+        setCameraTarget(null)
+        setCameraLookAt(null)
+        setCameraAnimating(false)
       }
     }
 
@@ -90,18 +93,10 @@ export default function SolarSystem() {
     }
   })
 
-  // 动画完成后异步清理状态（避免在 useFrame 中直接 setState）
-  useEffect(() => {
-    if (animFinished) {
-      setAnimFinished(false)
-      setCameraTarget(null)
-      setCameraLookAt(null)
-    }
-  }, [animFinished, setCameraTarget, setCameraLookAt])
-
-  // 启动相机动画
+  // 启动相机动画，同时禁用 OrbitControls
   useEffect(() => {
     if (cameraTarget) {
+      setCameraAnimating(true)
       cameraAnimRef.current = {
         active: true,
         startPos: camera.position.clone(),
@@ -119,7 +114,7 @@ export default function SolarSystem() {
         duration: 2,
       }
     }
-  }, [cameraTarget, cameraLookAt, camera])
+  }, [cameraTarget, cameraLookAt, camera, setCameraAnimating])
 
   return (
     <group>

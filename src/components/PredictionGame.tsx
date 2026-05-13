@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Eye } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { celestialBodies, dwarfPlanets, CelestialBody } from '../data/celestialData';
 import { getHeliocentricPosition } from '../utils/orbit';
@@ -27,15 +28,15 @@ const DOT_RADIUS = 14;
 
 function getFeedback(error: number): { text: string; color: string } {
   if (error < 15) {
-    return { text: `🌟 太准了！误差只有${error.toFixed(1)}°！`, color: '#FDB813' };
+    return { text: `太准了！误差只有${error.toFixed(1)}°！`, color: '#FDB813' };
   }
   if (error <= 45) {
-    return { text: `✨ 不错！误差${error.toFixed(1)}°，方向完全正确！`, color: '#4ECDC4' };
+    return { text: `不错！误差${error.toFixed(1)}°，方向完全正确！`, color: '#4ECDC4' };
   }
   if (error <= 90) {
-    return { text: `🎯 有点偏差（${error.toFixed(1)}°），但已经抓住了规律！`, color: '#E3BB76' };
+    return { text: `有点偏差（${error.toFixed(1)}°），但已经抓住了规律！`, color: '#E3BB76' };
   }
-  return { text: `🚀 没关系！行星轨道比想象的复杂，再试一次？`, color: '#A5A5A5' };
+  return { text: `没关系！行星轨道比想象的复杂，再试一次？`, color: '#A5A5A5' };
 }
 
 export default function PredictionGame() {
@@ -106,9 +107,8 @@ export default function PredictionGame() {
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (!dialRef.current || predictionResult) return;
-      const target = e.target as Element;
-      if ('setPointerCapture' in target) {
-        (target as Element & { setPointerCapture: (id: number) => void }).setPointerCapture(e.pointerId);
+      if ('setPointerCapture' in e.currentTarget) {
+        e.currentTarget.setPointerCapture(e.pointerId);
       }
       setIsDragging(true);
       const angle = getAngleFromEvent(e.clientX, e.clientY);
@@ -138,7 +138,6 @@ export default function PredictionGame() {
     if (!showPredictionGame) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        e.stopPropagation();
         handleClose();
       }
     };
@@ -187,7 +186,7 @@ export default function PredictionGame() {
             className="text-xl sm:text-2xl font-bold text-sci-white sci-text-glow"
             style={{ fontFamily: 'Orbitron, sans-serif' }}
           >
-            🔮 行星位置预测挑战
+            <Eye size={18} /> 行星位置预测挑战
           </h2>
           <button
             onClick={handleClose}

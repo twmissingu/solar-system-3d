@@ -1,11 +1,20 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Microscope, Sparkles } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { scientists } from '../data/scientists';
 
 export default function ScientistGallery() {
-  const { showScientistGallery, setShowScientistGallery } = useStore();
+  const { showScientistGallery, setShowScientistGallery, explorationHistorySelectedMilestone, setExplorationHistorySelectedMilestone } = useStore();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Accept external navigation from ExplorationHistory
+  useEffect(() => {
+    if (explorationHistorySelectedMilestone && showScientistGallery && selectedId === null) {
+      setSelectedId(explorationHistorySelectedMilestone);
+      setExplorationHistorySelectedMilestone(null);
+    }
+  }, [explorationHistorySelectedMilestone, showScientistGallery, setExplorationHistorySelectedMilestone, setSelectedId, selectedId]);
 
   const handleClose = useCallback(() => {
     setShowScientistGallery(false);
@@ -49,7 +58,7 @@ export default function ScientistGallery() {
               className="text-xl sm:text-2xl font-bold text-sci-white sci-text-glow"
               style={{ fontFamily: 'Orbitron, sans-serif' }}
             >
-              🔬 天文学家画廊
+              <Microscope size={18} /> 天文学家画廊
             </h2>
             <p className="text-xs text-sci-white/50 mt-1">
               从古代中国到现代世界，这些天文学家拓展了人类对宇宙的认知边界
@@ -97,7 +106,7 @@ export default function ScientistGallery() {
                     </p>
                     <div className="bg-sci-gold/5 border border-sci-gold/15 rounded-lg p-3">
                       <div className="flex items-start gap-2">
-                        <span className="text-sci-gold shrink-0 text-sm">✨</span>
+                        <Sparkles size={16} className="text-sci-gold shrink-0" />
                         <p className="text-xs text-sci-white/70 leading-relaxed">{selected.funFact}</p>
                       </div>
                     </div>

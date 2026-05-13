@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { Rocket } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { keplerThirdLaw } from '../utils/physics';
 
@@ -69,8 +70,9 @@ export default function HohmannDesigner() {
   const transferTimeYears = transferPeriodYears / 2;
   const transferTimeDays = transferTimeYears * 365.25;
 
-  // Synodic period (launch window)
-  const synodicPeriodDays = 360 / (1 - 1 / keplerThirdLaw(targetAU));
+  // Synodic period (launch window) — 保护分母避免 keplerThirdLaw == 1 (即 targetAU == 1 AU)
+  const targetPeriod = keplerThirdLaw(targetAU);
+  const synodicPeriodDays = targetPeriod !== 1 ? 360 / (1 - 1 / targetPeriod) : Infinity;
 
   // Simplified delta-v (km/s)
   const vEarth = 29.78;
@@ -80,7 +82,7 @@ export default function HohmannDesigner() {
   const vTarget = vEarth / Math.sqrt(targetAU);
   const deltaV1 = vTransferPeri - vEarth;
   const deltaV2 = vTarget - vTransferApo;
-  const totalDeltaV = deltaV1 + deltaV2;
+  const totalDeltaV = Math.abs(deltaV1) + Math.abs(deltaV2);
 
   // Arrow path along top half of ellipse
   // Parametric: x = semiMajor * cos(t), y = -semiMinor * sin(t) (negative for top half)
@@ -132,7 +134,7 @@ export default function HohmannDesigner() {
             className="text-lg sm:text-2xl font-bold text-sci-white sci-text-glow"
             style={{ fontFamily: 'Orbitron, sans-serif' }}
           >
-            🚀 霍曼转移轨道设计器
+            <Rocket size={18} /> 霍曼转移轨道设计器
           </h2>
           <button
             onClick={handleClose}

@@ -6,6 +6,7 @@ export type TimeSpeed = 'pause' | '1x' | '10x' | '100x' | '1000x';
 export type ScaleMode = 'exaggerated' | 'realistic';
 export type TimeMode = 'simulation' | 'light-speed' | 'lifetime';
 export type JourneyMode = 'idle' | 'running' | 'paused' | 'completed';
+export type AppPhase = 'loading' | 'welcome' | 'transition' | 'main';
 
 interface AppState {
   // 当前选中天体
@@ -134,6 +135,10 @@ interface AppState {
   narrativeStep: number;
   setNarrativeStep: (step: number) => void;
 
+  // Camera animation guard (prevents OrbitControls conflict)
+  isCameraAnimating: boolean;
+  setCameraAnimating: (v: boolean) => void;
+
   // Social sharing
   showSharePanel: boolean;
   setShowSharePanel: (show: boolean) => void;
@@ -149,6 +154,12 @@ interface AppState {
   // Star map
   showStarMap: boolean;
   setShowStarMap: (show: boolean) => void;
+
+  // Exploration history
+  showExplorationHistory: boolean;
+  setShowExplorationHistory: (show: boolean) => void;
+  explorationHistorySelectedMilestone: string | null;
+  setExplorationHistorySelectedMilestone: (id: string | null) => void;
 
   // Mission system (needed by Task 2)
   activeMissionId: string | null;
@@ -168,6 +179,12 @@ interface AppState {
   setShowMissionPanel: (show: boolean) => void;
   currentHintIndex: number;
   nextHint: () => void;
+
+  // 欢迎页阶段管理
+  appPhase: AppPhase;
+  setAppPhase: (phase: AppPhase) => void;
+  isFirstVisit: boolean;
+  markVisited: () => void;
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -197,6 +214,8 @@ export const useStore = create<AppState>((set) => ({
   setCameraTarget: (target) => set({ cameraTarget: target }),
   cameraLookAt: null,
   setCameraLookAt: (target) => set({ cameraLookAt: target }),
+  isCameraAnimating: false,
+  setCameraAnimating: (v) => set({ isCameraAnimating: v }),
 
   showKnowledge: false,
   setShowKnowledge: (show) => set({ showKnowledge: show }),
@@ -219,6 +238,7 @@ export const useStore = create<AppState>((set) => ({
       journeyMode: 'idle',
       currentJourneyIndex: 0,
       showJourneyHUD: false,
+      isCameraAnimating: false,
     }),
 
   // Achievement system
@@ -423,4 +443,16 @@ export const useStore = create<AppState>((set) => ({
   // Star map
   showStarMap: false,
   setShowStarMap: (show) => set({ showStarMap: show }),
+
+  // Exploration history
+  showExplorationHistory: false,
+  setShowExplorationHistory: (show) => set({ showExplorationHistory: show, explorationHistorySelectedMilestone: null }),
+  explorationHistorySelectedMilestone: null,
+  setExplorationHistorySelectedMilestone: (id) => set({ explorationHistorySelectedMilestone: id }),
+
+  // 欢迎页阶段管理
+  appPhase: 'loading',
+  setAppPhase: (phase) => set({ appPhase: phase }),
+  isFirstVisit: true,
+  markVisited: () => set({ isFirstVisit: false }),
 }));

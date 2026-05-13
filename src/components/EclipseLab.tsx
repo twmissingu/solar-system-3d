@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { Moon } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 function calculateEclipse(
@@ -156,7 +157,7 @@ export default function EclipseLab() {
             className="text-lg sm:text-2xl font-bold text-sci-white sci-text-glow"
             style={{ fontFamily: 'Orbitron, sans-serif' }}
           >
-            🌑 月食实验室
+            <Moon size={18} /> 月食实验室
           </h2>
           <button
             onClick={handleClose}

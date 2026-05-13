@@ -7,6 +7,66 @@ import { useStore } from '../store/useStore'
 import { getHeliocentricPosition, getSatellitePosition } from '../utils/orbit'
 import { evaluateAchievements } from '../utils/achievements'
 import { playUISound, playAmbientDrone } from '../utils/audio'
+import { getPlanetTexture } from '../utils/planetTextures'
+
+function SelectionRings({ radius }: { radius: number }) {
+  const ringRef = useRef<THREE.Mesh>(null)
+  const sweepRef = useRef<THREE.Mesh>(null)
+
+  useFrame(({ clock }) => {
+    if (ringRef.current) {
+      ringRef.current.rotation.z = clock.elapsedTime * 0.8
+      ringRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.3) * 0.15
+    }
+    if (sweepRef.current) {
+      const t = (clock.elapsedTime * 0.6) % 1
+      sweepRef.current.position.y = Math.sin(t * Math.PI * 2) * radius * 0.6
+      const sweepOpacity = Math.sin(t * Math.PI) * 0.4
+      const mat = sweepRef.current.material as THREE.MeshBasicMaterial
+      if (mat) mat.opacity = sweepOpacity
+    }
+  })
+
+  return (
+    <group>
+      {/* 外环 - 缓慢旋转 */}
+      <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[radius * 1.3, radius * 1.35, 64]} />
+        <meshBasicMaterial
+          color="#4ECDC4"
+          transparent
+          opacity={0.5}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      {/* 内环 - 反向旋转 */}
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[radius * 1.15, radius * 1.18, 64]} />
+        <meshBasicMaterial
+          color="#4ECDC4"
+          transparent
+          opacity={0.3}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      {/* 扫描光束 */}
+      <mesh ref={sweepRef} rotation={[0, 0, 0]}>
+        <planeGeometry args={[radius * 3, radius * 0.15]} />
+        <meshBasicMaterial
+          color="#4ECDC4"
+          transparent
+          opacity={0.3}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      {/* 球壳发光 */}
+      <mesh>
+        <sphereGeometry args={[radius * 1.12, 32, 32]} />
+        <meshBasicMaterial color="#4ECDC4" transparent opacity={0.08} side={THREE.BackSide} />
+      </mesh>
+    </group>
+  )
+}
 
 function PulsingBeacon({ color, size }: { color: string; size: number }) {
   const meshRef = useRef<THREE.Mesh>(null)
@@ -120,9 +180,10 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
     return points
   }, [body.id, body.orbit, isSatellite])
 
-  // 材质颜色
+  // 材质颜色与纹理
   const baseColor = useMemo(() => new THREE.Color(body.color), [body.color])
   const blackColor = useMemo(() => new THREE.Color(0x000000), [])
+  const planetTexture = useMemo(() => getPlanetTexture(body.id), [body.id])
 
   return (
     <group position={position}>
@@ -130,10 +191,10 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
       {showOrbits && orbitPoints && orbitPoints.length > 0 && (
         <Line
           points={orbitPoints}
-          color={body.color}
-          lineWidth={1}
+          color={isSelected ? '#4ECDC4' : body.color}
+          lineWidth={isSelected ? 2 : 1}
           transparent
-          opacity={0.2}
+          opacity={isSelected ? 0.5 : 0.2}
         />
       )}
 
@@ -168,14 +229,26 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
           castShadow
           receiveShadow
         >
-          <sphereGeometry args={[effectiveRadius, 32, 32]} />
-          <meshStandardMaterial
-            color={baseColor}
-            roughness={0.7}
-            metalness={0.1}
-            emissive={body.id === 'sun' ? baseColor : blackColor}
-            emissiveIntensity={body.id === 'sun' ? 0.8 : 0}
-          />
+          <sphereGeometry args={[effectiveRadius, 48, 48]} />
+          {planetTexture ? (
+            <meshStandardMaterial
+              map={planetTexture}
+              color={body.id === 'sun' ? baseColor : undefined}
+              roughness={body.id === 'sun' ? 0.9 : 0.75}
+              metalness={body.id === 'sun' ? 0 : 0.05}
+              emissive={body.id === 'sun' ? baseColor : blackColor}
+              emissiveIntensity={body.id === 'sun' ? 0.6 : 0}
+              emissiveMap={body.id === 'sun' ? planetTexture : undefined}
+            />
+          ) : (
+            <meshStandardMaterial
+              color={baseColor}
+              roughness={0.7}
+              metalness={0.1}
+              emissive={body.id === 'sun' ? baseColor : blackColor}
+              emissiveIntensity={body.id === 'sun' ? 0.8 : 0}
+            />
+          )}
         </mesh>
 
         {/* 赤道参考线（仅非太阳天体） */}
@@ -235,13 +308,8 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
         <PulsingBeacon color={body.color} size={0.08} />
       )}
 
-      {/* 选中高亮 */}
-      {isSelected && (
-        <mesh>
-          <sphereGeometry args={[effectiveRadius * 1.15, 32, 32]} />
-          <meshBasicMaterial color="#4ECDC4" transparent opacity={0.15} side={THREE.BackSide} />
-        </mesh>
-      )}
+      {/* 选中高亮 + 扫描环 */}
+      {isSelected && <SelectionRings radius={effectiveRadius} />}
 
       {/* 标签 */}
       {showLabels && (

@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Eye, Sparkles, Search } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { getHeliocentricPosition } from '../utils/orbit';
 import { celestialBodies, dwarfPlanets } from '../data/celestialData';
@@ -135,7 +136,7 @@ export default function ObservationGuide({ bodyId }: ObservationGuideProps) {
 
     if (bodyId === 'sun') {
       return {
-        title: '☀️ 太阳观测指南',
+        title: '太阳观测指南',
         lines: [
           '太阳是我们的母星，白天肉眼可见。',
           '绝对不要直接用肉眼或望远镜观测，必须使用专业减光滤镜。',
@@ -249,13 +250,13 @@ export default function ObservationGuide({ bodyId }: ObservationGuideProps) {
         <p className="text-xs text-sci-gold/80 font-medium mb-1.5">🔭 观测工具推荐</p>
         <div className="space-y-1.5">
           <div className="flex items-start gap-2">
-            <span className="text-[10px] text-sci-white/40 shrink-0 mt-0.5">👁️</span>
+            <Eye size={12} className="text-sci-white/40 shrink-0 mt-0.5" />
             <p className="text-[11px] text-sci-white/60 leading-relaxed">
               <strong className="text-sci-white/80">肉眼：</strong>太阳（需专用滤镜）、月球、金星、木星、火星、土星、主要星座
             </p>
           </div>
           <div className="flex items-start gap-2">
-            <span className="text-[10px] text-sci-white/40 shrink-0 mt-0.5">🔍</span>
+            <Search size={12} className="text-sci-white/40 shrink-0 mt-0.5" />
             <p className="text-[11px] text-sci-white/60 leading-relaxed">
               <strong className="text-sci-white/80">双筒望远镜（7×50）：</strong>月球环形山、木星四大卫星、猎户座大星云、仙女座星系
             </p>
@@ -304,14 +305,14 @@ export default function ObservationGuide({ bodyId }: ObservationGuideProps) {
 
       <div className="rounded-lg border border-sci-cyan/10 bg-space-700/20 p-3">
         <div className="flex items-start gap-2">
-          <span className="text-sci-cyan shrink-0 text-sm">🔍</span>
+          <Search size={16} className="text-sci-cyan shrink-0" />
           <p className="text-xs text-sci-white/70 leading-relaxed">{guide.tip}</p>
         </div>
       </div>
 
       <div className="rounded-lg border border-sci-cyan/10 bg-space-700/20 p-3">
         <div className="flex items-start gap-2">
-          <span className="text-sci-gold shrink-0 text-sm">✨</span>
+          <Sparkles size={16} className="text-sci-gold shrink-0" />
           <p className="text-xs text-sci-white/70 leading-relaxed">{guide.funFact}</p>
         </div>
       </div>

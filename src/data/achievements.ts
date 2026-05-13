@@ -16,7 +16,8 @@ export type AchievementCondition =
   | { type: 'mission_complete'; count: number }
   | { type: 'knowledge_unlock'; level: 'bronze' | 'silver' | 'gold'; count: number }
   | { type: 'time_travel'; days: number }
-  | { type: 'eclipse_witness' };
+  | { type: 'eclipse_witness' }
+  | { type: 'manual' };
 
 export const achievements: Achievement[] = [
   {
@@ -150,7 +151,7 @@ export const achievements: Achievement[] = [
     description: '你预测了行星的位置——如果古人也有这样的工具，天文学史会如何改写？',
     icon: '🔮',
     rarity: 'rare',
-    condition: { type: 'explore', bodyId: '__none__' },
+    condition: { type: 'manual' },
   },
   {
     id: 'space_explorer',
@@ -158,7 +159,7 @@ export const achievements: Achievement[] = [
     description: '你查看了一艘航天器的轨迹——如果是你，想驾驶它飞向哪里？',
     icon: '🛰️',
     rarity: 'common',
-    condition: { type: 'explore', bodyId: '__none__' },
+    condition: { type: 'manual' },
   },
   {
     id: 'interdisciplinary',
@@ -166,7 +167,7 @@ export const achievements: Achievement[] = [
     description: '你发现了不同学科的连接——天文学和你的生活还有什么联系？',
     icon: '🔗',
     rarity: 'common',
-    condition: { type: 'explore', bodyId: '__none__' },
+    condition: { type: 'manual' },
   },
   {
     id: 'stargazer',
@@ -174,7 +175,7 @@ export const achievements: Achievement[] = [
     description: '你读了观测指南——今晚，你想抬头看看哪颗星星？',
     icon: '🔭',
     rarity: 'common',
-    condition: { type: 'explore', bodyId: '__none__' },
+    condition: { type: 'manual' },
   },
   {
     id: 'scientist_vote',
@@ -190,7 +191,7 @@ export const achievements: Achievement[] = [
     description: '你逃离了黑洞——但如果是超大质量黑洞，你在事件视界处可能安然无恙。为什么？',
     icon: '🕳️',
     rarity: 'epic',
-    condition: { type: 'explore', bodyId: '__none__' },
+    condition: { type: 'manual' },
   },
 ];
 

@@ -182,4 +182,157 @@
   .crosshair-pulse {
     animation: crosshairPulse 2s ease-in-out infinite;
   }
+
+  /* ===== 微交互规范 ===== */
+
+  /* 交互元素悬停：微放大 + 发光 */
+  .interactive-hover {
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  }
+  .interactive-hover:hover {
+    transform: scale(1.02);
+  }
+
+  /* 面板入场动画 */
+  @keyframes panelEnter {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .panel-enter {
+    animation: panelEnter 0.3s ease-out forwards;
+  }
+
+  /* 交错入场子项 */
+  @keyframes staggerItem {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .stagger-item {
+    opacity: 0;
+    animation: staggerItem 0.25s ease-out forwards;
+  }
+
+  /* ===== Dock栏样式 ===== */
+  .dock-container {
+    @apply fixed bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1;
+    @apply px-3 py-2 rounded-xl;
+    background: rgba(5, 11, 20, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(78, 205, 196, 0.15);
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(78, 205, 196, 0.05);
+  }
+
+  .dock-item {
+    @apply relative flex items-center justify-center w-10 h-10 rounded-lg;
+    @apply text-sci-white/60 transition-all duration-200 cursor-pointer;
+    @apply hover:text-sci-cyan hover:bg-sci-cyan/10;
+  }
+
+  .dock-item.active {
+    @apply text-sci-cyan bg-sci-cyan/15;
+    box-shadow: 0 0 12px rgba(78, 205, 196, 0.15), inset 0 0 8px rgba(78, 205, 196, 0.05);
+  }
+
+  .dock-item .dock-tooltip {
+    @apply absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[10px] whitespace-nowrap;
+    @apply text-sci-white/80 bg-space-800/90 border border-sci-cyan/20;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .dock-item:hover .dock-tooltip {
+    opacity: 1;
+  }
+
+  /* ===== 工具箱抽屉 ===== */
+  .toolbox-drawer {
+    @apply fixed bottom-20 left-1/2 -translate-x-1/2 z-30;
+    @apply flex flex-wrap justify-center gap-2 max-w-2xl;
+    @apply px-4 py-3 rounded-xl;
+    background: rgba(5, 11, 20, 0.92);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(78, 205, 196, 0.12);
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .toolbox-item {
+    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs;
+    @apply text-sci-white/70 border border-transparent transition-all duration-150 cursor-pointer;
+    @apply hover:text-sci-cyan hover:border-sci-cyan/30 hover:bg-sci-cyan/5;
+  }
+
+  .toolbox-item-primary {
+    @apply toolbox-item;
+    @apply bg-sci-cyan/15 text-sci-cyan border-sci-cyan/30;
+    @apply hover:bg-sci-cyan/25;
+  }
+
+  /* ===== 选中扫描环动画 ===== */
+  @keyframes scanRingRotate {
+    from { transform: rotateZ(0deg); }
+    to { transform: rotateZ(360deg); }
+  }
+
+  @keyframes scanSweep {
+    0% { transform: translateY(-150%) rotateX(60deg); opacity: 0; }
+    30% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translateY(150%) rotateX(60deg); opacity: 0; }
+  }
+
+  /* ===== 数据对比条 ===== */
+  .data-bar-bg {
+    @apply h-1.5 rounded-full bg-space-700/60 overflow-hidden;
+  }
+  .data-bar-fill {
+    @apply h-full rounded-full transition-all duration-700 ease-out;
+  }
+
+  /* ===== HUD仪表盘 ===== */
+  .hud-gauge {
+    @apply relative w-16 h-16;
+  }
+  .hud-gauge-ring {
+    @apply absolute inset-0 rounded-full border-2 border-sci-cyan/20;
+  }
+  .hud-gauge-fill {
+    @apply absolute inset-0 rounded-full;
+    background: conic-gradient(rgba(78, 205, 196, 0.6) var(--gauge-value, 0%), transparent 0);
+    mask: radial-gradient(transparent 55%, black 56%);
+    -webkit-mask: radial-gradient(transparent 55%, black 56%);
+  }
+}
+
+@layer utilities {
+  /* 欢迎页偏振光柱 */
+  @keyframes welcomeLightBeam {
+    0% {
+      opacity: 0;
+      transform: translateY(100%) scaleY(0.5);
+    }
+    20% {
+      opacity: 0.06;
+    }
+    50% {
+      opacity: 0.12;
+    }
+    80% {
+      opacity: 0.04;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-20%) scaleY(1.2);
+    }
+  }
+
+  .welcome-light-beam {
+    position: absolute;
+    bottom: 0;
+    width: 1px;
+    height: 60%;
+    background: linear-gradient(to top, rgba(78, 205, 196, 0.25), rgba(78, 205, 196, 0.04), transparent);
+    animation: welcomeLightBeam 8s ease-in-out infinite;
+    filter: blur(1px);
+  }
 }

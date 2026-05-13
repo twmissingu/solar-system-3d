@@ -31,43 +31,39 @@ export function getHeliocentricPosition(
   orbit: OrbitalElements,
   days: number
 ): [number, number, number] {
-  const { a, e, i, longNode, period } = orbit;
+  const { a, e, i, L, longPeri, longNode, period } = orbit;
 
-  if (a === 0 || period === 0) return [0, 0, 0]; // 太阳或静止天体
+  if (a === 0 || period === 0) return [0, 0, 0];
 
-  // 平均运动 (rad/day)
   const n = (2 * Math.PI) / period;
 
-  // 平近点角（归一化到 [0, 2π) 避免长时间模拟精度损失）
-  const M = (n * days) % (2 * Math.PI);
+  const M0Deg = ((L - longPeri) % 360 + 360) % 360;
+  const M0Rad = M0Deg * DEG_TO_RAD;
+  const M = ((M0Rad + n * days) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
 
-  // 解开普勒方程得偏近点角
   const E = solveKepler(M, e);
 
-  // 真近点角
   const cosE = Math.cos(E);
   const sinE = Math.sin(E);
   const denom = 1 - e * cosE;
   const cosNu = (cosE - e) / denom;
   const sinNu = (Math.sqrt(1 - e * e) * sinE) / denom;
 
-  // 日心距离
   const r = a * (1 - e * cosE);
 
-  // 轨道平面内的位置
-  const xOrb = r * cosNu;
-  const yOrb = r * sinNu;
+  const ωRad = (longPeri - longNode) * DEG_TO_RAD;
+  const cosω = Math.cos(ωRad);
+  const sinω = Math.sin(ωRad);
+  const xOrb = r * (cosNu * cosω - sinNu * sinω);
+  const yOrb = r * (sinNu * cosω + cosNu * sinω);
 
-  // 轨道倾角、升交点经度
   const iRad = i * DEG_TO_RAD;
   const nodeRad = longNode * DEG_TO_RAD;
-
   const cosI = Math.cos(iRad);
   const sinI = Math.sin(iRad);
   const cosNode = Math.cos(nodeRad);
   const sinNode = Math.sin(nodeRad);
 
-  // 从轨道平面转换到黄道坐标系，距离缩放 15 倍便于观察
   const x = (cosNode * xOrb - sinNode * yOrb * cosI) * 15;
   const y = (sinNode * xOrb + cosNode * yOrb * cosI) * 15;
   const z = yOrb * sinI * 15;
@@ -87,41 +83,38 @@ export function getSatellitePosition(
   days: number,
   scale = 1500
 ): [number, number, number] {
-  const { a, e, i, longNode, period } = orbit;
+  const { a, e, i, L, longPeri, longNode, period } = orbit;
   if (a === 0 || period === 0) return [0, 0, 0];
 
-  // 平均运动
   const n = (2 * Math.PI) / period;
-  const M = (n * days) % (2 * Math.PI);
 
-  // 解开普勒方程
+  const M0Deg = ((L - longPeri) % 360 + 360) % 360;
+  const M0Rad = M0Deg * DEG_TO_RAD;
+  const M = ((M0Rad + n * days) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+
   const E = solveKepler(M, e);
 
-  // 真近点角
   const cosE = Math.cos(E);
   const sinE = Math.sin(E);
   const denom = 1 - e * cosE;
   const cosNu = (cosE - e) / denom;
   const sinNu = (Math.sqrt(1 - e * e) * sinE) / denom;
 
-  // 距离
   const r = a * (1 - e * cosE) * scale;
 
-  // 轨道平面内位置
-  const xOrb = r * cosNu;
-  const yOrb = r * sinNu;
+  const ωRad = (longPeri - longNode) * DEG_TO_RAD;
+  const cosω = Math.cos(ωRad);
+  const sinω = Math.sin(ωRad);
+  const xOrb = r * (cosNu * cosω - sinNu * sinω);
+  const yOrb = r * (sinNu * cosω + cosNu * sinω);
 
-  // 轨道倾角和升交点
   const iRad = i * DEG_TO_RAD;
   const nodeRad = longNode * DEG_TO_RAD;
-
   const cosI = Math.cos(iRad);
   const sinI = Math.sin(iRad);
   const cosNode = Math.cos(nodeRad);
   const sinNode = Math.sin(nodeRad);
 
-  // 从轨道平面转换到参考坐标系
-  // 与 getHeliocentricPosition 保持坐标系一致：z 为轨道面法向
   const x = cosNode * xOrb - sinNode * yOrb * cosI;
   const y = sinNode * xOrb + cosNode * yOrb * cosI;
   const z = yOrb * sinI;

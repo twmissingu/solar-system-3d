@@ -48,6 +48,7 @@ export default function JourneyMode() {
       }
     }
 
+    if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       flyToStop(index + 1);
     }, 5000);

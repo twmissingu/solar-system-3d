@@ -48,63 +48,7 @@ export const quizQuestions: QuizQuestion[] = [
     correctIndex: 1,
     explanation:
       "月全食时，地球挡住了直射月球的阳光，但地球大气层会将部分阳光（尤其是红光）弯曲并散射到月球表面，使月球呈现暗红色。",
-    relatedBody: "Moon",
-  },
-  {
-    id: "q4",
-    question: "土星的光环主要由什么组成？",
-    options: [
-      "一圈巨大的气体",
-      "无数冰块和岩石碎片",
-      "固态金属环",
-      "发光的等离子体",
-    ],
-    correctIndex: 1,
-    explanation:
-      "土星环由无数大小不等的冰块和岩石碎片组成，从沙粒大小到房子大小不等。它们的厚度只有约1公里，但宽度可达28万公里。",
-    relatedBody: "saturn",
-  },
-  {
-    id: "q5",
-    question: "木星上的'大红斑'是什么？",
-    options: [
-      "一块巨大的红色岩石",
-      "一个已经持续了至少350年的巨大风暴",
-      "木星表面的火山喷发",
-      "外星人的基地",
-    ],
-    correctIndex: 1,
-    explanation:
-      "大红斑是木星上一个巨大的反气旋风暴，大到可以装下整个地球。它已经存在了至少350年，是太阳系中持续时间最长的风暴。",
-    relatedBody: "jupiter",
-  },
-  {
-    id: "q6",
-    question: "太阳为什么会发光发热？",
-    options: [
-      "太阳是一个巨大的核反应堆，通过核聚变产生能量",
-      "太阳表面燃烧着巨大的火焰",
-      "太阳不断吸收周围的物质并释放能量",
-      "太阳内部有巨大的磁铁产生光和热",
-    ],
-    correctIndex: 0,
-    explanation:
-      "太阳核心温度高达约1500万K，在极端高温高压下，氢原子发生核聚变反应（4个氢原子合成1个氦原子），释放出巨大能量。",
-    relatedBody: "sun",
-  },
-  {
-    id: "q7",
-    question: "一年有365天的原因是什么？",
-    options: [
-      "古人随意规定的",
-      "地球绕太阳公转一周需要约365.25天",
-      "月球绕地球转了12圈",
-      "太阳绕银河系转了一小步",
-    ],
-    correctIndex: 1,
-    explanation:
-      "地球绕太阳公转一圈（回归年）需要约365.2422天。我们日常使用365天的历法，每4年闰一天来补上0.2422天的差距。",
-    relatedBody: "Earth",
+    relatedBody: "moon",
   },
   {
     id: "q8",
@@ -118,21 +62,7 @@ export const quizQuestions: QuizQuestion[] = [
     correctIndex: 1,
     explanation:
       "月球以约每秒1公里的速度绕地球运动。地球的引力把它拉向中心，但它的横向速度使它不会坠落，而是沿轨道持续绕转——就像甩绳子上的球一样。",
-    relatedBody: "Moon",
-  },
-  {
-    id: "q9",
-    question: "太阳系最远的大行星是哪一个？",
-    options: [
-      "冥王星",
-      "天王星",
-      "海王星",
-      "土星",
-    ],
-    correctIndex: 2,
-    explanation:
-      "海王星是八大行星中离太阳最远的一个。冥王星在2006年被重新分类为矮行星，不再属于大行星。海王星的风速可达每小时2100公里，是太阳系中风最强的行星。",
-    relatedBody: "neptune",
+    relatedBody: "moon",
   },
   {
     id: "q10",
@@ -146,9 +76,8 @@ export const quizQuestions: QuizQuestion[] = [
     correctIndex: 1,
     explanation:
       "月球的自转周期和绕地球的公转周期相同（约27.3天），这种现象称为'潮汐锁定'。结果是月球始终用同一面朝向地球。",
-    relatedBody: "Moon",
+    relatedBody: "moon",
   },
-  // ====== 科学史误解题型 ======
   {
     id: "q11",
     question: "关于火星上的'运河'，历史上人们的看法经历了怎样的变化？",

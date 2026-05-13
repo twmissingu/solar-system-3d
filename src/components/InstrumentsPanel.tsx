@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { celestialBodies, dwarfPlanets, AU, CelestialBody } from '../data/celestialData'
 
@@ -160,15 +160,25 @@ function RadarRangefinder({ bodyId }: { bodyId: string }) {
   const roundTripMinutes = useMemo(() => distanceAU * 8.317 * 2, [distanceAU])
   const distanceWanKm = useMemo(() => (distanceAU * AU) / 10000, [distanceAU])
 
+  const timerRef = useRef<ReturnType<typeof setTimeout>[]>([])
+
+  useEffect(() => {
+    return () => {
+      timerRef.current.forEach(clearTimeout)
+    }
+  }, [])
+
   const handleFire = useCallback(() => {
     if (radarPhase !== 'idle') return
     setRadarPhase('out')
-    setTimeout(() => {
+    const t1 = setTimeout(() => {
       setRadarPhase('back')
-      setTimeout(() => {
+      const t2 = setTimeout(() => {
         setRadarPhase('done')
       }, 1200)
+      timerRef.current.push(t2)
     }, 1200)
+    timerRef.current.push(t1)
   }, [radarPhase])
 
   if (!body) return null
@@ -253,7 +263,7 @@ function RadarRangefinder({ bodyId }: { bodyId: string }) {
             className="space-y-2 text-center bg-space-700/30 rounded-lg p-3"
           >
             {isEarth ? (
-              <p className="text-sm text-sci-white/80">🌍 地球是我们的家园，雷达信号瞬间到达！</p>
+              <p className="text-sm text-sci-white/80">地球是我们的家园，雷达信号瞬间到达！</p>
             ) : (
               <>
                 <p className="text-sm text-sci-white/80">

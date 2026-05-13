@@ -41,7 +41,8 @@ export function calculateEarthShadow(
 export function getLunarEclipsePhase(
   sunPos: [number, number, number],
   earthPos: [number, number, number],
-  moonPos: [number, number, number]
+  moonPos: [number, number, number],
+  distanceScale: number = 384400 / 3.855
 ): { phase: 'none' | 'penumbral' | 'partial' | 'total'; coverage: number } {
   // 计算月球相对于地球阴影中心的位置
   // 简化：地球阴影中心在太阳-地球连线的延长线上，距离地球后方
@@ -65,8 +66,7 @@ export function getLunarEclipsePhase(
     earthToMoon[0] ** 2 + earthToMoon[1] ** 2 + earthToMoon[2] ** 2
   );
 
-  // 场景距离缩放到 km
-  const distanceScale = 384400 / 3.855; // 月球在场景中的距离 ≈ 3.855 单位 = 384,400 km
+  // 场景距离缩放到 km（默认值基于 Moon.a=0.00257 AU × 卫星缩放因子 1500 = 3.855 场景单位）
   const distanceKm = earthMoonDistance * distanceScale;
 
   // 计算阴影半径

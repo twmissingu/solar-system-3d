@@ -1,10 +1,18 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { getSpacecraftById } from '../data/spacecraft';
 
 export default function SpacecraftPanel() {
-  const { selectedSpacecraft, setSelectedSpacecraft, setShowSpacecraftPanel } = useStore();
+  const { selectedSpacecraft, setSelectedSpacecraft, setShowSpacecraftPanel, explorationHistorySelectedMilestone, setExplorationHistorySelectedMilestone } = useStore();
+
+  // Accept external navigation from ExplorationHistory
+  useEffect(() => {
+    if (explorationHistorySelectedMilestone && selectedSpacecraft === null) {
+      setSelectedSpacecraft(explorationHistorySelectedMilestone);
+      setExplorationHistorySelectedMilestone(null);
+    }
+  }, [explorationHistorySelectedMilestone, selectedSpacecraft, setSelectedSpacecraft, setExplorationHistorySelectedMilestone]);
 
   const spacecraft = useMemo(() => {
     if (!selectedSpacecraft) return null;

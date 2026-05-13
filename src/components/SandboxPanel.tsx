@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { FlaskConical } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { keplerThirdLaw, estimatedSurfaceTemperature, solarIrradiance, habitableZone } from '../utils/physics';
 
@@ -11,7 +12,7 @@ const HABITABLE_OUTER = 1.37;
 function getStatusMessage(au: number): { text: string; color: string; bg: string } {
   if (au < HABITABLE_INNER) {
     return {
-      text: '⚠️ 太近了！水会沸腾蒸发，生命无法存活。',
+      text: '太近了！水会沸腾蒸发，生命无法存活。',
       color: '#FF6B6B',
       bg: 'rgba(255, 107, 107, 0.1)',
     };
@@ -24,7 +25,7 @@ function getStatusMessage(au: number): { text: string; color: string; bg: string
     };
   }
   return {
-    text: '❄️ 太远了！水会结冰，温度过低。',
+    text: '太远了！水会结冰，温度过低。',
     color: '#64B5F6',
     bg: 'rgba(100, 181, 246, 0.1)',
   };
@@ -96,7 +97,7 @@ export default function SandboxPanel() {
             className="text-xl sm:text-2xl font-bold text-sci-white sci-text-glow"
             style={{ fontFamily: 'Orbitron, sans-serif' }}
           >
-            🧪 沙盘实验：如果地球更近/更远？
+            <FlaskConical size={18} /> 沙盘实验：如果地球更近/更远？
           </h2>
           <button
             onClick={handleClose}

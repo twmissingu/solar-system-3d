@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Microscope } from 'lucide-react';
 import { getControversiesForBody, Controversy } from '../data/controversies';
 import { useStore } from '../store/useStore';
 
@@ -196,7 +197,7 @@ export default function ScienceFrontiers({ bodyId }: ScienceFrontiersProps) {
       {/* 模型精度教育卡片 */}
       <div className="rounded-lg border border-sci-cyan/15 bg-sci-cyan/5 p-3">
         <div className="flex items-start gap-2">
-          <span className="text-sci-cyan shrink-0 text-sm">🔬</span>
+          <Microscope size={16} className="text-sci-cyan shrink-0" />
           <div>
             <p className="text-xs text-sci-cyan/80 font-medium mb-1">关于本应用的科学模型</p>
             <p className="text-[11px] text-sci-white/60 leading-relaxed">
