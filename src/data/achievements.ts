@@ -193,6 +193,22 @@ export const achievements: Achievement[] = [
     rarity: 'epic',
     condition: { type: 'manual' },
   },
+  {
+    id: 'quiz_master',
+    name: '答题达人',
+    description: '你完成了全部测验——但如果让你出一道题，你会问什么？',
+    icon: '📝',
+    rarity: 'rare',
+    condition: { type: 'manual' },
+  },
+  {
+    id: 'eclipse_master',
+    name: '月食专家',
+    description: '你找到了月全食的条件——下一次真正的月全食是什么时候？',
+    icon: '🌘',
+    rarity: 'rare',
+    condition: { type: 'manual' },
+  },
 ];
 
 export function getAchievementById(id: string): Achievement | undefined {

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Moon } from 'lucide-react';
+import { Moon, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 function calculateEclipse(
@@ -64,6 +64,7 @@ function getResultDisplay(type: 'none' | 'penumbral' | 'partial' | 'total') {
 
 export default function EclipseLab() {
   const { showEclipseLab, setShowEclipseLab } = useStore();
+  const unlockAchievement = useStore((s) => s.unlockAchievement);
 
   const [earthSunAU, setEarthSunAU] = useState(1.0);
   const [moonInclinationDeg, setMoonInclinationDeg] = useState(0);
@@ -96,6 +97,12 @@ export default function EclipseLab() {
   );
 
   const resultDisplay = getResultDisplay(eclipseType);
+
+  useEffect(() => {
+    if (eclipseType === 'total') {
+      unlockAchievement('eclipse_master')
+    }
+  }, [eclipseType, unlockAchievement])
 
   // SVG geometry calculations
   const sunCx = 100;
@@ -145,9 +152,9 @@ export default function EclipseLab() {
       }}
     >
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
+        initial={{ scale: 0.92, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
+        exit={{ scale: 0.92, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         className="w-full max-w-5xl mx-3 sm:mx-4 max-h-[94vh] flex flex-col"
       >
@@ -165,9 +172,7 @@ export default function EclipseLab() {
             aria-label="关闭月食实验室"
             title="关闭"
           >
-            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 
@@ -207,9 +212,10 @@ export default function EclipseLab() {
                 {/* Penumbra cone */}
                 <polygon
                   points={`${earthCx},${penumbraTopEarthY} ${shadowX},${penumbraTopShadowY} ${shadowX},${penumbraBottomShadowY} ${earthCx},${penumbraBottomEarthY}`}
-                  fill="#FF6B6B"
+                  fill="currentColor"
+                  className="text-sci-danger"
                   fillOpacity="0.15"
-                  stroke="#FF6B6B"
+                  stroke="currentColor"
                   strokeWidth="1"
                   strokeOpacity="0.3"
                 />
@@ -308,7 +314,7 @@ export default function EclipseLab() {
                 <g transform="translate(20, 260)">
                   <rect x="0" y="-8" width="14" height="14" fill="#8B0000" fillOpacity="0.35" stroke="#8B0000" strokeWidth="0.5" />
                   <text x="20" y="2" fill="rgba(255,255,255,0.6)" fontSize="10" fontFamily="monospace">本影 (Umbra)</text>
-                  <rect x="110" y="-8" width="14" height="14" fill="#FF6B6B" fillOpacity="0.15" stroke="#FF6B6B" strokeWidth="0.5" />
+                  <rect x="110" y="-8" width="14" height="14" fill="currentColor" className="text-sci-danger" fillOpacity="0.15" stroke="currentColor" strokeWidth="0.5" />
                   <text x="130" y="2" fill="rgba(255,255,255,0.6)" fontSize="10" fontFamily="monospace">半影 (Penumbra)</text>
                 </g>
               </svg>

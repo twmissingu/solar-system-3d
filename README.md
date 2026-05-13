@@ -1,117 +1,151 @@
-[![English](https://img.shields.io/badge-English-blue.svg)](README.md)
-[![中文](https://img.shields.io/badge-中文-red.svg)](README_zh.md)
+<p align="center">
+  <img src="public/og-image.png" alt="Solar System 3D" width="600"/>
+</p>
+
+<h1 align="center">🚀 Solar System 3D</h1>
+
+<p align="center">
+  <strong>An interactive 3D solar system explorer for science education — built for curious minds aged 10–15.</strong>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react" alt="React 18"/>
+  <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript" alt="TypeScript 5.7"/>
+  <img src="https://img.shields.io/badge/Three.js-R3F-000000?logo=three.js" alt="Three.js + R3F"/>
+  <img src="https://img.shields.io/badge/Vite-5.4-646CFF?logo=vite" alt="Vite 5.4"/>
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"/>
+</p>
+
+<p align="center">
+  <a href="#-features">Features</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-for-ai-agents">For AI Agents</a> •
+  <a href="#-project-structure">Structure</a> •
+  <a href="#-contributing">Contributing</a>
+</p>
 
 ---
 
-# 🪐 Solar System 3D — Interactive Science Education Platform
+**Explore the solar system like never before.** Navigate through realistic 3D orbits, interact with 20+ educational modules, and discover why science is less about memorizing facts and more about asking better questions.
 
-> Explore the real solar system in your browser. Real orbital mechanics, 20+ interactive modules, and a sci-fi HUD that turns astronomy into an adventure.
-
-[Live Demo](https://solar-system-3d-demo.vercel.app) · [Report Bug](../../issues) · [Request Feature](../../issues)
-
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
-![Three.js](https://img.shields.io/badge/Three.js-r171-000000?logo=three.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript)
-
----
-
-## 🌌 Why This Project?
-
-Most astronomy apps are either **static images** or **oversimplified animations** that don't reflect real orbital mechanics. This project bridges the gap between scientific accuracy and engaging interactivity — while planting a seed of scientific curiosity in young minds.
-
-- 🎯 **Real orbital data** — Based on NASA JPL ephemerides (J2000.0 epoch) with true Keplerian ellipses
-- 🎮 **25+ interactive modules** — From mission exploration to black hole simulation with mass comparison
-- 🏆 **Reflective learning** — Achievement toasts ask "why?" instead of just saying "congrats"
-- 📐 **Scale intuition** — "Sun = basketball" ruler reveals the true emptiness of the solar system
-- 👩‍🔬 **Diverse scientists** — Gallery features 8 astronomers across cultures and genders
-- 🚀 **Sci-fi HUD design** — Immersive interface inspired by mission control dashboards
-- 🌐 **Zero backend** — Pure static site, runs entirely in the browser
+Built with React Three Fiber, this pure-static web app runs entirely in the browser — no backend, no sign-up, no dependencies beyond `npm install && npm run dev`.
 
 ---
 
 ## ✨ Features
 
+### 🌌 3D Solar System
+| | |
+|---|---|
+| **Real orbital mechanics** | Keplerian orbits solved via Newton's method — elliptical paths with correct inclination, argument of periapsis, and ascending node |
+| **All 8 planets + 5 dwarf planets** | Complete with moons, rings, and an asteroid belt |
+| **Scale modes** | Toggle between exaggerated (visible planets) and realistic (true-to-scale) views |
+
+### 🎮 20+ Interactive Modules
+
 | Module | Description |
 |--------|-------------|
-| 🌍 **Real-Time Solar System** | Navigate all 8 planets + Sun with accurate orbital positions using Newton-Raphson Kepler equation solving |
-| 🛰️ **Satellite Rendering** | Recursive moon system rendering with tidal locking visualization; invisible planets show pulsing beacons in realistic scale |
-| 🎯 **Exploration Missions** | Guided narrative missions across the solar system |
-| 🔮 **Prediction Challenges** | Predict planetary positions and orbital events |
-| 🧪 **Sandbox Lab** | Experiment with orbital parameters in real time |
-| 🚀 **Hohmann Transfer Designer** | Design interplanetary transfer orbits visually |
-| 🌑 **Eclipse Simulator** | Simulate lunar and solar eclipses with shadow geometry |
-| 🕳️ **Black Hole Explorer** | Explore stellar vs. supermassive black holes with adjustable mass (1x–1000x solar mass) |
-| ⚡ **Light-Speed Journey** | Travel at light speed between planets with time dilation HUD |
-| 🏆 **Reflective Achievement System** | 30+ achievements that ask "what's your next question?" instead of just badges |
-| 📝 **Knowledge System** | Bronze→Silver→Gold tiered knowledge with bridge text transitions and follow-up chains |
-| 📝 **Knowledge Quizzes** | Test your astronomy knowledge, including science-history misconception questions |
-| 🔭 **Observation Guide** | Practical stargazing tips with tool recommendations (naked eye / binoculars / telescope) |
-| 📏 **Scale Ruler** | "If the Sun were a basketball" — reveals true emptiness of the solar system |
-| 👩‍🔬 **Scientist Gallery** | 8 diverse astronomers (5 women, 3 non-Western) with contributions and search keywords |
-| 🌌 **Seasonal Star Map** | Northern hemisphere 4-season stargazing guide with direction charts |
-| 📄 **Exploration Report Export** | Generate Markdown learning report for school assignments |
-| 🎵 **Immersive Audio** | Web Audio API ambient soundscape with spatial audio |
-| 📊 **Interdisciplinary Panel** | Connect astronomy to physics, chemistry, and history with 💡 thinking prompts |
-| 🔬 **Science Frontiers** | Controversy voting + model-accuracy education cards |
-| 🛰️ **Spacecraft Panel** | Trajectories and discoveries of Voyager, Juno, New Horizons |
+| 🚀 **Exploration Missions** | Guided tours with achievements and progressive hints |
+| 🔮 **Prediction Challenge** | Predict planetary positions after N days — compete for accuracy |
+| 🧪 **Sandbox Lab** | Adjust Earth's orbit and watch temperature/habitability change in real-time |
+| 🌑 **Eclipse Lab** | Find the conditions for a total lunar eclipse |
+| 🕳️ **Black Hole Simulator** | Approach the event horizon — experience time dilation and tidal forces |
+| 🛸 **Hohmann Transfer Designer** | Visualize fuel-efficient orbital transfers between planets |
+| 📜 **Exploration History** | 28 milestones from ancient astronomy to future missions |
+| 🔬 **Scientist Gallery** | 8 diverse astronomers from across cultures and eras |
+| 📖 **Narrative Missions** | Story-driven adventures through the solar system |
+
+### 🧠 Educational Design
+
+| Principle | Implementation |
+|-----------|---------------|
+| **Tiered knowledge** | Bronze (perception) → Silver (correlation) → Gold (mechanism) with bridge text |
+| **Socratic follow-ups** | Each unlockable knowledge level includes a progressive question chain |
+| **Achievement as inquiry** | Descriptions are rhetorical questions — "Mars once had water. Where do you think it went?" |
+| **Model transparency** | Every calculation is labeled as simplified approximation, with limitations explained |
+| **Interdisciplinary links** | 💡-tagged prompts connect astronomy to physics, chemistry, biology, and history |
+
+### 🎨 Sci-Fi HUD & Visuals
+- Glass-morphism panels with holographic corner accents
+- Custom data stream animations with orbital phase gauges
+- Scanline overlay and crosshair reticle
+- Spring-animated panel transitions
+- Fully responsive — desktop to mobile
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+- Node.js >= 18
+- npm >= 9
 
-- Node.js 18+ (LTS recommended)
-- npm 9+ or pnpm 8+
-
-### Installation
+### Install & Run
 
 ```bash
-# Clone the repository
-git clone https://github.com/twzhan/solar-system-3d.git
+# Clone
+git clone https://github.com/your-username/solar-system-3d.git
 cd solar-system-3d
 
-# Install dependencies
+# Install
 npm install
 
-# Start development server (port 3000, auto-open browser)
+# Start dev server (opens http://localhost:3000)
 npm run dev
-```
 
-### Production Build
-
-```bash
-# Build for production (outputs to dist/)
+# Production build
 npm run build
 
 # Preview production build
 npm run preview
 ```
 
+The app is a pure static site — deploy the `dist/` folder to any static host (Vercel, Netlify, GitHub Pages, etc.).
+
 ---
 
-## 🏗️ Architecture
+## 🤖 For AI Agents
 
-### Tech Stack
+This project is designed for seamless AI agent interaction:
+
+### Agent Quick Start
+
+```bash
+# 1. Clone and install
+git clone <repo-url>
+cd solar-system-3d
+npm install
+
+# 2. Start dev server	
+npm run dev
+
+# 3. Build for production
+npm run build
+```
+
+### Agent Context Files
+
+The project includes an `AGENTS.md` that provides:
+- Complete component inventory with file paths
+- Architecture decisions (state management, rendering, styling)
+- Coding conventions and naming rules
+- Educational content standards
+- Performance guidelines
+
+**Always read `AGENTS.md` before making changes** — it contains critical context the agent needs to match the project's conventions.
+
+### Key Architecture
 
 | Layer | Technology |
-|-------|------------|
+|-------|-----------|
 | Framework | React 18 + TypeScript 5.7 |
-| Build Tool | Vite 5.4 |
 | 3D Rendering | Three.js + @react-three/fiber + @react-three/drei |
-| State Management | Zustand 5 |
-| UI Styling | Tailwind CSS 3.4 |
-| Animation | Framer Motion |
+| State | Zustand 5 (single store, no persistence) |
+| Styling | Tailwind CSS 3.4 with custom sci-fi theme |
+| Animation | Framer Motion 11 |
 | Icons | Lucide React |
-| Audio | Web Audio API (native) |
-
-### Key Design Decisions
-
-- **Centralized time stepping** — All orbital animation logic lives in `SolarSystem.tsx` via `useFrame` to avoid multi-component state thrashing
-- **Keplerian accuracy** — Uses Newton-Raphson iteration to solve `M = E - e·sin(E)` for true orbital positions
-- **Ref-based camera animation** — Camera transitions use refs for smooth 60fps animation, with async Redux-like cleanup
-- **Zustand for global state** — All UI state, game progress, and panel visibility in a single store
+| Audio | Web Audio API (native, no library) |
+| Build | Vite 5.4 → static `dist/` output |
 
 ---
 
@@ -119,92 +153,36 @@ npm run preview
 
 ```
 src/
-├── components/          # React components (3D scene + UI overlays)
-│   ├── SolarSystem.tsx     # Root 3D scene: time stepping, camera animation
-│   ├── Planet.tsx          # Celestial body rendering (recursive satellites, orbits, labels)
-│   ├── Controls.tsx        # Bottom control bar (time, view, feature entry)
-│   ├── InfoPanel.tsx       # Right-side celestial info panel
-│   └── ... 25+ interactive panels
-├── data/                # Static data
-│   ├── celestialData.ts   # NASA JPL orbital elements
-│   ├── missions.ts        # Mission definitions
-│   ├── achievements.ts    # Achievement data
-│   ├── quiz.ts            # Quiz question bank
-│   └── ...
-├── store/
-│   └── useStore.ts        # Zustand global state
-├── utils/
-│   ├── orbit.ts           # Keplerian orbital mechanics
-│   ├── physics.ts         # Physics formulas (light travel, habitable zones, etc.)
-│   └── audio.ts           # Web Audio API soundscape
-└── styles/
-    └── index.css          # Tailwind + sci-fi component classes
+├── components/     # 35+ React components (3D scene + UI panels)
+├── data/           # Static data (celestial bodies, achievements, missions, scientists...)
+├── store/          # Zustand global state (single store)
+├── utils/          # Pure functions (orbit calculation, physics, audio, date...)
+├── styles/         # Tailwind + custom sci-fi CSS classes
+├── App.tsx         # Root: Canvas + all UI overlays
+└── main.tsx        # Entry point
 ```
 
----
-
-## 🧪 For AI Agents
-
-This project is designed for seamless AI agent interaction:
-
-```bash
-# 1. Clone and install
-git clone https://github.com/twzhan/solar-system-3d.git
-cd solar-system-3d
-npm install
-
-# 2. Start development
-npm run dev
-# → Opens at http://localhost:3000
-
-# 3. Build for production
-npm run build
-# → Static files in dist/
-```
-
-**Key file references for modifications:**
-- Add celestial bodies → `src/data/celestialData.ts` (follow `CelestialBody` interface)
-- Add UI panels → `src/store/useStore.ts` (add `show*` boolean + setter)
-- Add knowledge topics → `src/data/knowledgeV2.ts` (follow `KnowledgeItemV2` interface with Bronze/Silver/Gold tiers)
-- Add quiz questions → `src/data/quiz.ts`
-- Add interdisciplinary connections → `src/data/interdisciplinary.ts`
-- Add scientist profiles → `src/data/scientists.ts`
-- Modify orbital math → `src/utils/orbit.ts`
-- Modify physics → `src/utils/physics.ts`
-- Add achievements → `src/data/achievements.ts` + `src/utils/achievements.ts`
-
-**Important conventions:**
-- All UI text and comments are in **Chinese** (`zh-CN`)
-- Reuse existing sci-fi CSS classes (`.sci-panel`, `.sci-button`, `.sci-text-glow`)
-- Avoid `useFrame` in new components — centralize time logic in `SolarSystem.tsx`
-- `strict: true` TypeScript — avoid `any`
+All UI text and comments are in **Chinese** (Simplified). The interface targets Chinese-speaking users aged 10–15.
 
 ---
 
-## 🤝 Contributing
+## 🧪 Testing
 
-We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+No test framework is currently configured. Recommended approach:
+- Unit tests: `vitest` + `@testing-library/react`
+- Priority: `utils/orbit.ts` and `utils/physics.ts` (pure functions, easy to test)
+- 3D scene components are challenging to test — focus on data/utility layers first
 
 ---
 
-## 📜 License
+## 📄 License
 
-Distributed under the MIT License. See [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](LICENSE) for details.
 
----
-
-## 🙏 Acknowledgments
-
-- Orbital data derived from [NASA JPL Horizons](https://ssd.jpl.nasa.gov/horizons/)
-- 3D rendering powered by [Three.js](https://threejs.org/) and [React Three Fiber](https://docs.pmndrs.react-three-fiber.io/)
-- Fonts: [Orbitron](https://fonts.google.com/specimen/Orbitron) & [Noto Sans SC](https://fonts.google.com/specimen/Noto+Sans+SC)
+Copyright (c) 2026 Solar System 3D Team
 
 ---
 
-<p align="center">Made with 🪐 for science education</p>
+<p align="center">
+  <sub>Built with ❤️ for science education. No LLM APIs, no backend, no data collection.</sub>
+</p>

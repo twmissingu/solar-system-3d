@@ -72,6 +72,7 @@ export default function Controls() {
   const setScaleMode = useStore((s) => s.setScaleMode)
   const setShowMissionPanel = useStore((s) => s.setShowMissionPanel)
   const setShowAchievementPanel = useStore((s) => s.setShowAchievementPanel)
+  const setSelectedSpacecraft = useStore((s) => s.setSelectedSpacecraft)
   const setShowSpacecraftPanel = useStore((s) => s.setShowSpacecraftPanel)
   const setJourneyMode = useStore((s) => s.setJourneyMode)
   const setCurrentJourneyIndex = useStore((s) => s.setCurrentJourneyIndex)
@@ -204,50 +205,30 @@ ${state.exploredBodies.length > 0
     URL.revokeObjectURL(url)
   }
 
-  // Dock 栏配置
-  const dockItems = [
+  // Dock 分组配置
+  const dockGroups = [
     {
-      id: 'reset',
-      icon: RotateCcw,
-      label: '重置视角',
-      onClick: () => { playUISound('click'); resetView(); },
-      active: false,
+      key: 'display',
+      items: [
+        { id: 'reset', icon: RotateCcw, label: '重置视角', onClick: () => { playUISound('click'); resetView(); }, active: false },
+        { id: 'labels', icon: showLabels ? Eye : EyeOff, label: showLabels ? '隐藏标签' : '显示标签', onClick: () => { playUISound('click'); setShowLabels(!showLabels); }, active: showLabels },
+        { id: 'orbits', icon: CircleDot, label: '轨道显示', onClick: () => { playUISound('click'); setShowOrbits(!showOrbits); }, active: showOrbits },
+      ],
     },
     {
-      id: 'labels',
-      icon: showLabels ? Eye : EyeOff,
-      label: showLabels ? '隐藏标签' : '显示标签',
-      onClick: () => { playUISound('click'); setShowLabels(!showLabels); },
-      active: showLabels,
+      key: 'explore',
+      items: [
+        { id: 'missions', icon: Rocket, label: '探索任务', onClick: () => { playUISound('click'); setShowMissionPanel(true); }, active: false, primary: true },
+        { id: 'exploration-history', icon: History, label: '探索历程', onClick: () => { playUISound('click'); setShowExplorationHistory(true); }, active: false },
+        { id: 'scientists', icon: Microscope, label: '天文学家', onClick: () => { playUISound('click'); setShowScientistGallery(true); }, active: false },
+      ],
     },
     {
-      id: 'orbits',
-      icon: CircleDot,
-      label: '轨道显示',
-      onClick: () => { playUISound('click'); setShowOrbits(!showOrbits); },
-      active: showOrbits,
-    },
-    {
-      id: 'missions',
-      icon: Rocket,
-      label: '探索任务',
-      onClick: () => { playUISound('click'); setShowMissionPanel(true); },
-      active: false,
-      primary: true,
-    },
-    {
-      id: 'journey',
-      icon: Sparkles,
-      label: '光速旅程',
-      onClick: () => { playUISound('click'); setJourneyMode('running'); setCurrentJourneyIndex(0); },
-      active: false,
-    },
-    {
-      id: 'more',
-      icon: toolboxOpen ? ChevronDown : MoreHorizontal,
-      label: toolboxOpen ? '收起' : '更多工具',
-      onClick: () => { playUISound('click'); setToolboxOpen(!toolboxOpen); },
-      active: toolboxOpen,
+      key: 'tools',
+      items: [
+        { id: 'journey', icon: Sparkles, label: '光速旅程', onClick: () => { playUISound('click'); setJourneyMode('running'); setCurrentJourneyIndex(0); }, active: false },
+        { id: 'more', icon: toolboxOpen ? ChevronDown : MoreHorizontal, label: toolboxOpen ? '收起' : '更多工具', onClick: () => { playUISound('click'); setToolboxOpen(!toolboxOpen); }, active: toolboxOpen },
+      ],
     },
   ]
 
@@ -282,9 +263,7 @@ ${state.exploredBodies.length > 0
     {
       title: '资料',
       items: [
-        { icon: Satellite, label: '航天器', onClick: () => { playUISound('click'); setShowSpacecraftPanel(true); setToolboxOpen(false); } },
-        { icon: Microscope, label: '天文学家', onClick: () => { playUISound('click'); setShowScientistGallery(true); setToolboxOpen(false); } },
-        { icon: History, label: '探索历程', onClick: () => { playUISound('click'); setShowExplorationHistory(true); setToolboxOpen(false); } },
+        { icon: Satellite, label: '航天器', onClick: () => { playUISound('click'); setSelectedSpacecraft('voyager1'); setShowSpacecraftPanel(true); setToolboxOpen(false); } },
         { icon: Telescope, label: '四季星空', onClick: () => { playUISound('click'); setShowStarMap(true); setToolboxOpen(false); } },
         { icon: Ruler, label: '比例尺', onClick: () => { playUISound('click'); setShowScaleRuler(true); setToolboxOpen(false); } },
       ],
@@ -410,7 +389,7 @@ ${state.exploredBodies.length > 0
                 <p className="text-[10px] sm:text-xs text-sci-white/60">
                   以光速前进时，每秒钟你可以穿越这些距离：
                 </p>
-                <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                <div className="grid grid-cols-2 sm:grid-cols-8 gap-1.5">
                   {celestialBodies
                     .filter((b) => b.id !== 'sun')
                     .map((body) => {
@@ -439,7 +418,7 @@ ${state.exploredBodies.length > 0
                 <p className="text-[10px] sm:text-xs text-sci-white/60">
                   如果你活到80岁，你能看到这些变化：
                 </p>
-                <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                <div className="grid grid-cols-2 sm:grid-cols-8 gap-1.5">
                   {lifetimeData.map((body) => {
                     const orbits = body.orbits
                     const isInteger = Number.isInteger(orbits)
@@ -464,39 +443,53 @@ ${state.exploredBodies.length > 0
           </div>
         </motion.div>
 
-        {/* Dock 栏 */}
+        {/* Dock 栏 - 三分组 */}
         <motion.div
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 1.0 }}
           className="pointer-events-auto dock-container mb-3"
         >
-          {dockItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <button
-                key={item.id}
-                onClick={item.onClick}
-                onMouseEnter={() => playUISound('hover')}
-                className={`dock-item interactive-hover ${item.active ? 'active' : ''} ${item.primary ? 'text-sci-cyan' : ''}`}
-              >
-                <Icon size={18} strokeWidth={item.primary ? 2.5 : 1.5} />
-                <span className="dock-tooltip">{item.label}</span>
-              </button>
-            )
-          })}
+          {dockGroups.map((group, gi) => (
+            <div key={group.key} className="flex items-center gap-1">
+              {gi > 0 && <div className="dock-divider" />}
+              {group.items.map((item) => {
+                const Icon = item.icon
+                return (
+                  <button
+                    key={item.id}
+                    onClick={item.onClick}
+                    onMouseEnter={() => playUISound('hover')}
+                    className={`dock-item interactive-hover ${item.active ? 'active' : ''} ${item.primary ? 'text-sci-cyan' : ''}`}
+                  >
+                    <Icon size={18} strokeWidth={item.primary ? 2.5 : 1.5} />
+                    <span className="dock-tooltip">{item.label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          ))}
         </motion.div>
 
-        {/* 工具箱抽屉 */}
+        {/* 工具箱抽屉 - 桌面端弹出，移动端底部滑入 */}
         <AnimatePresence>
           {toolboxOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="pointer-events-auto toolbox-drawer mb-2"
-            >
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="fixed inset-0 z-20 pointer-events-auto"
+                onClick={() => setToolboxOpen(false)}
+              />
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                className="pointer-events-auto toolbox-drawer mb-2 sm:mb-2"
+              >
               {toolboxSections.map((section) => (
                 <div key={section.title} className="flex flex-wrap items-center gap-1.5">
                   <span className="text-[10px] text-sci-white/30 uppercase tracking-wider mr-1">
@@ -519,6 +512,7 @@ ${state.exploredBodies.length > 0
                 </div>
               ))}
             </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>

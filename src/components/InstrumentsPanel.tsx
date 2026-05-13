@@ -154,6 +154,7 @@ function Spectrometer({ bodyId }: { bodyId: string }) {
 
 function RadarRangefinder({ bodyId }: { bodyId: string }) {
   const [radarPhase, setRadarPhase] = useState<'idle' | 'out' | 'back' | 'done'>('idle')
+  const [signalProgress, setSignalProgress] = useState(0)
 
   const body = useMemo(() => findBodyById(bodyId), [bodyId])
   const distanceAU = useMemo(() => (body ? getDistanceAU(body) : 0), [body])
@@ -180,6 +181,11 @@ function RadarRangefinder({ bodyId }: { bodyId: string }) {
     }, 1200)
     timerRef.current.push(t1)
   }, [radarPhase])
+
+  const handleResetRadar = useCallback(() => {
+    setRadarPhase('idle')
+    setSignalProgress(0)
+  }, [])
 
   if (!body) return null
 
@@ -243,15 +249,24 @@ function RadarRangefinder({ bodyId }: { bodyId: string }) {
         </div>
       </div>
 
-      <button
-        onClick={handleFire}
-        disabled={radarPhase !== 'idle'}
-        className={`sci-button-primary w-full text-center py-2.5 text-sm ${
-          radarPhase !== 'idle' ? 'opacity-60 cursor-not-allowed' : ''
-        }`}
-      >
-        {radarPhase === 'idle' ? '发射雷达信号' : radarPhase === 'out' ? '信号飞行中...' : radarPhase === 'back' ? '信号返回中...' : '测量完成'}
-      </button>
+      {radarPhase === 'done' ? (
+        <button
+          onClick={handleResetRadar}
+          className="sci-button w-full text-center py-2.5 text-sm"
+        >
+          🔄 重新测量
+        </button>
+      ) : (
+        <button
+          onClick={handleFire}
+          disabled={radarPhase !== 'idle'}
+          className={`sci-button-primary w-full text-center py-2.5 text-sm ${
+            radarPhase !== 'idle' ? 'opacity-60 cursor-not-allowed' : ''
+          }`}
+        >
+          {radarPhase === 'idle' ? '发射雷达信号' : radarPhase === 'out' ? '信号飞行中...' : '信号返回中...'}
+        </button>
+      )}
 
       {/* Results */}
       <AnimatePresence>

@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Telescope } from 'lucide-react';
+import { Telescope, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 const SEASONS = [
@@ -19,7 +19,7 @@ const SEASONS = [
   {
     id: 'summer',
     name: '夏季星空（6-8月）',
-    icon: 'sun',
+    icon: '☀️',
     highlights: [
       { name: '土星', desc: '傍晚出现在东南方，用小望远镜可见光环', color: '#F4D03F' },
       { name: '木星', desc: '前半夜可见，是夜空中最亮的星点之一', color: '#D4A373' },
@@ -31,7 +31,7 @@ const SEASONS = [
   {
     id: 'autumn',
     name: '秋季星空（9-11月）',
-    icon: 'leaf',
+    icon: '🍂',
     highlights: [
       { name: '木星', desc: '前半夜高悬天空，非常醒目', color: '#D4A373' },
       { name: '土星', desc: '傍晚西南方可见，光环倾斜角度每年变化', color: '#F4D03F' },
@@ -43,11 +43,11 @@ const SEASONS = [
   {
     id: 'winter',
     name: '冬季星空（12-2月）',
-    icon: 'snow',
+    icon: '❄️',
     highlights: [
       { name: '火星', desc: '傍晚高悬于东方，亮度变化大', color: '#E27B58' },
       { name: '金星', desc: '黎明前出现在东方（启明星），或日落后西方（长庚星）', color: '#E3BB76' },
-      { name: '猎户座', desc: '冬季最壮丽的星座，腰带三颗星排列成一条直线', color: '#FF6B6B' },
+      { name: '猎户座', desc: '冬季最壮丽的星座，腰带三颗星排列成一条直线', color: '#8899AA' },
       { name: '天狼星', desc: '夜空中最亮的恒星，位于大犬座，呈蓝白色', color: '#64B5F6' },
     ],
     tip: '冬季夜空最清澈，是观测亮星和星座的最佳时机。猎户座大星云（M42）用双筒望远镜就能看到。',
@@ -111,9 +111,7 @@ export default function StarMapPanel() {
             className="w-8 h-8 flex items-center justify-center rounded-md text-sci-white/50 hover:text-sci-cyan hover:bg-sci-cyan/10 transition-colors shrink-0"
             aria-label="关闭"
           >
-            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 

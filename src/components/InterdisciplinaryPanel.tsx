@@ -36,12 +36,21 @@ function SubjectCard({ connection }: { connection: SubjectConnection }) {
         </span>
       </div>
       <ul className="px-3 py-2.5 space-y-2">
-        {connection.connections.map((text, idx) => (
-          <li key={idx} className="flex items-start gap-2">
-            <span className="text-sci-cyan mt-0.5 text-xs">•</span>
-            <span className="text-xs text-sci-white/70 leading-relaxed">{text}</span>
-          </li>
-        ))}
+        {connection.connections.map((text, idx) => {
+          const isThinking = text.startsWith('💡')
+          return (
+            <li key={idx} className={`flex items-start gap-2 ${isThinking ? 'py-1.5 border-l-2 border-sci-gold/40 pl-2 -ml-2' : ''}`}>
+              {isThinking ? (
+                <span className="text-sci-gold mt-0.5 shrink-0 text-xs">💡</span>
+              ) : (
+                <span className="text-sci-cyan mt-0.5 shrink-0 text-xs">•</span>
+              )}
+              <span className={`text-xs leading-relaxed ${isThinking ? 'text-sci-gold italic' : 'text-sci-white/70'}`}>
+                {isThinking ? text.slice(text.indexOf('：') + 1) : text}
+              </span>
+            </li>
+          )
+        })}
       </ul>
     </motion.div>
   );

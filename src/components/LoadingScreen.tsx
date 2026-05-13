@@ -11,7 +11,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const [status, setStatus] = useState<'loading' | 'ready'>('loading')
 
   useEffect(() => {
-    const steps = [12, 30, 48, 65, 82, 94, 100]
+    const steps = [3, 7, 12, 18, 26, 35, 45, 55, 63, 70, 76, 82, 87, 91, 94, 97, 100]
     let idx = 0
     let timeoutId: ReturnType<typeof setTimeout> | null = null
     const timer = setInterval(() => {
@@ -26,7 +26,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
           onComplete?.()
         }, 800)
       }
-    }, 320)
+    }, 120)
     return () => {
       clearInterval(timer)
       if (timeoutId) clearTimeout(timeoutId)
@@ -47,7 +47,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
           <motion.div
             className="w-32 h-32 rounded-full border border-sci-cyan/10 mb-8 flex items-center justify-center"
             animate={{ rotate: 360 }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
           >
             <div className="w-28 h-28 rounded-full border border-sci-cyan/20" />
           </motion.div>
@@ -60,10 +60,17 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
           </h1>
 
           {/* 进度条外框 */}
-          <div className="w-56 sm:w-64 h-1 bg-space-700 rounded-full overflow-hidden mb-3">
+          <div
+            className="w-56 sm:w-64 h-1 bg-space-700 rounded-full overflow-hidden mb-3"
+            role="progressbar"
+            aria-valuenow={progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="页面加载进度"
+          >
             <motion.div
               className="h-full rounded-full"
-              style={{ background: status === 'ready' ? '#4ECDC4' : '#4ECDC4' }}
+              style={{ background: '#4ECDC4' }}
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.25 }}

@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Eye } from 'lucide-react';
+import { Eye, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { celestialBodies, dwarfPlanets, CelestialBody } from '../data/celestialData';
 import { getHeliocentricPosition } from '../utils/orbit';
@@ -36,7 +36,7 @@ function getFeedback(error: number): { text: string; color: string } {
   if (error <= 90) {
     return { text: `有点偏差（${error.toFixed(1)}°），但已经抓住了规律！`, color: '#E3BB76' };
   }
-  return { text: `没关系！行星轨道比想象的复杂，再试一次？`, color: '#A5A5A5' };
+  return { text: `没关系！行星轨道比想象的复杂，再试一次？`, color: '#8899AA' };
 }
 
 export default function PredictionGame() {
@@ -56,7 +56,23 @@ export default function PredictionGame() {
   } = useStore();
 
   const [isDragging, setIsDragging] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const dialRef = useRef<HTMLDivElement>(null);
+  const [dialScale, setDialScale] = useState(1);
+
+  // 响应式拨盘缩放：根据实际渲染宽度调整圆点位置
+  useLayoutEffect(() => {
+    const el = dialRef.current;
+    if (!el) return;
+    const updateScale = () => {
+      const w = el.offsetWidth;
+      if (w > 0) setDialScale(w / DIAL_SIZE);
+    };
+    updateScale();
+    const ro = new ResizeObserver(updateScale);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const selectableBodies = allBodies.filter((b) => b.id !== 'sun');
 
@@ -72,7 +88,11 @@ export default function PredictionGame() {
   }, [setShowPredictionGame, setPredictionBodyId, setPredictionResult, setPredictionUserAngle, setPredictionDays]);
 
   const handleVerify = useCallback(() => {
-    if (!predictionBodyId) return;
+    if (!predictionBodyId) {
+      setValidationError('请先选择一颗行星')
+      setTimeout(() => setValidationError(null), 2000)
+      return
+    }
     const actualAngle = calculateBodyAngle(predictionBodyId, futureDay);
     const error = angleDifference(predictionUserAngle, actualAngle);
     setPredictionResult({ actualAngle, error });
@@ -145,21 +165,38 @@ export default function PredictionGame() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showPredictionGame, handleClose]);
 
+  const handleDialKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (predictionResult) return
+    const step = e.shiftKey ? 1 : 5
+    if (e.key === 'ArrowRight') {
+      setPredictionUserAngle(((predictionUserAngle + step) % 360 + 360) % 360)
+    } else if (e.key === 'ArrowLeft') {
+      setPredictionUserAngle(((predictionUserAngle - step) % 360 + 360) % 360)
+    } else if (e.key === 'ArrowUp') {
+      setPredictionUserAngle(((predictionUserAngle + 1) % 360 + 360) % 360)
+    } else if (e.key === 'ArrowDown') {
+      setPredictionUserAngle(((predictionUserAngle - 1) % 360 + 360) % 360)
+    }
+  }, [predictionResult, predictionUserAngle, setPredictionUserAngle])
+
   if (!showPredictionGame) return null;
 
   const selectedBody = predictionBodyId ? allBodies.find((b) => b.id === predictionBodyId) || null : null;
 
-  const userDotX = DIAL_RADIUS + (DIAL_RADIUS - DOT_RADIUS - 4) * Math.sin((predictionUserAngle * Math.PI) / 180);
-  const userDotY = DIAL_RADIUS - (DIAL_RADIUS - DOT_RADIUS - 4) * Math.cos((predictionUserAngle * Math.PI) / 180);
+  const R = DIAL_RADIUS * dialScale;
+  const dotR = DOT_RADIUS * dialScale;
 
-  const currentDotX = DIAL_RADIUS + (DIAL_RADIUS - DOT_RADIUS - 4) * Math.sin((currentAngle * Math.PI) / 180);
-  const currentDotY = DIAL_RADIUS - (DIAL_RADIUS - DOT_RADIUS - 4) * Math.cos((currentAngle * Math.PI) / 180);
+  const userDotX = R + (R - dotR - 4 * dialScale) * Math.sin((predictionUserAngle * Math.PI) / 180);
+  const userDotY = R - (R - dotR - 4 * dialScale) * Math.cos((predictionUserAngle * Math.PI) / 180);
+
+  const currentDotX = R + (R - dotR - 4 * dialScale) * Math.sin((currentAngle * Math.PI) / 180);
+  const currentDotY = R - (R - dotR - 4 * dialScale) * Math.cos((currentAngle * Math.PI) / 180);
 
   const actualDotX = predictionResult
-    ? DIAL_RADIUS + (DIAL_RADIUS - DOT_RADIUS - 4) * Math.sin((predictionResult.actualAngle * Math.PI) / 180)
+    ? R + (R - dotR - 4 * dialScale) * Math.sin((predictionResult.actualAngle * Math.PI) / 180)
     : 0;
   const actualDotY = predictionResult
-    ? DIAL_RADIUS - (DIAL_RADIUS - DOT_RADIUS - 4) * Math.cos((predictionResult.actualAngle * Math.PI) / 180)
+    ? R - (R - dotR - 4 * dialScale) * Math.cos((predictionResult.actualAngle * Math.PI) / 180)
     : 0;
 
   return (
@@ -174,9 +211,9 @@ export default function PredictionGame() {
       }}
     >
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
+        initial={{ scale: 0.92, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
+        exit={{ scale: 0.92, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         className="max-w-lg w-full mx-4 max-h-[90vh] flex flex-col"
       >
@@ -194,9 +231,7 @@ export default function PredictionGame() {
             aria-label="关闭预测面板"
             title="关闭"
           >
-            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 
@@ -260,14 +295,21 @@ export default function PredictionGame() {
                     )}
                   </h3>
                   <div className="flex justify-center py-2">
-                    <div
-                      ref={dialRef}
-                      className="relative select-none touch-none"
-                      style={{ width: DIAL_SIZE, height: DIAL_SIZE, cursor: predictionResult ? 'default' : 'pointer' }}
-                      onPointerDown={handlePointerDown}
-                      onPointerMove={handlePointerMove}
-                      onPointerUp={handlePointerUp}
-                    >
+                      <div
+                        ref={dialRef}
+                        tabIndex={0}
+                        role="slider"
+                        aria-valuenow={predictionUserAngle}
+                        aria-valuemin={0}
+                        aria-valuemax={360}
+                        onKeyDown={handleDialKeyDown}
+                        className="relative select-none touch-none w-full max-w-[240px] aspect-square mx-auto"
+                        style={{ cursor: predictionResult ? 'default' : 'pointer' }}
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
+                        onPointerLeave={handlePointerUp}
+                      >
                       {/* Outer circle */}
                       <div
                         className="absolute inset-0 rounded-full border-2 border-sci-cyan/30"
@@ -278,15 +320,15 @@ export default function PredictionGame() {
                       {Array.from({ length: 12 }).map((_, i) => {
                         const deg = i * 30;
                         const rad = (deg * Math.PI) / 180;
-                        const innerR = DIAL_RADIUS - 18;
-                        const outerR = DIAL_RADIUS - 6;
-                        const labelR = DIAL_RADIUS - 28;
-                        const x1 = DIAL_RADIUS + innerR * Math.sin(rad);
-                        const y1 = DIAL_RADIUS - innerR * Math.cos(rad);
-                        const x2 = DIAL_RADIUS + outerR * Math.sin(rad);
-                        const y2 = DIAL_RADIUS - outerR * Math.cos(rad);
-                        const lx = DIAL_RADIUS + labelR * Math.sin(rad);
-                        const ly = DIAL_RADIUS - labelR * Math.cos(rad);
+                        const innerR = R - 18 * dialScale;
+                        const outerR = R - 6 * dialScale;
+                        const labelR = R - 28 * dialScale;
+                        const x1 = R + innerR * Math.sin(rad);
+                        const y1 = R - innerR * Math.cos(rad);
+                        const x2 = R + outerR * Math.sin(rad);
+                        const y2 = R - outerR * Math.cos(rad);
+                        const lx = R + labelR * Math.sin(rad);
+                        const ly = R - labelR * Math.cos(rad);
                         return (
                           <div key={i}>
                             <div
@@ -342,8 +384,8 @@ export default function PredictionGame() {
                       <motion.div
                         className="absolute rounded-full border-2 shadow-lg"
                         style={{
-                          width: DOT_RADIUS * 2,
-                          height: DOT_RADIUS * 2,
+                          width: dotR * 2,
+                          height: dotR * 2,
                           left: userDotX,
                           top: userDotY,
                           transform: 'translate(-50%, -50%)',
@@ -361,8 +403,8 @@ export default function PredictionGame() {
                           animate={{ scale: 1 }}
                           className="absolute rounded-full border-2"
                           style={{
-                            width: DOT_RADIUS * 2,
-                            height: DOT_RADIUS * 2,
+                            width: dotR * 2,
+                            height: dotR * 2,
                             left: actualDotX,
                             top: actualDotY,
                             transform: 'translate(-50%, -50%)',
@@ -395,6 +437,9 @@ export default function PredictionGame() {
                 </div>
 
                 {/* Step 4: Verify */}
+                {validationError && (
+                  <p className="text-xs text-sci-danger text-center mb-2">{validationError}</p>
+                )}
                 {!predictionResult ? (
                   <div className="flex justify-center">
                     <button onClick={handleVerify} className="sci-button-primary text-sm px-6 py-2">

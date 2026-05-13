@@ -110,6 +110,7 @@ export default function KnowledgeExplorer({ knowledge }: KnowledgeExplorerProps)
               key={level}
               onClick={() => handleTabClick(level)}
               disabled={!unlocked}
+              title={!unlocked ? '需要解锁相应成就才能查看' : lvlCfg.label}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 border ${
                 isActive
                   ? 'bg-space-700/60 border-opacity-60'

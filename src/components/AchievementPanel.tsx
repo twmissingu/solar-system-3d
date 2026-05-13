@@ -1,6 +1,30 @@
 import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { achievements, getRarityColor, getRarityLabel } from '../data/achievements';
+
+function getConditionHint(condition: { type: string; bodyId?: string; bodyIds?: string[]; count?: number; level?: string; days?: number }): string {
+  switch (condition.type) {
+    case 'explore':
+      return `探索天体：${condition.bodyId === '*' ? '任意天体' : condition.bodyId}`
+    case 'explore_all':
+      return `探索全部 ${condition.bodyIds?.length || 0} 颗指定天体`
+    case 'explore_any':
+      return `探索任一指定天体`
+    case 'mission_complete':
+      return `完成 ${condition.count} 个任务`
+    case 'knowledge_unlock':
+      return `解锁 ${condition.count} 个${condition.level}级知识`
+    case 'time_travel':
+      return `累计穿越 ${condition.days} 天`
+    case 'eclipse_witness':
+      return '见证一次月食'
+    case 'manual':
+      return '自然探索即可解锁'
+    default:
+      return '继续探索即可解锁'
+  }
+}
 
 interface AchievementPanelProps {
   onClose: () => void;
@@ -18,7 +42,7 @@ export default function AchievementPanel({ onClose }: AchievementPanelProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-40 flex items-center justify-center"
+      className="fixed inset-0 z-40 flex items-center justify-center backdrop-blur-md"
       style={{ background: 'rgba(5, 11, 20, 0.92)' }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -44,9 +68,7 @@ export default function AchievementPanel({ onClose }: AchievementPanelProps) {
             aria-label="关闭成就面板"
             title="关闭"
           >
-            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 
@@ -75,10 +97,11 @@ export default function AchievementPanel({ onClose }: AchievementPanelProps) {
                   key={achievement.id}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.04 }}
+                  transition={{ duration: 0.3, delay: Math.min(index * 0.03, 0.3) }}
                   className={`sci-panel sci-corner p-3 sm:p-4 flex flex-col gap-2 ${
                     isUnlocked ? '' : 'opacity-60'
                   }`}
+                  title={!isUnlocked ? getConditionHint(achievement.condition) : undefined}
                 >
                   <div className="flex items-center justify-between">
                     <div

@@ -1,6 +1,6 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen, Microscope, Layers, Telescope, Sparkles } from 'lucide-react'
+import { BookOpen, Microscope, Layers, Telescope, Sparkles, X } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { getKnowledgeForBody } from '../data/knowledgeV2'
 import KnowledgeExplorer from './KnowledgeExplorer'
@@ -39,10 +39,15 @@ function getBarColor(percent: number): string {
 export default function InfoPanel() {
   const { selectedBody, showKnowledge, setShowKnowledge, scaleMode } = useStore()
   const [infoTab, setInfoTab] = useState<(typeof tabs)[0]['id']>('knowledge')
+  const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setInfoTab('knowledge')
   }, [selectedBody?.id])
+
+  useEffect(() => {
+    contentRef.current?.scrollTo(0, 0)
+  }, [infoTab])
 
   const knowledgeV2 = useMemo(() => {
     if (!selectedBody) return null
@@ -107,9 +112,7 @@ export default function InfoPanel() {
                       className="w-7 h-7 flex items-center justify-center rounded-md text-sci-white/50 hover:text-sci-cyan hover:bg-sci-cyan/10 transition-colors interactive-hover shrink-0 ml-2"
                       aria-label="关闭信息面板"
                     >
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M1 1l12 12M13 1L1 13" />
-                      </svg>
+                      <X size={16} />
                     </button>
                   </div>
                   <p className="text-[10px] text-sci-cyan/60 font-mono tracking-wider mb-2">
@@ -183,7 +186,7 @@ export default function InfoPanel() {
               </div>
 
               {/* Content */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0">
+              <div ref={contentRef} className="flex-1 overflow-y-auto p-4 sm:p-5 min-h-0">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={infoTab}
@@ -219,6 +222,9 @@ export default function InfoPanel() {
               >
                 收起面板
               </button>
+              <p className="sm:hidden text-[10px] text-sci-white/30 self-center">
+                点击右上角 X 关闭面板
+              </p>
             </div>
           </div>
         </motion.div>

@@ -1,7 +1,8 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { getSpacecraftById } from '../data/spacecraft';
+import { spacecraftData, getSpacecraftById } from '../data/spacecraft';
 
 export default function SpacecraftPanel() {
   const { selectedSpacecraft, setSelectedSpacecraft, setShowSpacecraftPanel, explorationHistorySelectedMilestone, setExplorationHistorySelectedMilestone } = useStore();
@@ -21,6 +22,16 @@ export default function SpacecraftPanel() {
 
   if (!spacecraft) return null;
 
+  const handlePrev = useCallback(() => {
+    const idx = spacecraftData.findIndex((s) => s.id === selectedSpacecraft);
+    if (idx > 0) setSelectedSpacecraft(spacecraftData[idx - 1].id);
+  }, [selectedSpacecraft, setSelectedSpacecraft]);
+
+  const handleNext = useCallback(() => {
+    const idx = spacecraftData.findIndex((s) => s.id === selectedSpacecraft);
+    if (idx < spacecraftData.length - 1) setSelectedSpacecraft(spacecraftData[idx + 1].id);
+  }, [selectedSpacecraft, setSelectedSpacecraft]);
+
   const handleClose = () => {
     setShowSpacecraftPanel(false);
     setSelectedSpacecraft(null);
@@ -38,29 +49,49 @@ export default function SpacecraftPanel() {
       }}
     >
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
+        initial={{ scale: 0.92, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        transition={{ type: 'spring', damping: 28, stiffness: 260 }}
+        exit={{ scale: 0.92, opacity: 0 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         className="max-w-lg w-full mx-4 max-h-[85vh] flex flex-col"
       >
-        {/* Header */}
+        {/* Header with navigation */}
         <div className="flex items-center justify-between mb-4 shrink-0">
-          <h2
-            className="text-xl sm:text-2xl font-bold text-sci-white sci-text-glow"
-            style={{ fontFamily: 'Orbitron, sans-serif' }}
-          >
-            {spacecraft.nameZh}
-          </h2>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrev}
+              className="w-7 h-7 flex items-center justify-center rounded-md text-sci-white/50 hover:text-sci-cyan hover:bg-sci-cyan/10 transition-colors"
+              aria-label="上一个航天器"
+              title="上一个"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M9 1L4 7l5 6" />
+              </svg>
+            </button>
+            <h2
+              className="text-xl sm:text-2xl font-bold text-sci-white sci-text-glow"
+              style={{ fontFamily: 'Orbitron, sans-serif' }}
+            >
+              {spacecraft.nameZh}
+            </h2>
+            <button
+              onClick={handleNext}
+              className="w-7 h-7 flex items-center justify-center rounded-md text-sci-white/50 hover:text-sci-cyan hover:bg-sci-cyan/10 transition-colors"
+              aria-label="下一个航天器"
+              title="下一个"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M5 1l5 6-5 6" />
+              </svg>
+            </button>
+          </div>
           <button
             onClick={handleClose}
             className="w-8 h-8 flex items-center justify-center rounded-md text-sci-white/50 hover:text-sci-cyan hover:bg-sci-cyan/10 transition-colors"
             aria-label="关闭航天器面板"
             title="关闭"
           >
-            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 
@@ -78,7 +109,7 @@ export default function SpacecraftPanel() {
               <span
                 className={`text-[10px] sm:text-xs font-medium px-2 py-1 rounded border ${
                   spacecraft.status === 'active'
-                    ? 'bg-green-500/10 text-green-400 border-green-500/30'
+                    ? 'bg-sci-success/10 text-sci-success border-sci-success/30'
                     : 'bg-sci-white/5 text-sci-white/50 border-sci-white/20'
                 }`}
               >
@@ -148,7 +179,7 @@ export default function SpacecraftPanel() {
                     transition={{ delay: 0.3 + idx * 0.08 }}
                     className="flex items-start gap-2"
                   >
-                    <span className="text-green-400 text-sm shrink-0 mt-0.5">✓</span>
+                    <span className="text-sci-success text-sm shrink-0 mt-0.5">✓</span>
                     <span className="text-xs sm:text-sm text-sci-white/70 leading-relaxed">
                       {discovery}
                     </span>

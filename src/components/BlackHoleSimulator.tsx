@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Orbit } from 'lucide-react';
+import { Orbit, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 const MIN_DISTANCE = 0.1;
@@ -26,7 +26,7 @@ function getStatus(distance: number, massMultiplier: number): { text: string; co
   if (massMultiplier >= 1000) {
     return { text: '🌀 你穿越了事件视界——对于超大质量黑洞，潮汐力可能并不致命', color: '#FF6B6B' };
   }
-  return { text: '💀 事件视界！飞船被潮汐力撕碎了！', color: '#FF3333' };
+  return { text: '💀 事件视界！飞船被潮汐力撕碎了！', color: '#FF6B6B' };
 }
 
 function getMassLabel(mass: number): string {
@@ -44,6 +44,7 @@ export default function BlackHoleSimulator() {
   const [hasSurvived, setHasSurvived] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
   const [hasEnteredDanger, setHasEnteredDanger] = useState(false);
+  const prevDistanceRef = useRef(distance);
 
   const dangerThreshold = useMemo(
     () => EVENT_HORIZON_BASE / Math.sqrt(massMultiplier),
@@ -79,6 +80,10 @@ export default function BlackHoleSimulator() {
   }, [showBlackHole, handleClose]);
 
   useEffect(() => {
+    const distanceChanged = distance !== prevDistanceRef.current
+    prevDistanceRef.current = distance
+    if (!distanceChanged) return
+
     if (distance <= dangerThreshold) {
       if (!showFailure) setShowFailure(true);
       if (!hasEnteredDanger) setHasEnteredDanger(true);
@@ -139,9 +144,9 @@ export default function BlackHoleSimulator() {
       }}
     >
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
+        initial={{ scale: 0.92, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
+        exit={{ scale: 0.92, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         className="w-full max-w-4xl mx-4 max-h-[92vh] flex flex-col"
       >
@@ -159,9 +164,7 @@ export default function BlackHoleSimulator() {
             aria-label="关闭黑洞探险"
             title="关闭"
           >
-            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 
@@ -182,8 +185,8 @@ export default function BlackHoleSimulator() {
                 <circle cx="200" cy="200" r="40" fill="#000000" stroke="#1a1a1a" strokeWidth="1" />
                 <g transform={`translate(${shipX}, 200) rotate(${shipRotation}) scale(1, ${shipScaleY})`}>
                   <polygon points="0,-8 12,0 0,8" fill="#4ECDC4" stroke="#2A3F5F" strokeWidth="1" />
-                  <polygon points="-4,-4 0,-8 -4,-6" fill="#FF6B6B" opacity={0.8} />
-                  <polygon points="-4,4 0,8 -4,6" fill="#FF6B6B" opacity={0.8} />
+                  <polygon points="-4,-4 0,-8 -4,-6" className="text-sci-danger" fill="currentColor" opacity={0.8} />
+                  <polygon points="-4,4 0,8 -4,6" className="text-sci-danger" fill="currentColor" opacity={0.8} />
                 </g>
                 <line x1="200" y1="270" x2={shipX} y2="270" stroke="rgba(78, 205, 196, 0.3)" strokeWidth="1" strokeDasharray="4 2" />
                 <text x={(200 + shipX) / 2} y="285" textAnchor="middle" fill="rgba(78, 205, 196, 0.6)" fontSize="10" fontFamily="monospace">
@@ -288,7 +291,7 @@ export default function BlackHoleSimulator() {
                 <div className="flex justify-between items-center text-sm mt-1">
                   <span className="text-sci-white/70">时间膨胀</span>
                   <span className="text-sci-white font-mono font-bold">
-                    {timeDilation.toFixed(1)}%
+                    {distance <= 1 ? '公式失效' : `${timeDilation.toFixed(1)}%`}
                   </span>
                 </div>
                 <p className="text-[10px] text-sci-white/50">
@@ -334,7 +337,7 @@ export default function BlackHoleSimulator() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center"
+            className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
             style={{ background: 'rgba(80, 0, 0, 0.85)' }}
           >
             <motion.div
@@ -342,7 +345,7 @@ export default function BlackHoleSimulator() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: 'spring', damping: 20 }}
-              className="text-center max-w-md mx-4"
+              className="text-center max-w-md mx-4 pointer-events-auto"
             >
               <div className="text-6xl mb-4">{massMultiplier >= 1000 ? '🌀' : '💀'}</div>
               <h3 className="text-2xl font-bold text-red-400 mb-2" style={{ fontFamily: 'Orbitron, sans-serif' }}>

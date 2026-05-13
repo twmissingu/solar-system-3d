@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Microscope, Sparkles } from 'lucide-react';
+import { Microscope, Sparkles, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { scientists } from '../data/scientists';
 
@@ -69,9 +69,7 @@ export default function ScientistGallery() {
             className="w-8 h-8 flex items-center justify-center rounded-md text-sci-white/50 hover:text-sci-cyan hover:bg-sci-cyan/10 transition-colors shrink-0"
             aria-label="关闭"
           >
-            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 
@@ -110,9 +108,14 @@ export default function ScientistGallery() {
                         <p className="text-xs text-sci-white/70 leading-relaxed">{selected.funFact}</p>
                       </div>
                     </div>
-                    <p className="text-[10px] text-sci-white/30 mt-3">
-                      想了解更多？搜索关键词：{selected.searchKeyword}
-                    </p>
+                    <a
+                      href={`https://www.baidu.com/s?wd=${encodeURIComponent(selected.searchKeyword)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-sci-cyan/50 hover:text-sci-cyan mt-3 inline-block"
+                    >
+                      想了解更多？搜索「{selected.searchKeyword}」→
+                    </a>
                   </div>
                 </div>
               </motion.div>

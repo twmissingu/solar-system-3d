@@ -125,6 +125,7 @@ function getFunFact(bodyId: string): string {
 
 export default function ObservationGuide({ bodyId }: ObservationGuideProps) {
   const { currentDay, unlockAchievement } = useStore();
+  const realCurrentDay = Math.floor((Date.now() - new Date('2000-01-01').getTime()) / 86400000);
 
   useEffect(() => {
     unlockAchievement('stargazer');
@@ -239,6 +240,12 @@ export default function ObservationGuide({ bodyId }: ObservationGuideProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
+      {Math.abs(currentDay - realCurrentDay) > 1 && (
+        <div className="bg-sci-gold/10 border border-sci-gold/20 rounded-lg p-2 mb-3">
+          <p className="text-[10px] text-sci-gold">⚠️ 模拟时间与实际日期不同，以下指南基于模拟时间</p>
+        </div>
+      )}
+
       <div className="bg-sci-cyan/5 border border-sci-cyan/15 rounded-lg p-3">
         <p className="text-xs text-sci-white/60 leading-relaxed">
           以下观测指南基于简化轨道模型生成，实际观测请参考当天星图或天文App。

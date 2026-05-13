@@ -93,13 +93,13 @@ function ControversyCard({
             return (
               <div key={opt.id}>
                 <button
-                  onClick={() => !hasVoted && onVote(opt.id)}
-                  disabled={hasVoted}
+                  onClick={() => onVote(opt.id)}
+                  disabled={false}
                   className={`w-full text-left px-3 py-2 rounded-md text-xs font-medium transition-all border ${
                     isSelected
                       ? 'bg-sci-cyan/20 text-sci-cyan border-sci-cyan/40'
                       : hasVoted
-                      ? 'bg-space-700/40 text-sci-white/40 border-transparent cursor-default'
+                      ? 'bg-space-700/40 text-sci-white/50 border-sci-cyan/10 hover:bg-sci-cyan/10 hover:border-sci-cyan/30 cursor-pointer'
                       : 'bg-space-700/40 text-sci-white/70 border-sci-cyan/10 hover:bg-sci-cyan/10 hover:border-sci-cyan/30'
                   }`}
                 >
@@ -140,7 +140,7 @@ function ControversyCard({
                 你的选择：{controversy.options.find((o) => o.id === userVote)?.label}
               </p>
               <p className="text-[10px] text-sci-white/40">
-                已有 {total} 人参与投票
+                已记录 {total} 次投票
               </p>
             </motion.div>
           )}
@@ -194,7 +194,7 @@ export default function ScienceFrontiers({ bodyId }: ScienceFrontiersProps) {
 
   return (
     <div className="space-y-4">
-      {/* 模型精度教育卡片 */}
+      {/* 模型精度教育卡片 — 按天体定制 */}
       <div className="rounded-lg border border-sci-cyan/15 bg-sci-cyan/5 p-3">
         <div className="flex items-start gap-2">
           <Microscope size={16} className="text-sci-cyan shrink-0" />
@@ -205,13 +205,14 @@ export default function ScienceFrontiers({ bodyId }: ScienceFrontiersProps) {
               真实的天体运动比这复杂得多——行星之间会相互引力拉扯（摄动），太阳也不是一个质点，
               广义相对论还会带来微小的轨道修正。
             </p>
-            <p className="text-[11px] text-sci-white/60 leading-relaxed mt-1">
-              例如，<span className="text-sci-white/80 font-medium">水星近日点每世纪会额外进动约43角秒</span>——
-              这个牛顿力学无法解释的小偏差，正是爱因斯坦广义相对论的经典验证。
-              爱因斯坦用时空弯曲的概念精确地预言了这个数值。
-            </p>
+            {bodyId === 'mercury' && (
+              <p className="text-[11px] text-sci-white/60 leading-relaxed mt-1">
+                例如，<span className="text-sci-white/80 font-medium">水星近日点每世纪会额外进动约43角秒</span>——
+                这个牛顿力学无法解释的小偏差，正是爱因斯坦广义相对论的经典验证。
+              </p>
+            )}
             <p className="text-[11px] text-sci-cyan/60 leading-relaxed mt-1">
-              💡 科学模型从不追求“完美”，而是追求“在当前条件下最有用”。
+              💡 科学模型从不追求"完美"，而是追求"在当前条件下最有用"。
               简化模型让我们理解基本原理，复杂模型让我们逼近真实。
             </p>
           </div>

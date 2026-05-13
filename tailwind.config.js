@@ -16,6 +16,10 @@ export default {
           gold: '#FDB813',
           ice: '#AED6F1',
           white: '#E8F4FD',
+          success: '#3BC9A0',
+          danger: '#FF6B6B',
+          warning: '#FDB813',
+          neutral: '#8899AA',
         },
       },
       fontFamily: {

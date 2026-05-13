@@ -1,28 +1,37 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Rocket } from 'lucide-react';
+import { Rocket, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { keplerThirdLaw } from '../utils/physics';
 
 const TARGETS = [
+  { id: 'mercury', name: '水星', au: 0.387 },
   { id: 'mars', name: '火星', au: 1.524 },
   { id: 'jupiter', name: '木星', au: 5.204 },
   { id: 'saturn', name: '土星', au: 9.582 },
+  { id: 'uranus', name: '天王星', au: 19.201 },
+  { id: 'neptune', name: '海王星', au: 30.047 },
 ];
 
 const EARTH_ORBIT_PX = 50;
 const V_B = 250;
 
 function getFunFact(au: number): string {
-  if (au < 2) return '去火星大约需要 259 天！';
-  if (au < 7) return '去木星大约需要 2.7 年';
-  return '去土星大约需要 6.0 年';
+  if (au < 1.5) return `去水星大约需要 ${(0.5 + au * 0.3).toFixed(0)} 天！`
+  if (au < 2) return '去火星大约需要 259 天！'
+  if (au < 7) return '去木星大约需要 2.7 年'
+  if (au < 12) return '去土星大约需要 6.0 年'
+  if (au < 25) return '去天王星大约需要 16 年'
+  return '去海王星大约需要 31 年'
 }
 
 function getTargetName(au: number): string {
+  if (au < 1) return '水星';
   if (au < 2) return '火星';
   if (au < 7) return '木星';
-  return '土星';
+  if (au < 12) return '土星';
+  if (au < 25) return '天王星';
+  return '海王星';
 }
 
 export default function HohmannDesigner() {
@@ -122,9 +131,9 @@ export default function HohmannDesigner() {
       }}
     >
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
+        initial={{ scale: 0.92, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
+        exit={{ scale: 0.92, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         className="w-full max-w-5xl mx-3 sm:mx-4 max-h-[94vh] flex flex-col"
       >
@@ -142,9 +151,7 @@ export default function HohmannDesigner() {
             aria-label="关闭轨道设计器"
             title="关闭"
           >
-            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 
@@ -269,7 +276,8 @@ export default function HohmannDesigner() {
                     cx={-targetRadius}
                     cy="0"
                     r="5"
-                    fill="#FF6B6B"
+                    fill="currentColor"
+                    className="text-sci-danger"
                     stroke="rgba(255,255,255,0.4)"
                     strokeWidth="1"
                   />
@@ -278,7 +286,7 @@ export default function HohmannDesigner() {
                   <text x={EARTH_ORBIT_PX + 10} y="4" fill="#4ECDC4" fontSize="12" fontFamily="monospace">
                     地球
                   </text>
-                  <text x={-targetRadius - 10} y="4" fill="#FF6B6B" fontSize="12" fontFamily="monospace" textAnchor="end">
+                  <text x={-targetRadius - 10} y="4" fill="currentColor" className="text-sci-danger" fontSize="12" fontFamily="monospace" textAnchor="end">
                     {targetName}
                   </text>
                   <text x="0" y="-22" fill="#FDB813" fontSize="12" fontFamily="monospace" textAnchor="middle">
@@ -362,9 +370,8 @@ export default function HohmannDesigner() {
 
               {/* Fun fact */}
               <div
-                className="rounded-lg border px-3 py-2 text-xs sm:text-sm font-medium text-center"
+                className="rounded-lg border px-3 py-2 text-xs sm:text-sm font-medium text-center text-sci-danger"
                 style={{
-                  color: '#FF6B6B',
                   borderColor: 'rgba(255, 107, 107, 0.3)',
                   backgroundColor: 'rgba(255, 107, 107, 0.08)',
                 }}

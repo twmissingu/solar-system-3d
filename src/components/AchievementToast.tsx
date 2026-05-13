@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import { getAchievementById, getRarityColor, getRarityLabel } from '../data/achievements';
@@ -6,17 +6,28 @@ import { playUISound } from '../utils/audio';
 
 export default function AchievementToast() {
   const { achievementQueue, dequeueAchievement } = useStore();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentId = achievementQueue.length > 0 ? achievementQueue[0] : null;
   const achievement = currentId ? getAchievementById(currentId) : null;
 
+  const handleDismiss = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    dequeueAchievement();
+  }, [dequeueAchievement]);
+
   useEffect(() => {
     if (!currentId) return;
     playUISound('success');
-    const timer = setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       dequeueAchievement();
     }, 4000);
-    return () => clearTimeout(timer);
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, [currentId, dequeueAchievement]);
 
   return (
@@ -29,7 +40,8 @@ export default function AchievementToast() {
             animate={{ x: 0, opacity: 1, scale: 1 }}
             exit={{ x: 120, opacity: 0, scale: 0.9 }}
             transition={{ type: 'spring', damping: 24, stiffness: 300 }}
-            className="sci-panel sci-corner p-4 w-72 pointer-events-auto"
+            className="sci-panel sci-corner p-4 w-72 pointer-events-auto cursor-pointer"
+            onClick={handleDismiss}
           >
             <div className="flex items-start gap-3">
               <div className="text-3xl shrink-0">{achievement.icon}</div>

@@ -112,7 +112,9 @@ npm run preview
 - `SolarSystem.tsx` 在 `useFrame` 中统一处理**时间推进**和**相机动画**（避免多个组件各自订阅造成性能问题）。
 - `Planet.tsx` 递归渲染卫星；通过 `getHeliocentricPosition()` / `getSatellitePosition()` 计算轨道位置。
   - 真实比例模式下，不可见行星渲染 `PulsingBeacon` 脉冲信标（`THREE.Mesh` + `useFrame` 脉冲动画）。
-- 轨道计算使用真实开普勒椭圆（牛顿迭代法解 `M = E - e*sin(E)`），数据基于 J2000.0 历元。
+  - 点击天体时自动聚焦（相机飞至 `effectiveRadius * 5` 距离处）。
+- 轨道计算使用真实开普勒椭圆（牛顿迭代法解 `M = E - e*sin(E)`），数据基于 J2000.0 历元，已修复平近点角 M₀ 和近日点辐角 ω。
+- `Spacecraft.tsx` **条件渲染**：默认隐藏所有航天器轨迹，仅当 `selectedSpacecraft` + `showSpacecraftPanel` 同时有效时才显示对应轨迹（C 方案）。
 
 ### 状态管理
 - 所有状态集中在 `src/store/useStore.ts`（Zustand）。
@@ -127,8 +129,13 @@ npm run preview
   - `.sci-text-glow` — 文字发光效果
   - `.sci-corner` / `.hud-corner` — 角落装饰线框
   - `.sci-slider` — 自定义滑块
+  - `.dock-container` / `.dock-item` / `.dock-divider` — Dock 栏与分组分割
+  - `.toolbox-drawer` / `.toolbox-item` — 工具箱抽屉（移动端底部滑入）
 - 颜色主题以深空蓝（`#050B14`）为底，青绿色（`#4ECDC4`）为强调色。
+  - 语义色 token（`tailwind.config.js`）：`sci-success`、`sci-danger`、`sci-warning`、`sci-neutral`
 - 字体：标题使用 `Orbitron`（无衬线科技感），正文使用 `Noto Sans SC`。
+- 面板动画统一：`damping: 25, stiffness: 300, scale: 0.92`。
+- 所有面板关闭按钮使用 Lucide `<X size={16} />`。
 
 ### 教育内容架构
 - **知识分层**：Bronze（感知层）→ Silver（关联层/量化层）→ Gold（机制层），通过 `knowledgeV2.ts` 定义。
@@ -194,7 +201,8 @@ npm run preview
 3. **3D 性能敏感**：避免在多个组件中各自调用 `useFrame` 更新共享状态；优先将时间相关逻辑集中到 `SolarSystem.tsx`。`PulsingBeacon` 等局部动画例外，但需确保不触发状态更新。
 4. **轨道数据格式**：新增天体时参考 `celestialData.ts` 中的 `OrbitalElements` 接口（`a, e, i, L, longPeri, longNode, period`）。
 5. **状态扩展**：如需新增全局状态，直接在 `useStore.ts` 的 `AppState` 接口和 `create<AppState>()` 初始值中添加，保持现有命名风格（`show` + PascalCase 面板名）。
-6. **教育文案规范**：
+6. **键盘无障碍**：PredictionGame 拨盘等自定义交互组件需要键盘支持（`role="slider"` + 方向键 + `tabIndex`）。所有面板应支持 Escape 关闭。
+7. **教育文案规范**：
    - 知识分层过渡（Silver/Gold）开头需有**桥梁文案**，引用前一级内容。
    - 成就 `description` 优先使用**反问句**，植入思考钩子。
    - 跨学科 `connections` 中的追问条目以 `💡 思考：` 前缀标识。

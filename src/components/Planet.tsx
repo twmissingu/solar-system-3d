@@ -110,6 +110,8 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
   const currentDay = useStore((s) => s.currentDay)
   const selectedBody = useStore((s) => s.selectedBody)
   const setSelectedBody = useStore((s) => s.setSelectedBody)
+  const setCameraTarget = useStore((s) => s.setCameraTarget)
+  const setCameraLookAt = useStore((s) => s.setCameraLookAt)
   const showLabels = useStore((s) => s.showLabels)
   const showOrbits = useStore((s) => s.showOrbits)
   const scaleMode = useStore((s) => s.scaleMode)
@@ -143,12 +145,17 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
     const pos = isSatellite
       ? getSatellitePosition(body.orbit, currentDay)
       : getHeliocentricPosition(body.orbit, currentDay)
+    // 卫星渲染在父级 group 内部（由递归 body.satellites?.map 产生），
+    // 父 group 已通过 position prop 提供父天体的世界坐标偏移，
+    // 因此卫星只需返回相对于父天体的轨道位置，无需再加 parentPosition。
+    if (isSatellite) return pos as [number, number, number]
     return [
       pos[0] + parentPosition[0],
       pos[1] + parentPosition[1],
       pos[2] + parentPosition[2],
     ] as [number, number, number]
   }, [body.id, body.orbit, currentDay, parentPosition[0], parentPosition[1], parentPosition[2], isSatellite])
+  // parentPosition 在 deps 中仅对非卫星有效（卫星由父 group 提供坐标系偏移）
 
   // 自转动画 / 潮汐锁定
   useFrame((_, delta) => {
@@ -215,6 +222,19 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
             e.stopPropagation()
             playUISound('click')
             setSelectedBody(body)
+            // 相机聚焦到该天体：从斜上方以合理距离观察
+            const dist = Math.max(effectiveRadius * 5, 3)
+            if (body.id === 'sun') {
+              setCameraTarget([dist, dist * 0.3, dist])
+              setCameraLookAt([0, 0, 0])
+            } else {
+              setCameraTarget([
+                position[0] + dist,
+                position[1] + dist * 0.3,
+                position[2] + dist,
+              ])
+              setCameraLookAt([position[0], position[1], position[2]])
+            }
             addExploredBody(body.id)
             if (activeMissionId) {
               addMissionExploredBody(body.id)

@@ -1,12 +1,14 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { quizQuestions, getQuizResultText } from '../data/quiz'
+import { useStore } from '../store/useStore'
 
 interface QuizPanelProps {
   onClose: () => void
 }
 
 export default function QuizPanel({ onClose }: QuizPanelProps) {
+  const unlockAchievement = useStore((s) => s.unlockAchievement)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
@@ -55,6 +57,20 @@ export default function QuizPanel({ onClose }: QuizPanelProps) {
     setAnswered(false)
     setHistory([])
   }, [])
+
+  useEffect(() => {
+    if (showResult && score === quizQuestions.length) {
+      unlockAchievement('quiz_master')
+    }
+  }, [showResult, score, unlockAchievement])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
 
   return (
     <motion.div

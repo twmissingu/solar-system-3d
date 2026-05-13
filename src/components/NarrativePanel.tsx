@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { narrativeMissions } from '../data/narrativeMissions';
 import { playUISound } from '../utils/audio';
@@ -31,10 +32,12 @@ export default function NarrativePanel() {
     setShowHohmannDesigner,
   } = useStore();
 
+  const completedMissions = useStore((s) => s.completedMissions)
+  const completeMissionInStore = useStore((s) => s.completeMission)
+
   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(null);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [completedMissions, setCompletedMissions] = useState<string[]>([]);
   const typeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const currentMission = selectedMissionId
@@ -88,6 +91,7 @@ export default function NarrativePanel() {
     };
   }, [currentStep]);
 
+  // Escape key handler
   const handleNextStep = useCallback(() => {
     if (!currentMission) return;
 
@@ -108,9 +112,7 @@ export default function NarrativePanel() {
       setNarrativeStep(narrativeStep + 1);
     } else {
       // Mission complete
-      setCompletedMissions((prev) =>
-        prev.includes(currentMission.id) ? prev : [...prev, currentMission.id]
-      );
+      completeMissionInStore(currentMission.id);
       setSelectedMissionId(null);
       setActiveNarrative(null);
       setNarrativeStep(0);
@@ -162,6 +164,16 @@ export default function NarrativePanel() {
     setNarrativeStep(0);
   }, [setShowNarrative, setSelectedMissionId, setActiveNarrative, setNarrativeStep]);
 
+  // Escape 键关闭面板
+  useEffect(() => {
+    if (!showNarrative) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showNarrative, handleClose]);
+
   if (!showNarrative) return null;
 
   return (
@@ -170,14 +182,14 @@ export default function NarrativePanel() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-40 flex items-center justify-center"
+        className="fixed inset-0 z-40 flex items-center justify-center backdrop-blur-md"
         style={{ backgroundColor: 'rgba(5, 11, 20, 0.85)' }}
       >
         <motion.div
-          initial={{ scale: 0.9, y: 30, opacity: 0 }}
+          initial={{ scale: 0.92, y: 10, opacity: 0 }}
           animate={{ scale: 1, y: 0, opacity: 1 }}
-          exit={{ scale: 0.9, y: 30, opacity: 0 }}
-          transition={{ type: 'spring', damping: 24, stiffness: 300 }}
+          exit={{ scale: 0.92, y: 10, opacity: 0 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="w-full max-w-2xl mx-4"
         >
           {/* Main Panel */}
@@ -185,10 +197,10 @@ export default function NarrativePanel() {
             {/* Close Button */}
             <button
               onClick={handleClose}
-              className="absolute top-3 right-3 text-sci-white/40 hover:text-sci-white transition-colors"
+              className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-md text-sci-white/50 hover:text-sci-white hover:bg-sci-white/10 transition-colors"
               aria-label="关闭"
             >
-              ✕
+              <X size={16} />
             </button>
 
             {!selectedMissionId ? (

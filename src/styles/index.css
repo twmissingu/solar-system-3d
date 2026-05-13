@@ -166,8 +166,8 @@
   /* Data stream text */
   @keyframes dataStream {
     0% { opacity: 0; transform: translateY(-20px); }
-    10% { opacity: 0.6; }
-    90% { opacity: 0.6; }
+    5% { opacity: 0.6; }
+    85% { opacity: 0.6; }
     100% { opacity: 0; transform: translateY(20px); }
   }
   .data-stream-item {
@@ -224,6 +224,7 @@
 
   .dock-item {
     @apply relative flex items-center justify-center w-10 h-10 rounded-lg;
+    @apply max-sm:w-8 max-sm:h-8;
     @apply text-sci-white/60 transition-all duration-200 cursor-pointer;
     @apply hover:text-sci-cyan hover:bg-sci-cyan/10;
   }
@@ -231,6 +232,11 @@
   .dock-item.active {
     @apply text-sci-cyan bg-sci-cyan/15;
     box-shadow: 0 0 12px rgba(78, 205, 196, 0.15), inset 0 0 8px rgba(78, 205, 196, 0.05);
+  }
+
+  .dock-divider {
+    @apply w-px h-6 mx-1 shrink-0;
+    background: rgba(78, 205, 196, 0.12);
   }
 
   .dock-item .dock-tooltip {
@@ -247,13 +253,31 @@
 
   /* ===== 工具箱抽屉 ===== */
   .toolbox-drawer {
-    @apply fixed bottom-20 left-1/2 -translate-x-1/2 z-30;
-    @apply flex flex-wrap justify-center gap-2 max-w-2xl;
-    @apply px-4 py-3 rounded-xl;
-    background: rgba(5, 11, 20, 0.92);
+    @apply fixed bottom-0 sm:bottom-20 left-0 sm:left-1/2 right-0 sm:right-auto z-30;
+    @apply sm:-translate-x-1/2;
+    @apply flex flex-wrap justify-center gap-2;
+    @apply max-h-[50vh] sm:max-h-none overflow-y-auto sm:overflow-visible;
+    @apply px-4 py-4 sm:px-4 sm:py-3;
+    @apply rounded-t-xl sm:rounded-xl;
+    background: rgba(5, 11, 20, 0.95);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(78, 205, 196, 0.12);
     box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+  }
+  /* 移动端底部抽屉拖拽指示条 */
+  .toolbox-drawer::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(78, 205, 196, 0.25);
+    margin: 0 auto 8px;
+  }
+  @media (min-width: 640px) {
+    .toolbox-drawer::before {
+      display: none;
+    }
   }
 
   .toolbox-item {

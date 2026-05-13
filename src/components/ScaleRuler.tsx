@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Ruler } from 'lucide-react';
+import { Ruler, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { celestialBodies, dwarfPlanets } from '../data/celestialData';
 
@@ -38,12 +38,22 @@ export default function ScaleRuler() {
 
   const allBodies = [...celestialBodies, ...dwarfPlanets].filter((b) => b.id !== 'sun');
 
+  const parseToMeters = (label: string): number => {
+    if (label.includes('公里')) return parseFloat(label) * 1000
+    if (label.includes('米')) return parseFloat(label)
+    if (label.includes('厘米')) return parseFloat(label) / 100
+    if (label.includes('毫米')) return parseFloat(label) / 1000
+    return parseFloat(label)
+  }
+
   const items: ScaleItem[] = allBodies.map((b) => ({
     name: b.nameZh,
     sizeLabel: kmToScaledCm(b.radiusKm * 2),
     distanceLabel: auToScaledMeters(b.orbit.a),
     color: b.color,
   }));
+
+  const maxMeters = Math.max(...items.map(i => parseToMeters(i.distanceLabel)))
 
   return (
     <motion.div
@@ -80,9 +90,7 @@ export default function ScaleRuler() {
             className="w-8 h-8 flex items-center justify-center rounded-md text-sci-white/50 hover:text-sci-cyan hover:bg-sci-cyan/10 transition-colors shrink-0"
             aria-label="关闭"
           >
-            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 
@@ -120,7 +128,14 @@ export default function ScaleRuler() {
                     <div className="h-1 rounded-full bg-sci-cyan/20 flex-1 overflow-hidden">
                       <div
                         className="h-full rounded-full bg-sci-cyan/50"
-                        style={{ width: `${Math.min(100, (parseFloat(item.distanceLabel) / 1000) * 100)}%` }}
+                        style={{
+                          width: (() => {
+                            const itemMeters = parseToMeters(item.distanceLabel)
+                            const logVal = Math.log10(Math.max(itemMeters, 0.001))
+                            const maxLog = Math.log10(Math.max(maxMeters, 0.001))
+                            return `${(logVal / maxLog) * 100}%`
+                          })()
+                        }}
                       />
                     </div>
                     <span className="text-[10px] text-sci-cyan/70 font-mono shrink-0">

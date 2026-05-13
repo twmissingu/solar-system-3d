@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FlaskConical } from 'lucide-react';
+import { FlaskConical, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { keplerThirdLaw, estimatedSurfaceTemperature, solarIrradiance, habitableZone } from '../utils/physics';
 
@@ -59,8 +59,8 @@ export default function SandboxPanel() {
   const tempK = estimatedSurfaceTemperature(sandboxOrbitAU);
   const tempC = tempK - 273.15;
   const irradiance = solarIrradiance(sandboxOrbitAU);
-  const isHabitable = sandboxOrbitAU >= HABITABLE_INNER && sandboxOrbitAU <= HABITABLE_OUTER;
   const status = getStatusMessage(sandboxOrbitAU);
+  const isHabitable = status.color === '#4ECDC4';
 
   // Diagram calculations (max AU displayed = 3.2)
   const maxDisplayAU = 3.2;
@@ -85,9 +85,9 @@ export default function SandboxPanel() {
       }}
     >
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
+        initial={{ scale: 0.92, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
+        exit={{ scale: 0.92, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         className="w-full max-w-4xl mx-4 max-h-[92vh] flex flex-col"
       >
@@ -105,9 +105,7 @@ export default function SandboxPanel() {
             aria-label="关闭沙盘实验"
             title="关闭"
           >
-            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 
@@ -116,7 +114,7 @@ export default function SandboxPanel() {
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left: Diagram */}
             <div className="flex-1 flex flex-col items-center justify-center min-w-0">
-              <div className="relative" style={{ width: diagramSize, height: diagramSize }}>
+              <div className="relative w-full max-w-[280px] aspect-square mx-auto">
                 {/* Habitable zone ring */}
                 <div
                   className="absolute rounded-full"

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Compass, Target, GitCompare, Eye } from 'lucide-react';
+import { Compass, Target, GitCompare, Eye, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { missions, getMissionById, Mission, MissionType } from '../data/missions';
 import { getAchievementById } from '../data/achievements';
@@ -66,6 +66,7 @@ function getMissionProgress(
 
 export default function MissionPanel({ onClose }: MissionPanelProps) {
   const [tab, setTab] = useState<'available' | 'active' | 'completed'>('available');
+  const [expandedCompletedId, setExpandedCompletedId] = useState<string | null>(null)
 
   const {
     activeMissionId,
@@ -145,9 +146,7 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
             aria-label="关闭任务面板"
             title="关闭"
           >
-            <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M1 1l12 12M13 1L1 13" />
-            </svg>
+            <X size={16} />
           </button>
         </div>
 
@@ -278,7 +277,7 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
                             <div className="flex items-center gap-2 text-sm">
                               {progress.done ? (
                                 <>
-                                  <span className="text-green-400">✓</span>
+                                  <span className="text-sci-success">✓</span>
                                   <span className="text-green-300">已找到目标天体</span>
                                 </>
                               ) : (
@@ -300,7 +299,7 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
                                   <div key={bodyId} className="flex items-center gap-2 text-sm">
                                     {done ? (
                                       <>
-                                        <span className="text-green-400">✓</span>
+                                        <span className="text-sci-success">✓</span>
                                         <span className="text-green-300">{bodyNameMap.get(bodyId) || bodyId}</span>
                                       </>
                                     ) : (
@@ -320,7 +319,7 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
                             <div className="flex items-center gap-2 text-sm">
                               {progress.done ? (
                                 <>
-                                  <span className="text-green-400">✓</span>
+                                  <span className="text-sci-success">✓</span>
                                   <span className="text-green-300">已观察目标事件</span>
                                 </>
                               ) : (
@@ -406,17 +405,41 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
                 ) : (
                   <div className="flex flex-col gap-2">
                     {completedMissionList.map((mission) => (
-                      <div
-                        key={mission.id}
-                        className="flex items-center gap-3 p-3 rounded bg-green-500/5 border border-green-500/20"
-                      >
-                        <span className="text-green-400 text-lg shrink-0">✓</span>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-bold text-sci-white truncate">{mission.title}</h4>
-                          <span className="text-[10px]" style={{ color: difficultyColors[mission.difficulty] }}>
-                            {difficultyLabels[mission.difficulty]}
-                          </span>
-                        </div>
+                      <div key={mission.id} className="flex flex-col">
+                        <button
+                          onClick={() => setExpandedCompletedId(expandedCompletedId === mission.id ? null : mission.id)}
+                          className="w-full text-left"
+                        >
+                          <div className="flex items-center gap-3 p-3 rounded bg-green-500/5 border border-green-500/20">
+                            <span className="text-green-400 text-lg shrink-0">✓</span>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-bold text-sci-white truncate">{mission.title}</h4>
+                              <span className="text-[10px]" style={{ color: difficultyColors[mission.difficulty] }}>
+                                {difficultyLabels[mission.difficulty]}
+                              </span>
+                            </div>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`text-sci-white/30 transition-transform ${expandedCompletedId === mission.id ? 'rotate-180' : ''}`}>
+                              <path d="M6 9l6 6 6-6" />
+                            </svg>
+                          </div>
+                        </button>
+                        <AnimatePresence>
+                          {expandedCompletedId === mission.id && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="px-3 py-2 bg-space-700/20 border border-green-500/10 border-t-0 rounded-b">
+                                <p className="text-xs text-sci-white/60">{mission.description}</p>
+                                {mission.rewardAchievementId && (
+                                  <p className="text-[10px] text-sci-cyan mt-1">奖励：{mission.rewardAchievementId}</p>
+                                )}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     ))}
                   </div>

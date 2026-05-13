@@ -4,7 +4,7 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [0.2.0] - 2026-05-13
+## [0.2.0] - 2026-05-14
 
 ### 🎯 天文学家教育审核改进
 
@@ -60,6 +60,35 @@
 - **真实比例模式**下不可见行星现在显示脉冲信标，避免学生困惑"行星去哪了"
 - **知识升级动画**从简单淡入淡出增强为Framer Motion spring弹性动画
 - 全部TypeScript代码通过严格模式检查，零类型错误
+
+### 🎨 UI/UX 重构与修复（三轮迭代）
+
+**第一轮 — 核心修复（29文件）**
+
+- **航天器轨迹按需显示**：默认隐藏所有轨迹，仅当对应航天器面板打开时渲染
+- **面板数据持久化**：NarrativePanel 的已完成任务改用 Zustand 全局状态
+- **键盘无障碍**：PredictionGame 拨盘添加 `role="slider"` + 键盘方向键操作
+- **HUD 减负重写**：三级信息层级（空闲态→聚焦态→过渡态），坐标仅动画时显示
+- **Dock 三分组**：显示控制 / 探索入口 / 工具，组间分割线
+- **面板一致化**：15+面板关闭按钮统一 Lucide X、弹簧参数统一 damping=25/stiffness=300、backdrop-blur 补齐
+- **语义色彩系统**：新增 sci-success/sci-danger/sci-neutral 设计 Token，替换20+处硬编码颜色
+
+**第二轮 — 体验提升（10文件）**
+
+- **航天器面板导航**：左右箭头切换4个航天器
+- **InfoPanel Tab 滚动**：切换 Tab 时自动回顶
+- **BlackHole 失败交互**：遮罩穿透，滑竿仍可操作；事件视界内时间膨胀显示"公式失效"
+- **SharePanel 字体修复**：Canvas 加载 Orbitron/Noto Sans SC 项目字体；中文引文按字符分割
+- **工具箱外部关闭**：点击遮罩关闭工具箱抽屉
+- **搜索关键词可点击**：科学家详情页关键词直链百度搜索
+- **ExplorationHistory 滚动保持**：详情返回时间线保持位置；相机距离动态计算
+- **LoadingScreen**：17步平滑进度 + progressbar 无障碍属性
+
+**第三轮 — 细节打磨（8文件）**
+
+- **ScienceFrontiers 可改投**：投票后可更改选项；计数文案修正；模型卡片按天体定制
+- **AchievementPanel**：锁定成就 hover 显示解锁条件；入场动画延迟上限0.3s
+- **HUD dataStream**：驻留时间延长（85%周期可见）；VEL 标签加"轨道速度"注释
 
 ---
 

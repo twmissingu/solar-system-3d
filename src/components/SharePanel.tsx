@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { achievements, getAchievementById } from '../data/achievements';
 import { playUISound } from '../utils/audio';
@@ -26,7 +27,7 @@ export default function SharePanel() {
   const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const favoritePlanet = exploredBodies.length > 0 ? exploredBodies[exploredBodies.length - 1] : 'earth';
+  const lastExploredBody = exploredBodies.length > 0 ? exploredBodies[exploredBodies.length - 1] : 'earth';
 
   const quote = useMemo(() => spaceQuotes[Math.floor(Math.random() * spaceQuotes.length)], []);
 
@@ -44,8 +45,11 @@ export default function SharePanel() {
     .map((id) => getAchievementById(id))
     .filter(Boolean);
 
-  const handleGenerate = useCallback(() => {
+  const handleGenerate = useCallback(async () => {
     playUISound('click');
+    // 加载项目字体确保 Canvas 渲染风格一致
+    await document.fonts.load('bold 32px Orbitron');
+    await document.fonts.load('16px "Noto Sans SC"');
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -115,7 +119,7 @@ export default function SharePanel() {
 
     // Title
     ctx.fillStyle = '#4ECDC4';
-    ctx.font = 'bold 32px sans-serif';
+    ctx.font = 'bold 32px Orbitron, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('太阳系探索报告', width / 2, 90);
 
@@ -126,7 +130,7 @@ export default function SharePanel() {
       day: 'numeric',
     });
     ctx.fillStyle = 'rgba(232, 244, 253, 0.6)';
-    ctx.font = '16px sans-serif';
+    ctx.font = '16px "Noto Sans SC", sans-serif';
     ctx.fillText(dateStr, width / 2, 120);
 
     // Divider
@@ -140,12 +144,12 @@ export default function SharePanel() {
     // Stats
     let y = 185;
     ctx.textAlign = 'left';
-    ctx.font = 'bold 20px sans-serif';
+    ctx.font = 'bold 20px Orbitron, sans-serif';
     ctx.fillStyle = '#E8F4FD';
     ctx.fillText('探索统计', 60, y);
 
     y += 35;
-    ctx.font = '18px sans-serif';
+    ctx.font = '18px "Noto Sans SC", sans-serif';
     ctx.fillStyle = 'rgba(232, 244, 253, 0.85)';
     ctx.fillText(`• 探索了 ${exploredBodies.length} 颗天体`, 60, y);
     y += 30;
@@ -155,18 +159,18 @@ export default function SharePanel() {
 
     // Favorite planet
     y += 40;
-    ctx.font = 'bold 20px sans-serif';
+    ctx.font = 'bold 20px Orbitron, sans-serif';
     ctx.fillStyle = '#E8F4FD';
     ctx.fillText('最近探索', 60, y);
     y += 35;
-    ctx.font = '18px sans-serif';
+    ctx.font = '18px "Noto Sans SC", sans-serif';
     ctx.fillStyle = '#FDB813';
-    ctx.fillText(`🪐 ${planetNames[favoritePlanet] || favoritePlanet}`, 60, y);
+    ctx.fillText(`🪐 ${planetNames[lastExploredBody] || lastExploredBody}`, 60, y);
 
     // Achievements
     if (unlockedData.length > 0) {
       y += 50;
-      ctx.font = 'bold 20px sans-serif';
+      ctx.font = 'bold 20px Orbitron, sans-serif';
       ctx.fillStyle = '#E8F4FD';
       ctx.fillText('已解锁徽章', 60, y);
 
@@ -219,12 +223,12 @@ export default function SharePanel() {
 
     y += 30;
     ctx.textAlign = 'center';
-    ctx.font = 'italic 16px sans-serif';
+    ctx.font = 'italic 16px "Noto Sans SC", sans-serif';
     ctx.fillStyle = 'rgba(232, 244, 253, 0.7)';
 
     // Wrap quote text
     const maxWidth = width - 120;
-    const words = quote.split(' ');
+    const words = quote.includes(' ') ? quote.split(' ') : quote.split('');
     let line = '';
     const lines: string[] = [];
     for (let i = 0; i < words.length; i++) {
@@ -246,11 +250,11 @@ export default function SharePanel() {
 
     // Footer
     ctx.fillStyle = 'rgba(232, 244, 253, 0.4)';
-    ctx.font = '14px sans-serif';
+    ctx.font = '14px "Noto Sans SC", sans-serif';
     ctx.fillText('Solar System 3D · 太阳系3D探索', width / 2, height - 50);
 
     setGenerated(true);
-  }, [exploredBodies.length, unlockedAchievements.length, completedMissions.length, favoritePlanet, quote, unlockedData]);
+  }, [exploredBodies.length, unlockedAchievements.length, completedMissions.length, lastExploredBody, quote, unlockedData]);
 
   const handleDownload = useCallback(() => {
     playUISound('click');
@@ -267,7 +271,7 @@ export default function SharePanel() {
 
   const handleCopyText = useCallback(() => {
     playUISound('click');
-    const text = `太阳系探索报告\n日期：${new Date().toLocaleDateString('zh-CN')}\n\n探索了 ${exploredBodies.length} 颗天体\n解锁了 ${unlockedAchievements.length} 个徽章\n完成了 ${completedMissions.length} 个任务\n\n最近探索：${planetNames[favoritePlanet] || favoritePlanet}\n\n${quote}`;
+    const text = `太阳系探索报告\n日期：${new Date().toLocaleDateString('zh-CN')}\n\n探索了 ${exploredBodies.length} 颗天体\n解锁了 ${unlockedAchievements.length} 个徽章\n完成了 ${completedMissions.length} 个任务\n\n最近探索：${planetNames[lastExploredBody] || lastExploredBody}\n\n${quote}`;
 
     navigator.clipboard.writeText(text)
       .then(() => {
@@ -278,7 +282,7 @@ export default function SharePanel() {
       .catch(() => {
         // 剪贴板写入失败，静默处理
       });
-  }, [exploredBodies.length, unlockedAchievements.length, completedMissions.length, favoritePlanet, quote]);
+  }, [exploredBodies.length, unlockedAchievements.length, completedMissions.length, lastExploredBody, quote]);
 
   const handleClose = useCallback(() => {
     playUISound('click');
@@ -297,24 +301,24 @@ export default function SharePanel() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-40 flex items-center justify-center"
+      className="fixed inset-0 z-40 flex items-center justify-center backdrop-blur-md"
       style={{ backgroundColor: 'rgba(5, 11, 20, 0.85)' }}
     >
       <motion.div
-        initial={{ scale: 0.9, y: 20, opacity: 0 }}
+        initial={{ scale: 0.92, y: 10, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.9, y: 20, opacity: 0 }}
-        transition={{ type: 'spring', damping: 24, stiffness: 300 }}
+        exit={{ scale: 0.92, y: 10, opacity: 0 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         className="w-full max-w-lg mx-4"
       >
         <div className="sci-panel sci-corner p-4 sm:p-6 relative">
           {/* Close */}
           <button
             onClick={handleClose}
-            className="absolute top-3 right-3 text-sci-white/40 hover:text-sci-white transition-colors"
+            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-md text-sci-white/50 hover:text-sci-white hover:bg-sci-white/10 transition-colors"
             aria-label="关闭"
           >
-            ✕
+            <X size={16} />
           </button>
 
           <h2

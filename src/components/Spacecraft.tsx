@@ -65,11 +65,17 @@ function SpacecraftTrajectory({ spacecraft }: { spacecraft: Spacecraft }) {
 }
 
 export default function Spacecraft() {
+  const selectedSpacecraft = useStore((s) => s.selectedSpacecraft)
+  const showSpacecraftPanel = useStore((s) => s.showSpacecraftPanel)
+
+  if (!showSpacecraftPanel || !selectedSpacecraft) return null
+
+  const sc = spacecraftData.find((s) => s.id === selectedSpacecraft)
+  if (!sc) return null
+
   return (
     <group>
-      {spacecraftData.map((sc) => (
-        <SpacecraftTrajectory key={sc.id} spacecraft={sc} />
-      ))}
+      <SpacecraftTrajectory spacecraft={sc} />
     </group>
   )
 }
