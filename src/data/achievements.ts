@@ -22,7 +22,7 @@ export const achievements: Achievement[] = [
   {
     id: 'first_step',
     name: '第一步',
-    description: '探索任意一个天体',
+    description: '你迈出了探索宇宙的第一步——接下来想去哪里？',
     icon: '👣',
     rarity: 'common',
     condition: { type: 'explore', bodyId: '*' },
@@ -30,7 +30,7 @@ export const achievements: Achievement[] = [
   {
     id: 'mars_pioneer',
     name: '火星先锋',
-    description: '探索火星',
+    description: '火星曾经有水——你觉得，那些水去了哪里？',
     icon: '🔴',
     rarity: 'common',
     condition: { type: 'explore', bodyId: 'mars' },
@@ -38,7 +38,7 @@ export const achievements: Achievement[] = [
   {
     id: 'saturn_rings',
     name: '光环巡礼',
-    description: '探索土星及其壮丽的环系',
+    description: '土星环可能正在消失——我们是否是幸运的见证者？',
     icon: '🪐',
     rarity: 'common',
     condition: { type: 'explore', bodyId: 'saturn' },
@@ -46,7 +46,7 @@ export const achievements: Achievement[] = [
   {
     id: 'satellite_hunter',
     name: '卫星猎人',
-    description: '探索3个以上的卫星',
+    description: '你发现了几颗卫星——为什么它们总是以同一面朝向母星？',
     icon: '🛰️',
     rarity: 'rare',
     condition: {
@@ -69,7 +69,7 @@ export const achievements: Achievement[] = [
   {
     id: 'outer_reaches',
     name: '外域探险家',
-    description: '探索海王星、冥王星、阋神星、妊神星或鸟神星中的任意一个',
+    description: '你来到了太阳系的边缘——这里还隐藏着多少秘密？',
     icon: '❄️',
     rarity: 'rare',
     condition: {
@@ -80,7 +80,7 @@ export const achievements: Achievement[] = [
   {
     id: 'mission_rookie',
     name: '任务新兵',
-    description: '完成3个任务',
+    description: '你完成了3个任务——如果让你设计一个探测任务，你会选择哪个天体？',
     icon: '📋',
     rarity: 'common',
     condition: { type: 'mission_complete', count: 3 },
@@ -88,7 +88,7 @@ export const achievements: Achievement[] = [
   {
     id: 'mission_expert',
     name: '任务专家',
-    description: '完成10个任务',
+    description: '你完成了10个任务——你的下一个探索目标是什么？',
     icon: '🏆',
     rarity: 'epic',
     condition: { type: 'mission_complete', count: 8 },
@@ -96,15 +96,15 @@ export const achievements: Achievement[] = [
   {
     id: 'bronze_scholar',
     name: '青铜学者',
-    description: '解锁5个青铜级知识',
+    description: '你解锁了3个青铜级知识——知识越多，问题也就越多。你的下一个问题是什么？',
     icon: '🥉',
     rarity: 'common',
-    condition: { type: 'knowledge_unlock', level: 'bronze', count: 5 },
+    condition: { type: 'knowledge_unlock', level: 'bronze', count: 3 },
   },
   {
     id: 'silver_scholar',
     name: '白银学者',
-    description: '解锁5个白银级知识',
+    description: '你解锁了5个白银级知识——科学中，答案往往只是新问题的开始。',
     icon: '🥈',
     rarity: 'rare',
     condition: { type: 'knowledge_unlock', level: 'silver', count: 5 },
@@ -112,7 +112,7 @@ export const achievements: Achievement[] = [
   {
     id: 'gold_scholar',
     name: '黄金学者',
-    description: '解锁3个黄金级知识',
+    description: '你解锁了3个黄金级知识——但请记住，科学中没有永恒的真理，只有更好的问题。',
     icon: '🥇',
     rarity: 'epic',
     condition: { type: 'knowledge_unlock', level: 'gold', count: 3 },
@@ -120,7 +120,7 @@ export const achievements: Achievement[] = [
   {
     id: 'time_traveler',
     name: '时间旅行者',
-    description: '累计推进时间1000年',
+    description: '你穿越了1000年——如果能让过去的天文学家看到今天的宇宙，他们会说什么？',
     icon: '⏳',
     rarity: 'rare',
     condition: { type: 'time_travel', days: 365250 },
@@ -128,7 +128,7 @@ export const achievements: Achievement[] = [
   {
     id: 'eclipse_witness',
     name: '月食见证者',
-    description: '见证一次月食',
+    description: '你见证了一次月食——如果当时没有地球大气层，月亮会是什么颜色？',
     icon: '🌑',
     rarity: 'common',
     condition: { type: 'eclipse_witness' },
@@ -136,7 +136,7 @@ export const achievements: Achievement[] = [
   {
     id: 'solar_system_master',
     name: '太阳系大师',
-    description: '探索全部8颗行星',
+    description: '你探索了全部8颗行星——但你知道，99.86%的质量都在太阳里吗？',
     icon: '👑',
     rarity: 'legendary',
     condition: {
@@ -147,7 +147,7 @@ export const achievements: Achievement[] = [
   {
     id: 'prophet',
     name: '预言家',
-    description: '预测行星位置误差小于15°',
+    description: '你预测了行星的位置——如果古人也有这样的工具，天文学史会如何改写？',
     icon: '🔮',
     rarity: 'rare',
     condition: { type: 'explore', bodyId: '__none__' },
@@ -155,7 +155,7 @@ export const achievements: Achievement[] = [
   {
     id: 'space_explorer',
     name: '太空探险家',
-    description: '查看过任意航天器的轨迹',
+    description: '你查看了一艘航天器的轨迹——如果是你，想驾驶它飞向哪里？',
     icon: '🛰️',
     rarity: 'common',
     condition: { type: 'explore', bodyId: '__none__' },
@@ -163,7 +163,7 @@ export const achievements: Achievement[] = [
   {
     id: 'interdisciplinary',
     name: '跨界学者',
-    description: '查看过跨学科连接',
+    description: '你发现了不同学科的连接——天文学和你的生活还有什么联系？',
     icon: '🔗',
     rarity: 'common',
     condition: { type: 'explore', bodyId: '__none__' },
@@ -171,7 +171,7 @@ export const achievements: Achievement[] = [
   {
     id: 'stargazer',
     name: '观星者',
-    description: '查看过观测指南',
+    description: '你读了观测指南——今晚，你想抬头看看哪颗星星？',
     icon: '🔭',
     rarity: 'common',
     condition: { type: 'explore', bodyId: '__none__' },
@@ -179,7 +179,7 @@ export const achievements: Achievement[] = [
   {
     id: 'scientist_vote',
     name: '小小科学家',
-    description: '参与过科学争议投票',
+    description: '你参与了科学争议投票——科学的进步，正来自对不确定性的勇敢面对。',
     icon: '🗳️',
     rarity: 'common',
     condition: { type: 'explore', bodyId: '*' },
@@ -187,7 +187,7 @@ export const achievements: Achievement[] = [
   {
     id: 'black_hole_survivor',
     name: '黑洞幸存者',
-    description: '成功逃离黑洞并学到一课',
+    description: '你逃离了黑洞——但如果是超大质量黑洞，你在事件视界处可能安然无恙。为什么？',
     icon: '🕳️',
     rarity: 'epic',
     condition: { type: 'explore', bodyId: '__none__' },

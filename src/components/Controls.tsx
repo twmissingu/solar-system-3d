@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useMemo } from 'react'
 import { useStore } from '../store/useStore'
 import { presetViews, lunarEclipseDemo, celestialBodies, dwarfPlanets } from '../data/celestialData'
+import { achievements } from '../data/achievements'
 import { evaluateAchievements } from '../utils/achievements'
 import { getHeliocentricPosition } from '../utils/orbit'
 import { formatSimulationDate } from '../utils/date'
@@ -56,6 +57,16 @@ export default function Controls() {
     setShowBlackHole,
     setShowNarrative,
     setShowSharePanel,
+    setShowScientistGallery,
+    setShowScaleRuler,
+    setShowStarMap,
+    showScientistGallery,
+    showScaleRuler,
+    showStarMap,
+    exploredBodies,
+    unlockedAchievements,
+    completedMissions,
+    totalTimeAdvanced,
   } = useStore()
 
   const lifetimeData = useMemo(() => {
@@ -108,6 +119,71 @@ export default function Controls() {
     // 手动解锁月食见证者成就
     const { unlockAchievement } = useStore.getState()
     unlockAchievement('eclipse_witness')
+  }
+
+  const generateExplorationReport = () => {
+    const state = useStore.getState()
+    const allBodies = [...celestialBodies, ...dwarfPlanets]
+    const exploredNames = state.exploredBodies
+      .map((id) => allBodies.find((b) => b.id === id)?.nameZh)
+      .filter(Boolean)
+      .join('、') || '暂无'
+
+    const achievementNames = state.unlockedAchievements
+      .map((id) => {
+        const a = achievements.find((ach) => ach.id === id)
+        return a ? `${a.icon} ${a.name}` : id
+      })
+      .join('、') || '暂无'
+
+    const yearsAdvanced = (state.totalTimeAdvanced / 365.25).toFixed(1)
+
+    const report = `# 🚀 我的宇宙探索报告
+
+> 生成时间：${new Date().toLocaleString('zh-CN')}
+
+---
+
+## 📊 探索数据
+
+- **已探索天体**：${exploredNames}
+- **已解锁成就**：${achievementNames}
+- **完成任务数**：${state.completedMissions.length} 个
+- **累计推进时间**：约 ${yearsAdvanced} 年
+
+---
+
+## 🌍 我的宇宙足迹
+
+${state.exploredBodies.length > 0
+  ? state.exploredBodies.map((id) => {
+      const body = allBodies.find((b) => b.id === id)
+      return body ? `- **${body.nameZh}**：${body.description.slice(0, 50)}...` : ''
+    }).join('\n')
+  : '开始探索，留下你的宇宙足迹吧！'}
+
+---
+
+## 🧠 科学态度宣言
+
+> 我承诺，在这个应用里看到的一切都是科学家的**当前最佳理解**，而非永恒真理。
+> 科学的价值不在于永远正确，而在于永远好奇。
+
+---
+
+*本报告由太阳系3D探索应用自动生成*
+*数据来源：简化轨道模型，仅供科普教育参考*
+`;
+
+    const blob = new Blob([report], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `宇宙探索报告_${new Date().toISOString().slice(0, 10)}.md`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -388,11 +464,35 @@ export default function Controls() {
               📖 <span className="hidden sm:inline">故事任务</span><span className="sm:hidden">故事</span>
             </button>
             <button
-              onClick={() => { playUISound('click'); setShowSharePanel(true); }}
+              onClick={() => { playUISound('click'); setShowScaleRuler(true); }}
               onMouseEnter={() => playUISound('hover')}
               className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
             >
-              📸 <span className="hidden sm:inline">探索报告</span><span className="sm:hidden">报告</span>
+              📏 <span className="hidden sm:inline">比例尺</span><span className="sm:hidden">比例</span>
+            </button>
+            <button
+              onClick={() => { playUISound('click'); setShowScientistGallery(true); }}
+              onMouseEnter={() => playUISound('hover')}
+              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
+            >
+              🔬 <span className="hidden sm:inline">天文学家</span><span className="sm:hidden">学者</span>
+            </button>
+            <button
+              onClick={() => { playUISound('click'); setShowStarMap(true); }}
+              onMouseEnter={() => playUISound('hover')}
+              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
+            >
+              🌌 <span className="hidden sm:inline">四季星空</span><span className="sm:hidden">星空</span>
+            </button>
+            <button
+              onClick={() => {
+                playUISound('click');
+                generateExplorationReport();
+              }}
+              onMouseEnter={() => playUISound('hover')}
+              className="sci-button text-[10px] sm:text-xs flex items-center gap-1 py-1.5 px-2"
+            >
+              📄 <span className="hidden sm:inline">导出报告</span><span className="sm:hidden">导出</span>
             </button>
             <button
               onClick={() => { playUISound('click'); resetView(); }}

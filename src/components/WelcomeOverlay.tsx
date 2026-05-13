@@ -161,6 +161,9 @@ export default function WelcomeOverlay() {
                     轨道计算基于二体开普勒近似，未包含行星摄动效应，长期位置存在偏差。
                     仅供科普教育参考，非精密天文数据。
                   </p>
+                  <p className="text-[10px] sm:text-xs text-sci-white/20 mt-2 max-w-sm mx-auto leading-relaxed">
+                    🔊 声音提示：太空中没有空气，无法传播声音。你听到的音效是交互反馈和数据的艺术化呈现。
+                  </p>
                 </motion.div>
               )}
             </AnimatePresence>

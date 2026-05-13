@@ -76,7 +76,9 @@ export default function KnowledgeExplorer({ knowledge }: KnowledgeExplorerProps)
 
   const handleTabClick = (level: KnowledgeLevel) => {
     if (!isLevelUnlocked(level)) return
-    setActiveLevel(level)
+    if (level !== activeLevel) {
+      setActiveLevel(level)
+    }
   }
 
   const handleRevealFollowUp = () => {
@@ -136,10 +138,10 @@ export default function KnowledgeExplorer({ knowledge }: KnowledgeExplorerProps)
       <AnimatePresence mode="wait">
         <motion.div
           key={activeLevel}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.25 }}
+          initial={{ opacity: 0, y: 10, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -10, scale: 0.96 }}
+          transition={{ duration: 0.35, type: 'spring', damping: 22, stiffness: 200 }}
         >
           <div className="mb-4">
             <h3

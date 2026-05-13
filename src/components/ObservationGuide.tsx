@@ -244,6 +244,46 @@ export default function ObservationGuide({ bodyId }: ObservationGuideProps) {
         </p>
       </div>
 
+      {/* 观测工具推荐 */}
+      <div className="rounded-lg border border-sci-gold/15 bg-sci-gold/5 p-3">
+        <p className="text-xs text-sci-gold/80 font-medium mb-1.5">🔭 观测工具推荐</p>
+        <div className="space-y-1.5">
+          <div className="flex items-start gap-2">
+            <span className="text-[10px] text-sci-white/40 shrink-0 mt-0.5">👁️</span>
+            <p className="text-[11px] text-sci-white/60 leading-relaxed">
+              <strong className="text-sci-white/80">肉眼：</strong>太阳（需专用滤镜）、月球、金星、木星、火星、土星、主要星座
+            </p>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-[10px] text-sci-white/40 shrink-0 mt-0.5">🔍</span>
+            <p className="text-[11px] text-sci-white/60 leading-relaxed">
+              <strong className="text-sci-white/80">双筒望远镜（7×50）：</strong>月球环形山、木星四大卫星、猎户座大星云、仙女座星系
+            </p>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-[10px] text-sci-white/40 shrink-0 mt-0.5">🔭</span>
+            <p className="text-[11px] text-sci-white/60 leading-relaxed">
+              <strong className="text-sci-white/80">小型望远镜（4-8英寸）：</strong>土星光环细节、木星云带、火星极冠、天王星、深空天体
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* App推荐 */}
+      <div className="rounded-lg border border-sci-cyan/10 bg-space-700/20 p-3">
+        <p className="text-xs text-sci-cyan/70 font-medium mb-1.5">📱 推荐天文App</p>
+        <div className="flex flex-wrap gap-2">
+          {['Stellarium Mobile', 'Star Walk 2', 'SkySafari', 'Star Chart'].map((app) => (
+            <span key={app} className="text-[10px] px-2 py-1 rounded bg-sci-cyan/5 text-sci-cyan/60 border border-sci-cyan/10">
+              {app}
+            </span>
+          ))}
+        </div>
+        <p className="text-[10px] text-sci-white/30 mt-1.5">
+          这些App可以根据你的位置和实时时间，显示精确的星空方向和天体位置
+        </p>
+      </div>
+
       <div className="rounded-lg border border-sci-cyan/15 bg-space-700/30 p-4 space-y-3">
         <h3 className="text-sm font-bold text-sci-cyan">{guide.title}</h3>
         {guide.lines.map((line, idx) => (

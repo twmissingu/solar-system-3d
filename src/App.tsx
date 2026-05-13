@@ -22,6 +22,9 @@ import BlackHoleSimulator from './components/BlackHoleSimulator'
 import NarrativePanel from './components/NarrativePanel'
 import AudioController from './components/AudioController'
 import SharePanel from './components/SharePanel'
+import ScientistGallery from './components/ScientistGallery'
+import ScaleRuler from './components/ScaleRuler'
+import StarMapPanel from './components/StarMapPanel'
 import { useStore } from './store/useStore'
 
 export default function App() {
@@ -38,6 +41,9 @@ export default function App() {
   const showNarrative = useStore((s) => s.showNarrative)
   const showSharePanel = useStore((s) => s.showSharePanel)
   const showJourneyHUD = useStore((s) => s.showJourneyHUD)
+  const showScientistGallery = useStore((s) => s.showScientistGallery)
+  const showScaleRuler = useStore((s) => s.showScaleRuler)
+  const showStarMap = useStore((s) => s.showStarMap)
   return (
     <div className="relative w-full h-full">
       {/* 3D Canvas */}
@@ -123,6 +129,9 @@ export default function App() {
       {showBlackHole && <BlackHoleSimulator />}
       {showNarrative && <NarrativePanel />}
       {showSharePanel && <SharePanel />}
+      {showScientistGallery && <ScientistGallery />}
+      {showScaleRuler && <ScaleRuler />}
+      {showStarMap && <StarMapPanel />}
       <AudioController />
       <HUDOverlay />
     </div>

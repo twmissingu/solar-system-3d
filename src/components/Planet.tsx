@@ -8,6 +8,35 @@ import { getHeliocentricPosition, getSatellitePosition } from '../utils/orbit'
 import { evaluateAchievements } from '../utils/achievements'
 import { playUISound, playAmbientDrone } from '../utils/audio'
 
+function PulsingBeacon({ color, size }: { color: string; size: number }) {
+  const meshRef = useRef<THREE.Mesh>(null)
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null)
+
+  useFrame(({ clock }) => {
+    if (materialRef.current) {
+      const t = clock.getElapsedTime()
+      const pulse = 0.5 + 0.5 * Math.sin(t * 3)
+      materialRef.current.opacity = 0.3 + pulse * 0.7
+    }
+    if (meshRef.current) {
+      const t = clock.getElapsedTime()
+      meshRef.current.scale.setScalar(1 + 0.3 * Math.sin(t * 3))
+    }
+  })
+
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[size, 16, 16]} />
+      <meshBasicMaterial
+        ref={materialRef}
+        color={color}
+        transparent
+        opacity={0.8}
+      />
+    </mesh>
+  )
+}
+
 interface PlanetProps {
   body: CelestialBody
   parentPosition?: [number, number, number]
@@ -199,6 +228,11 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
             side={THREE.DoubleSide}
           />
         </mesh>
+      )}
+
+      {/* 真实比例模式下不可见天体的脉冲信标 */}
+      {scaleMode === 'realistic' && effectiveRadius < 0.08 && body.id !== 'sun' && (
+        <PulsingBeacon color={body.color} size={0.08} />
       )}
 
       {/* 选中高亮 */}

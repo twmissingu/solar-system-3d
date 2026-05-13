@@ -193,6 +193,30 @@ export default function ScienceFrontiers({ bodyId }: ScienceFrontiersProps) {
 
   return (
     <div className="space-y-4">
+      {/* 模型精度教育卡片 */}
+      <div className="rounded-lg border border-sci-cyan/15 bg-sci-cyan/5 p-3">
+        <div className="flex items-start gap-2">
+          <span className="text-sci-cyan shrink-0 text-sm">🔬</span>
+          <div>
+            <p className="text-xs text-sci-cyan/80 font-medium mb-1">关于本应用的科学模型</p>
+            <p className="text-[11px] text-sci-white/60 leading-relaxed">
+              你看到的行星轨道是基于<span className="text-sci-white/80 font-medium">二体开普勒近似</span>计算的简化模型。
+              真实的天体运动比这复杂得多——行星之间会相互引力拉扯（摄动），太阳也不是一个质点，
+              广义相对论还会带来微小的轨道修正。
+            </p>
+            <p className="text-[11px] text-sci-white/60 leading-relaxed mt-1">
+              例如，<span className="text-sci-white/80 font-medium">水星近日点每世纪会额外进动约43角秒</span>——
+              这个牛顿力学无法解释的小偏差，正是爱因斯坦广义相对论的经典验证。
+              爱因斯坦用时空弯曲的概念精确地预言了这个数值。
+            </p>
+            <p className="text-[11px] text-sci-cyan/60 leading-relaxed mt-1">
+              💡 科学模型从不追求“完美”，而是追求“在当前条件下最有用”。
+              简化模型让我们理解基本原理，复杂模型让我们逼近真实。
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="rounded-lg border border-sci-gold/20 bg-sci-gold/5 p-3 flex items-start gap-2">
         <span className="text-sci-gold shrink-0 text-sm">⚡</span>
         <div>

@@ -138,6 +138,18 @@ interface AppState {
   showSharePanel: boolean;
   setShowSharePanel: (show: boolean) => void;
 
+  // Scientist gallery
+  showScientistGallery: boolean;
+  setShowScientistGallery: (show: boolean) => void;
+
+  // Scale ruler
+  showScaleRuler: boolean;
+  setShowScaleRuler: (show: boolean) => void;
+
+  // Star map
+  showStarMap: boolean;
+  setShowStarMap: (show: boolean) => void;
+
   // Mission system (needed by Task 2)
   activeMissionId: string | null;
   setActiveMissionId: (id: string | null) => void;
@@ -399,4 +411,16 @@ export const useStore = create<AppState>((set) => ({
   // Social sharing
   showSharePanel: false,
   setShowSharePanel: (show) => set({ showSharePanel: show }),
+
+  // Scientist gallery
+  showScientistGallery: false,
+  setShowScientistGallery: (show) => set({ showScientistGallery: show }),
+
+  // Scale ruler
+  showScaleRuler: false,
+  setShowScaleRuler: (show) => set({ showScaleRuler: show }),
+
+  // Star map
+  showStarMap: false,
+  setShowStarMap: (show) => set({ showStarMap: show }),
 }));
