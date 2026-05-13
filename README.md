@@ -18,11 +18,13 @@
 
 ## 🌌 Why This Project?
 
-Most astronomy apps are either **static images** or **oversimplified animations** that don't reflect real orbital mechanics. This project bridges the gap between scientific accuracy and engaging interactivity.
+Most astronomy apps are either **static images** or **oversimplified animations** that don't reflect real orbital mechanics. This project bridges the gap between scientific accuracy and engaging interactivity — while planting a seed of scientific curiosity in young minds.
 
 - 🎯 **Real orbital data** — Based on NASA JPL ephemerides (J2000.0 epoch) with true Keplerian ellipses
-- 🎮 **20+ interactive modules** — From mission exploration to black hole simulation
-- 🏆 **Gamified learning** — Achievement system, narrative missions, and knowledge quizzes
+- 🎮 **25+ interactive modules** — From mission exploration to black hole simulation with mass comparison
+- 🏆 **Reflective learning** — Achievement toasts ask "why?" instead of just saying "congrats"
+- 📐 **Scale intuition** — "Sun = basketball" ruler reveals the true emptiness of the solar system
+- 👩‍🔬 **Diverse scientists** — Gallery features 8 astronomers across cultures and genders
 - 🚀 **Sci-fi HUD design** — Immersive interface inspired by mission control dashboards
 - 🌐 **Zero backend** — Pure static site, runs entirely in the browser
 
@@ -33,19 +35,26 @@ Most astronomy apps are either **static images** or **oversimplified animations*
 | Module | Description |
 |--------|-------------|
 | 🌍 **Real-Time Solar System** | Navigate all 8 planets + Sun with accurate orbital positions using Newton-Raphson Kepler equation solving |
-| 🛰️ **Satellite Rendering** | Recursive moon system rendering with tidal locking visualization |
+| 🛰️ **Satellite Rendering** | Recursive moon system rendering with tidal locking visualization; invisible planets show pulsing beacons in realistic scale |
 | 🎯 **Exploration Missions** | Guided narrative missions across the solar system |
 | 🔮 **Prediction Challenges** | Predict planetary positions and orbital events |
 | 🧪 **Sandbox Lab** | Experiment with orbital parameters in real time |
 | 🚀 **Hohmann Transfer Designer** | Design interplanetary transfer orbits visually |
 | 🌑 **Eclipse Simulator** | Simulate lunar and solar eclipses with shadow geometry |
-| 🕳️ **Black Hole Explorer** | Experience gravitational lensing and event horizon effects |
+| 🕳️ **Black Hole Explorer** | Explore stellar vs. supermassive black holes with adjustable mass (1x–1000x solar mass) |
 | ⚡ **Light-Speed Journey** | Travel at light speed between planets with time dilation HUD |
-| 🏆 **Achievement System** | 30+ unlockable achievements tracking exploration progress |
-| 📝 **Knowledge Quizzes** | Test your astronomy knowledge with adaptive difficulty |
-| 🔭 **Observation Guide** | Practical tips for real-world stargazing |
+| 🏆 **Reflective Achievement System** | 30+ achievements that ask "what's your next question?" instead of just badges |
+| 📝 **Knowledge System** | Bronze→Silver→Gold tiered knowledge with bridge text transitions and follow-up chains |
+| 📝 **Knowledge Quizzes** | Test your astronomy knowledge, including science-history misconception questions |
+| 🔭 **Observation Guide** | Practical stargazing tips with tool recommendations (naked eye / binoculars / telescope) |
+| 📏 **Scale Ruler** | "If the Sun were a basketball" — reveals true emptiness of the solar system |
+| 👩‍🔬 **Scientist Gallery** | 8 diverse astronomers (5 women, 3 non-Western) with contributions and search keywords |
+| 🌌 **Seasonal Star Map** | Northern hemisphere 4-season stargazing guide with direction charts |
+| 📄 **Exploration Report Export** | Generate Markdown learning report for school assignments |
 | 🎵 **Immersive Audio** | Web Audio API ambient soundscape with spatial audio |
-| 📊 **Interdisciplinary Panel** | Connect astronomy to physics, chemistry, and history |
+| 📊 **Interdisciplinary Panel** | Connect astronomy to physics, chemistry, and history with 💡 thinking prompts |
+| 🔬 **Science Frontiers** | Controversy voting + model-accuracy education cards |
+| 🛰️ **Spacecraft Panel** | Trajectories and discoveries of Voyager, Juno, New Horizons |
 
 ---
 
@@ -156,6 +165,10 @@ npm run build
 **Key file references for modifications:**
 - Add celestial bodies → `src/data/celestialData.ts` (follow `CelestialBody` interface)
 - Add UI panels → `src/store/useStore.ts` (add `show*` boolean + setter)
+- Add knowledge topics → `src/data/knowledgeV2.ts` (follow `KnowledgeItemV2` interface with Bronze/Silver/Gold tiers)
+- Add quiz questions → `src/data/quiz.ts`
+- Add interdisciplinary connections → `src/data/interdisciplinary.ts`
+- Add scientist profiles → `src/data/scientists.ts`
 - Modify orbital math → `src/utils/orbit.ts`
 - Modify physics → `src/utils/physics.ts`
 - Add achievements → `src/data/achievements.ts` + `src/utils/achievements.ts`
