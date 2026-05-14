@@ -323,9 +323,9 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
         </>
       )}
 
-      {/* 真实比例模式下不可见天体的脉冲信标 */}
-      {scaleMode === 'realistic' && effectiveRadius < 0.08 && body.id !== 'sun' && (
-        <PulsingBeacon color={body.color} size={0.08} />
+      {/* 极小不可见天体的脉冲信标（无论哪种尺度模式） */}
+      {effectiveRadius < 0.08 && body.id !== 'sun' && (
+        <PulsingBeacon color={body.color} size={Math.max(effectiveRadius * 2, 0.08)} />
       )}
 
       {/* 选中高亮 + 扫描环 */}

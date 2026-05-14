@@ -183,7 +183,7 @@ export const celestialBodies: CelestialBody[] = [
         name: "Phobos",
         nameZh: "火卫一",
         radiusKm: 11.267,
-        visualRadius: 0.05,
+        visualRadius: 0.12,
         color: "#8C7D6B",
         textureColor: "#8C7D6B",
         orbit: {
@@ -205,7 +205,7 @@ export const celestialBodies: CelestialBody[] = [
         name: "Deimos",
         nameZh: "火卫二",
         radiusKm: 6.2,
-        visualRadius: 0.04,
+        visualRadius: 0.10,
         color: "#A39E8B",
         textureColor: "#A39E8B",
         orbit: {
@@ -392,7 +392,7 @@ export const celestialBodies: CelestialBody[] = [
         name: "Enceladus",
         nameZh: "土卫二（恩克拉多斯）",
         radiusKm: 252.1,
-        visualRadius: 0.1,
+        visualRadius: 0.18,
         color: "#F5F5F5",
         textureColor: "#F5F5F5",
         orbit: {
@@ -439,7 +439,7 @@ export const celestialBodies: CelestialBody[] = [
         name: "Titania",
         nameZh: "天卫三（泰坦尼亚）",
         radiusKm: 788.4,
-        visualRadius: 0.12,
+        visualRadius: 0.18,
         color: "#C8D6E5",
         textureColor: "#C8D6E5",
         orbit: {
@@ -546,7 +546,7 @@ export const dwarfPlanets: CelestialBody[] = [
         name: "Charon",
         nameZh: "卡戎",
         radiusKm: 606.0,
-        visualRadius: 0.1,
+        visualRadius: 0.15,
         color: "#A0A0A0",
         textureColor: "#A0A0A0",
         orbit: {
@@ -570,7 +570,7 @@ export const dwarfPlanets: CelestialBody[] = [
     name: "Ceres",
     nameZh: "谷神星",
     radiusKm: 469.7,
-    visualRadius: 0.1,
+    visualRadius: 0.14,
     color: "#A0A0A0",
     textureColor: "#A0A0A0",
     orbit: {
@@ -658,7 +658,7 @@ export const dwarfPlanets: CelestialBody[] = [
         name: "Hiʻiaka",
         nameZh: "希亚卡",
         radiusKm: 160.0,
-        visualRadius: 0.06,
+        visualRadius: 0.10,
         color: "#C0C0C0",
         textureColor: "#C0C0C0",
         orbit: {
@@ -680,7 +680,7 @@ export const dwarfPlanets: CelestialBody[] = [
         name: "Namaka",
         nameZh: "纳马卡",
         radiusKm: 85.0,
-        visualRadius: 0.04,
+        visualRadius: 0.08,
         color: "#B0B0B0",
         textureColor: "#B0B0B0",
         orbit: {
