@@ -19,9 +19,10 @@ export default function AsteroidBelt() {
 
       // 距离缩放 15 倍（与行星一致）
       const r = a * 15
+      // 先在 XY 平面做圆轨道，再绕 X 轴旋转倾角 i
       const x = r * Math.cos(angle)
-      const y = r * Math.sin(angle) * Math.sin(i_rad)
-      const z = r * Math.sin(angle) * Math.cos(i_rad)
+      const y = r * Math.sin(angle) * Math.cos(i_rad)
+      const z = r * Math.sin(angle) * Math.sin(i_rad)
 
       positions.push(x, y, z)
 

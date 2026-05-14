@@ -183,6 +183,8 @@ function RadarRangefinder({ bodyId }: { bodyId: string }) {
   }, [radarPhase])
 
   const handleResetRadar = useCallback(() => {
+    timerRef.current.forEach(clearTimeout)
+    timerRef.current = []
     setRadarPhase('idle')
     setSignalProgress(0)
   }, [])

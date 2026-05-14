@@ -137,13 +137,15 @@ export default function HUDOverlay() {
           </div>
 
           {/* Target box */}
+          {selectedBody && (
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mt-6">
             <div className="sci-panel px-2 py-1">
               <span className="text-[10px] sm:text-xs font-mono text-sci-cyan/80 tracking-wider">
-                TARGET: {selectedBody!.nameZh.toUpperCase()}
+                TARGET: {selectedBody.nameZh.toUpperCase()}
               </span>
             </div>
           </div>
+          )}
         </>
       )}
 

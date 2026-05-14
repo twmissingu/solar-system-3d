@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MousePointerClick, Pointer, Timer, Moon, Rocket, X } from 'lucide-react'
 import { generalIntro } from '../data/knowledge'
@@ -16,10 +16,18 @@ interface WelcomeOverlayProps {
 
 export default function WelcomeOverlay({ onClose }: WelcomeOverlayProps) {
   const [visible, setVisible] = useState(true)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
 
   const handleClose = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current)
     setVisible(false)
-    setTimeout(onClose, 600)
+    timerRef.current = setTimeout(onClose, 600)
   }, [onClose])
 
   return (
@@ -55,14 +63,14 @@ export default function WelcomeOverlay({ onClose }: WelcomeOverlayProps) {
                 className="text-2xl sm:text-3xl font-bold text-sci-white sci-text-glow mb-2"
                 style={{ fontFamily: 'Orbitron, sans-serif' }}
               >
-                {generalIntro.title}
+                {generalIntro?.title || '太阳系3D探索'}
               </h1>
               <p className="text-sci-cyan text-sm tracking-widest mb-6">
-                {generalIntro.subtitle}
+                {generalIntro?.subtitle}
               </p>
 
               <p className="text-sci-white/70 text-sm leading-relaxed mb-6">
-                {generalIntro.content}
+                {generalIntro?.content}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left mb-6">

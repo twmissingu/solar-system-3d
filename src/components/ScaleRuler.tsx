@@ -53,7 +53,7 @@ export default function ScaleRuler() {
     color: b.color,
   }));
 
-  const maxMeters = Math.max(...items.map(i => parseToMeters(i.distanceLabel)))
+  const maxMeters = items.length > 0 ? Math.max(...items.map(i => parseToMeters(i.distanceLabel))) : 1
 
   return (
     <motion.div

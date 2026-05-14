@@ -154,8 +154,8 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
       pos[1] + parentPosition[1],
       pos[2] + parentPosition[2],
     ] as [number, number, number]
-  }, [body.id, body.orbit, currentDay, parentPosition[0], parentPosition[1], parentPosition[2], isSatellite])
-  // parentPosition 在 deps 中仅对非卫星有效（卫星由父 group 提供坐标系偏移）
+  }, [body.id, body.orbit, currentDay, isSatellite])
+  // parentPosition 未加入 deps：非卫星的 parentPosition 恒为 [0,0,0]；卫星在父 group 内渲染不依赖此值
 
   // 自转动画 / 潮汐锁定
   useFrame((_, delta) => {
@@ -168,9 +168,10 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
       // 固定一个轴旋转，避免翻滚
       meshRef.current.rotateZ(Math.PI)
     } else if (body.rotationPeriod > 0) {
-      // 正常自转（归一化到 [0, 2π) 避免角度无限累积）
-      const rotationSpeed = (delta * 0.5) / (body.rotationPeriod / 24)
-      meshRef.current.rotation.y = (meshRef.current.rotation.y + rotationSpeed) % (Math.PI * 2)
+      // 正常自转：将天数增量转为弧度增量（归一化到 [0, 2π)）
+      const dayFraction = (delta * 0.5) / (body.rotationPeriod / 24)
+      const rotationRad = dayFraction * Math.PI * 2
+      meshRef.current.rotation.y = (meshRef.current.rotation.y + rotationRad) % (Math.PI * 2)
     }
   })
 
@@ -278,6 +279,24 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
             <meshBasicMaterial color="#FFFFFF" transparent opacity={0.08} side={THREE.DoubleSide} />
           </mesh>
         )}
+        {/* 土星光环 - 极薄的环面（继承轴向倾斜） */}
+        {body.hasRings && (
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <ringGeometry
+              args={[
+                effectiveRadius * (body.ringInnerRadius || 1.2),
+                effectiveRadius * (body.ringOuterRadius || 2.3),
+                128,
+              ]}
+            />
+            <meshStandardMaterial
+              color={body.ringColor || '#D4C5A3'}
+              transparent
+              opacity={0.55}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        )}
       </group>
 
       {/* 太阳光晕 */}
@@ -302,25 +321,6 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
             />
           </mesh>
         </>
-      )}
-
-      {/* 土星光环 - 极薄的环面 */}
-      {body.hasRings && (
-        <mesh rotation={[Math.PI / 2.5, 0, 0]}>
-          <ringGeometry
-            args={[
-              effectiveRadius * (body.ringInnerRadius || 1.2),
-              effectiveRadius * (body.ringOuterRadius || 2.3),
-              128,
-            ]}
-          />
-          <meshStandardMaterial
-            color={body.ringColor || '#D4C5A3'}
-            transparent
-            opacity={0.55}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
       )}
 
       {/* 真实比例模式下不可见天体的脉冲信标 */}

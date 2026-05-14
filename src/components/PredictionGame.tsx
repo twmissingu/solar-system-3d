@@ -58,7 +58,15 @@ export default function PredictionGame() {
   const [isDragging, setIsDragging] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const dialRef = useRef<HTMLDivElement>(null);
+  const valErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [dialScale, setDialScale] = useState(1);
+
+  // 清理验证错误定时器
+  useEffect(() => {
+    return () => {
+      if (valErrorTimerRef.current) clearTimeout(valErrorTimerRef.current)
+    }
+  }, [])
 
   // 响应式拨盘缩放：根据实际渲染宽度调整圆点位置
   useLayoutEffect(() => {
@@ -90,7 +98,8 @@ export default function PredictionGame() {
   const handleVerify = useCallback(() => {
     if (!predictionBodyId) {
       setValidationError('请先选择一颗行星')
-      setTimeout(() => setValidationError(null), 2000)
+      if (valErrorTimerRef.current) clearTimeout(valErrorTimerRef.current)
+      valErrorTimerRef.current = setTimeout(() => setValidationError(null), 2000)
       return
     }
     const actualAngle = calculateBodyAngle(predictionBodyId, futureDay);
@@ -127,6 +136,7 @@ export default function PredictionGame() {
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (!dialRef.current || predictionResult) return;
+      e.preventDefault()
       if ('setPointerCapture' in e.currentTarget) {
         e.currentTarget.setPointerCapture(e.pointerId);
       }
@@ -148,6 +158,7 @@ export default function PredictionGame() {
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     setIsDragging(false);
+    e.preventDefault();
     const target = e.target as Element;
     if ('releasePointerCapture' in target) {
       (target as Element & { releasePointerCapture: (id: number) => void }).releasePointerCapture(e.pointerId);

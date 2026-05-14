@@ -67,7 +67,7 @@ export default function EclipseLab() {
   const unlockAchievement = useStore((s) => s.unlockAchievement);
 
   const [earthSunAU, setEarthSunAU] = useState(1.0);
-  const [moonInclinationDeg, setMoonInclinationDeg] = useState(0);
+  const [moonInclinationDeg, setMoonInclinationDeg] = useState(5.145);
   const [moonSizeMultiplier, setMoonSizeMultiplier] = useState(1.0);
 
   const handleClose = useCallback(() => {
@@ -76,7 +76,7 @@ export default function EclipseLab() {
 
   const handleReset = useCallback(() => {
     setEarthSunAU(1.0);
-    setMoonInclinationDeg(0);
+    setMoonInclinationDeg(5.145);
     setMoonSizeMultiplier(1.0);
   }, []);
 
@@ -370,6 +370,7 @@ export default function EclipseLab() {
                 <div className="text-center mt-2">
                   <span className="text-lg font-bold text-sci-white font-mono">{moonInclinationDeg.toFixed(1)}°</span>
                 </div>
+                <p className="text-[10px] text-sci-white/30 mt-1">月球真实轨道倾角：5.145°</p>
               </div>
 
               {/* Slider 3: Moon size */}

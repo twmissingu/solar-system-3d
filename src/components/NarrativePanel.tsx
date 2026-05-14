@@ -27,7 +27,6 @@ export default function NarrativePanel() {
     setActiveNarrative,
     narrativeStep,
     setNarrativeStep,
-    setSelectedBody,
     setShowSandbox,
     setShowHohmannDesigner,
   } = useStore();

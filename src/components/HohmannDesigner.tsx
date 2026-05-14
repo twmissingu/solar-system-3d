@@ -14,7 +14,6 @@ const TARGETS = [
 ];
 
 const EARTH_ORBIT_PX = 50;
-const V_B = 250;
 
 function getFunFact(au: number): string {
   if (au < 1.5) return `去水星大约需要 ${(0.5 + au * 0.3).toFixed(0)} 天！`
@@ -67,9 +66,8 @@ export default function HohmannDesigner() {
   }, [hohmannTarget]);
 
   const targetName = getTargetName(targetAU);
-
-  // Diagram geometry
   const targetRadius = EARTH_ORBIT_PX * targetAU;
+  const viewBoxSize = Math.max(250, targetRadius + 80);
   const semiMajor = (EARTH_ORBIT_PX + targetRadius) / 2;
   const semiMinor = Math.sqrt(EARTH_ORBIT_PX * targetRadius);
 
@@ -162,7 +160,7 @@ export default function HohmannDesigner() {
             <div className="lg:w-[60%] flex flex-col items-center justify-center min-w-0">
               <div className="w-full max-w-[400px] aspect-square relative">
                 <svg
-                  viewBox={`-${V_B} -${V_B} ${V_B * 2} ${V_B * 2}`}
+                  viewBox={`-${viewBoxSize} -${viewBoxSize} ${viewBoxSize * 2} ${viewBoxSize * 2}`}
                   className="w-full h-full"
                   preserveAspectRatio="xMidYMid meet"
                 >

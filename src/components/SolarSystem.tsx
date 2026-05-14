@@ -34,9 +34,6 @@ export default function SolarSystem() {
     duration: number
   } | null>(null)
 
-  // 动画状态管理，避免 useFrame 与 useEffect 之间的竞态
-  const animCleanupRef = useRef(false)
-
   // lookAt 目标缓存，避免每帧创建 Vector3
   const lookAtTargetRef = useRef(new THREE.Vector3())
 
@@ -71,7 +68,6 @@ export default function SolarSystem() {
 
       if (t >= 1) {
         anim.active = false
-        animCleanupRef.current = true
         setCameraTarget(null)
         setCameraLookAt(null)
         setCameraAnimating(false)
@@ -108,7 +104,7 @@ export default function SolarSystem() {
     if (cameraLookAt) {
       lookAtAnimRef.current = {
         active: true,
-        startTarget: new THREE.Vector3(0, 0, 0),
+        startTarget: lookAtTargetRef.current.clone(),
         endTarget: new THREE.Vector3(...cameraLookAt),
         elapsed: 0,
         duration: 2,

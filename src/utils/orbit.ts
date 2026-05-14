@@ -2,6 +2,11 @@ import { OrbitalElements } from '../data/celestialData';
 
 const DEG_TO_RAD = Math.PI / 180;
 
+// 场景距离缩放因子：1 AU = 15 场景单位（与 DISTANCE_SCALE 配合）
+const ORBIT_SCALE = 15;
+// 卫星轨道缩放系数（卫星半长轴仅为 AU 量级的千分之一，需要更大缩放）
+const SATELLITE_SCALE = 1500;
+
 /**
  * 求解开普勒方程：M = E - e * sin(E)
  * 使用牛顿迭代法
@@ -22,7 +27,7 @@ function solveKepler(M: number, e: number, maxIter = 50, epsilon = 1e-8): number
 }
 
 /**
- * 计算天体在给定时间的日心黄道坐标（单位：AU，已缩放）
+ * 计算天体在给定时间的日心黄道坐标（场景单位，已乘 ORBIT_SCALE=15）
  * 使用开普勒轨道近似
  * @param orbit 轨道根数
  * @param days 相对于历元的日数
@@ -64,9 +69,9 @@ export function getHeliocentricPosition(
   const cosNode = Math.cos(nodeRad);
   const sinNode = Math.sin(nodeRad);
 
-  const x = (cosNode * xOrb - sinNode * yOrb * cosI) * 15;
-  const y = (sinNode * xOrb + cosNode * yOrb * cosI) * 15;
-  const z = yOrb * sinI * 15;
+  const x = (cosNode * xOrb - sinNode * yOrb * cosI) * ORBIT_SCALE;
+  const y = (sinNode * xOrb + cosNode * yOrb * cosI) * ORBIT_SCALE;
+  const z = yOrb * sinI * ORBIT_SCALE;
 
   return [x, y, z];
 }
@@ -81,7 +86,7 @@ export function getHeliocentricPosition(
 export function getSatellitePosition(
   orbit: OrbitalElements,
   days: number,
-  scale = 1500
+  scale = SATELLITE_SCALE
 ): [number, number, number] {
   const { a, e, i, L, longPeri, longNode, period } = orbit;
   if (a === 0 || period === 0) return [0, 0, 0];

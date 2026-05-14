@@ -63,5 +63,15 @@ export default function JourneyMode() {
     };
   }, [journeyMode, currentJourneyIndex, flyToStop]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setJourneyMode('idle');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setJourneyMode]);
+
   return null;
 }

@@ -12,7 +12,7 @@ export interface Mission {
   };
   hints: string[];
   rewardAchievementId?: string;
-  knowledgeId: string;
+  knowledgeId?: string;
   difficulty: 1 | 2 | 3;
 }
 
@@ -112,7 +112,7 @@ export const missions: Mission[] = [
     target: { bodyIds: ['pluto', 'eris', 'haumea', 'makemake'] },
     hints: ['冥王星曾经是第九大行星', '柯伊伯带有很多矮行星'],
     rewardAchievementId: 'outer_reaches',
-    knowledgeId: 'neptune',
+    knowledgeId: 'outer-reaches',
     difficulty: 3,
   },
   {

@@ -29,7 +29,7 @@ export default function SpacecraftPanel() {
 
   const handleNext = useCallback(() => {
     const idx = spacecraftData.findIndex((s) => s.id === selectedSpacecraft);
-    if (idx < spacecraftData.length - 1) setSelectedSpacecraft(spacecraftData[idx + 1].id);
+    if (idx >= 0 && idx < spacecraftData.length - 1) setSelectedSpacecraft(spacecraftData[idx + 1].id);
   }, [selectedSpacecraft, setSelectedSpacecraft]);
 
   const handleClose = () => {

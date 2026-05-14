@@ -89,7 +89,7 @@ export const achievements: Achievement[] = [
   {
     id: 'mission_expert',
     name: '任务专家',
-    description: '你完成了10个任务——你的下一个探索目标是什么？',
+    description: '你完成了8个任务——你的下一个探索目标是什么？',
     icon: '🏆',
     rarity: 'epic',
     condition: { type: 'mission_complete', count: 8 },
