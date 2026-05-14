@@ -97,6 +97,9 @@ export function getLunarEclipsePhase(
   // 将垂直距离缩放到 km
   const perpOffsetKm = perpOffset * distanceScale;
 
+  // 月球必须在地球背日侧（moonDotAxis > 0）才可能发生月食
+  if (moonDotAxis <= 0) return { phase: 'none', coverage: 0 };
+
   // 判断月食阶段
   const moonRadiusKm = MOON_RADIUS_KM;
 

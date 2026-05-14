@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '../store/useStore'
+import { evaluateAchievements } from '../utils/achievements'
 import { KnowledgeItemV2, KnowledgeLevel } from '../data/knowledgeV2'
 
 interface KnowledgeExplorerProps {
@@ -60,10 +61,22 @@ export default function KnowledgeExplorer({ knowledge }: KnowledgeExplorerProps)
       if (!localStorage.getItem(visitedKey)) {
         localStorage.setItem(visitedKey, 'true')
         incrementKnowledgeCount(activeLevel)
+        evaluateAchievements()
       }
     } catch {
-      // localStorage 不可用（如隐私模式），直接计数
-      incrementKnowledgeCount(activeLevel)
+      // localStorage 不可用（如隐私模式），尝试用 sessionStorage 去重
+      try {
+        const visitedKey = `visited-${knowledge.id}-${activeLevel}`
+        if (!sessionStorage.getItem(visitedKey)) {
+          sessionStorage.setItem(visitedKey, 'true')
+          incrementKnowledgeCount(activeLevel)
+          evaluateAchievements()
+        }
+      } catch {
+        // 存储完全不可用，仅首次渲染时计数
+        incrementKnowledgeCount(activeLevel)
+        evaluateAchievements()
+      }
     }
   }, [activeLevel, knowledge.id, isLevelUnlocked, incrementKnowledgeCount])
 

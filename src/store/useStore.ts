@@ -232,6 +232,7 @@ export const useStore = create<AppState>((set) => ({
       showKnowledge: false,
       scaleMode: 'exaggerated',
       timeSpeed: '1x',
+      currentDay: 0,
       timeMode: 'simulation',
       showOrbits: true,
       showLabels: true,

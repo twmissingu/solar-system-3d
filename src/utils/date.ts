@@ -53,7 +53,7 @@ export function formatSimulationDate(daysOffset: number): string {
   if (!Number.isFinite(daysOffset)) return '日期无效';
   const jd = J2000 + daysOffset;
   const [year, month, day] = jdToGregorian(jd);
-  return `${year}年${month}月${Math.round(day)}日`;
+  return `${year}年${month}月${Math.floor(day)}日`;
 }
 
 /**

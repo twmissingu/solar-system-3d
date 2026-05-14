@@ -79,7 +79,7 @@ export default function HohmannDesigner() {
 
   // Synodic period (launch window) — 保护分母避免 keplerThirdLaw == 1 (即 targetAU == 1 AU)
   const targetPeriod = keplerThirdLaw(targetAU);
-  const synodicPeriodDays = targetPeriod !== 1 ? 360 / (1 - 1 / targetPeriod) : Infinity;
+  const synodicPeriodDays = targetPeriod !== 1 ? 365.25 / (1 - 1 / targetPeriod) : Infinity;
 
   // Simplified delta-v (km/s)
   const vEarth = 29.78;
@@ -110,7 +110,7 @@ export default function HohmannDesigner() {
   const arrowTipT = Math.PI - 0.15;
   const arrowTipX = semiMajor * Math.cos(arrowTipT);
   const arrowTipY = -semiMinor * Math.sin(arrowTipT);
-  const arrowPrevT = arrowTipT + 0.05;
+  const arrowPrevT = arrowTipT - 0.05;
   const arrowPrevX = semiMajor * Math.cos(arrowPrevT);
   const arrowPrevY = -semiMinor * Math.sin(arrowPrevT);
   const arrowAngle = (Math.atan2(arrowTipY - arrowPrevY, arrowTipX - arrowPrevX) * 180) / Math.PI;

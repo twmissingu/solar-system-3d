@@ -8,6 +8,14 @@ const MAX_DISTANCE = 3.0;
 const EVENT_HORIZON_BASE = 1.0;
 
 function getStatus(distance: number, massMultiplier: number): { text: string; color: string } {
+  // 先判断是否进入事件视界（d ≤ 1.0 视界半径），与潮汐力阈值解耦
+  if (distance <= EVENT_HORIZON_BASE) {
+    if (massMultiplier >= 1000) {
+      return { text: '🌀 你穿越了事件视界——对于超大质量黑洞，潮汐力可能并不致命', color: '#FF6B6B' };
+    }
+    return { text: '💀 事件视界！飞船被潮汐力撕碎了！', color: '#FF6B6B' };
+  }
+
   // 阈值随质量增加而降低：质量越大，同等距离潮汐力越弱
   const dangerThreshold = EVENT_HORIZON_BASE / Math.sqrt(massMultiplier);
   const warningThreshold = 1.5 / Math.sqrt(massMultiplier);
@@ -21,10 +29,6 @@ function getStatus(distance: number, massMultiplier: number): { text: string; co
   }
   if (distance > dangerThreshold) {
     return { text: '🔴 危险：你的身体会被拉伸！', color: '#FF6B6B' };
-  }
-
-  if (massMultiplier >= 1000) {
-    return { text: '🌀 你穿越了事件视界——对于超大质量黑洞，潮汐力可能并不致命', color: '#FF6B6B' };
   }
   return { text: '💀 事件视界！飞船被潮汐力撕碎了！', color: '#FF6B6B' };
 }
@@ -44,12 +48,16 @@ export default function BlackHoleSimulator() {
   const [hasSurvived, setHasSurvived] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
   const [hasEnteredDanger, setHasEnteredDanger] = useState(false);
+  const [hasCrossedHorizon, setHasCrossedHorizon] = useState(false);
   const prevDistanceRef = useRef(distance);
 
   const dangerThreshold = useMemo(
     () => EVENT_HORIZON_BASE / Math.sqrt(massMultiplier),
     [massMultiplier]
   );
+
+  // 事件视界触发距离：与质量无关，d ≤ 1.0 即为跨入视界
+  const eventHorizonCrossed = distance <= EVENT_HORIZON_BASE;
 
   const handleClose = useCallback(() => {
     setShowBlackHole(false);
@@ -58,6 +66,7 @@ export default function BlackHoleSimulator() {
     setMassMultiplier(1);
     setHasSurvived(false);
     setHasEnteredDanger(false);
+    setHasCrossedHorizon(false);
   }, [setShowBlackHole]);
 
   const handleReset = useCallback(() => {
@@ -66,6 +75,7 @@ export default function BlackHoleSimulator() {
     setShowFailure(false);
     setHasSurvived(false);
     setHasEnteredDanger(false);
+    setHasCrossedHorizon(false);
   }, []);
 
   useEffect(() => {
@@ -84,9 +94,13 @@ export default function BlackHoleSimulator() {
     prevDistanceRef.current = distance
     if (!distanceChanged) return
 
-    if (distance <= dangerThreshold) {
+    // 事件视界或危险潮汐力区域触发失败
+    const isDangerous = distance <= EVENT_HORIZON_BASE || distance <= dangerThreshold;
+
+    if (isDangerous) {
       if (!showFailure) setShowFailure(true);
       if (!hasEnteredDanger) setHasEnteredDanger(true);
+      if (distance <= EVENT_HORIZON_BASE && !hasCrossedHorizon) setHasCrossedHorizon(true);
     } else {
       if (showFailure) setShowFailure(false);
       if (hasEnteredDanger && !hasSurvived) {
@@ -97,7 +111,9 @@ export default function BlackHoleSimulator() {
   }, [distance, dangerThreshold, showFailure, hasEnteredDanger, hasSurvived, unlockAchievement]);
 
   const tidalForce = useMemo(() => {
-    return massMultiplier / (distance * distance * distance);
+    // F_tidal ∝ M / r³，其中 r = distance × R_s = distance × M × R_s0
+    // 代入得 F_tidal ∝ 1 / (distance³ × M²)
+    return 1 / (distance * distance * distance * massMultiplier * massMultiplier);
   }, [distance, massMultiplier]);
 
   const timeDilation = useMemo(() => {

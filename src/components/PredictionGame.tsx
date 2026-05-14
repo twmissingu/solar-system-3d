@@ -12,7 +12,7 @@ function calculateBodyAngle(bodyId: string, day: number): number {
   const body = allBodies.find((b) => b.id === bodyId);
   if (!body) return 0;
   const pos = getHeliocentricPosition(body.orbit, day);
-  let angle = Math.atan2(pos[2], pos[0]) * (180 / Math.PI);
+  let angle = Math.atan2(pos[1], pos[0]) * (180 / Math.PI);
   if (angle < 0) angle += 360;
   return angle;
 }

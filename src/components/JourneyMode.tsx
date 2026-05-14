@@ -57,6 +57,9 @@ export default function JourneyMode() {
   useEffect(() => {
     if (journeyMode === 'running') {
       flyToStop(currentJourneyIndex);
+    } else {
+      // 暂停或完成时清除定时器，防止继续自动推进
+      if (timerRef.current) clearTimeout(timerRef.current);
     }
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);

@@ -183,7 +183,7 @@ export const achievements: Achievement[] = [
     description: '你参与了科学争议投票——科学的进步，正来自对不确定性的勇敢面对。',
     icon: '🗳️',
     rarity: 'common',
-    condition: { type: 'explore', bodyId: '*' },
+    condition: { type: 'manual' },
   },
   {
     id: 'black_hole_survivor',

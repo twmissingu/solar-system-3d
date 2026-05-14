@@ -25,7 +25,7 @@ function calculateEclipse(
   // Determine eclipse type
   if (moonOffset > penumbraRadius + moonRadius) return 'none';
   if (moonOffset > umbraRadius + moonRadius) return 'penumbral';
-  if (moonOffset > Math.abs(umbraRadius - moonRadius)) return 'partial';
+  if (moonOffset > umbraRadius - moonRadius) return 'partial';
   return 'total';
 }
 

@@ -5,6 +5,11 @@
 <h1 align="center">🚀 太阳系3D探索</h1>
 
 <p align="center">
+  <a href="README.md"><img src="https://img.shields.io/badge/English-blue.svg" alt="English"></a>
+  <a href="README_zh.md"><img src="https://img.shields.io/badge/中文-red.svg" alt="中文"></a>
+</p>
+
+<p align="center">
   <strong>面向 10–15 岁青少年的交互式 3D 太阳系科学教育应用</strong>
 </p>
 

@@ -4,6 +4,7 @@ import { Compass, Target, GitCompare, Eye, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { missions, getMissionById, Mission, MissionType } from '../data/missions';
 import { getAchievementById } from '../data/achievements';
+import { evaluateAchievements } from '../utils/achievements';
 import { celestialBodies, dwarfPlanets } from '../data/celestialData';
 
 interface MissionPanelProps {
@@ -110,6 +111,7 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
     if (activeMission.rewardAchievementId) {
       unlockAchievement(activeMission.rewardAchievementId);
     }
+    evaluateAchievements();
     setActiveMissionId(null);
     setTab('completed');
   };

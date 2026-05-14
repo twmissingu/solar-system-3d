@@ -5,6 +5,11 @@
 <h1 align="center">🚀 Solar System 3D</h1>
 
 <p align="center">
+  <a href="README.md"><img src="https://img.shields.io/badge/English-blue.svg" alt="English"></a>
+  <a href="README_zh.md"><img src="https://img.shields.io/badge/中文-red.svg" alt="中文"></a>
+</p>
+
+<p align="center">
   <strong>An interactive 3D solar system explorer for science education — built for curious minds aged 10–15.</strong>
 </p>
 
