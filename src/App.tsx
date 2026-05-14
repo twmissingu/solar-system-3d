@@ -109,7 +109,7 @@ export default function App() {
         >
           {/* 3D Canvas */}
           <Canvas
-            camera={{ position: [0, 40, 50], fov: 45, near: 0.1, far: 2000 }}
+            camera={{ position: [0, 80, 180], fov: 50, near: 0.1, far: 2000 }}
             gl={{ antialias: true, alpha: false }}
             shadows
             style={{ background: '#050B14' }}

@@ -708,7 +708,7 @@ export const presetViews = [
     name: "太阳系全景",
     nameZh: "太阳系全景",
     description: "从黄道面上方俯瞰整个太阳系",
-    cameraPosition: [0, 40, 50] as [number, number, number],
+    cameraPosition: [0, 80, 180] as [number, number, number],
     lookAt: [0, 0, 0] as [number, number, number],
   },
   {
