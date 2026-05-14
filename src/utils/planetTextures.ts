@@ -368,8 +368,9 @@ function generateEarthTexture(): HTMLCanvasElement {
         + fBm(lat * 0.12 + 20, lon * 0.12, 3, 88) * 0.15
 
       // 纬度阈值：高纬度略降低大陆概率（避免噪声产生太厚极地大陆）
+      // 地球陆地仅占 ~29%，提高阈值使约 70% 区域为海洋
       const latAdjust = 1 - Math.pow(latFactor, 3) * 0.15
-      const threshold = 0.35 * latAdjust
+      const threshold = 0.68 * latAdjust
       const isLand = landScore + coastNoise > threshold
 
       // 海拔细节
