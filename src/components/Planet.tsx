@@ -193,18 +193,19 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
   const planetTexture = useMemo(() => getPlanetTexture(body.id), [body.id])
 
   return (
-    <group position={position}>
-      {/* 轨道线 */}
-      {showOrbits && orbitPoints && orbitPoints.length > 0 && (
-        <Line
-          points={orbitPoints}
-          color={isSelected ? '#4ECDC4' : body.color}
-          lineWidth={isSelected ? 2 : 1}
-          transparent
-          opacity={isSelected ? 0.5 : 0.2}
-        />
-      )}
+    <>
+    {/* 轨道线（在 group 外部，使用全局坐标，不受 position 偏移影响） */}
+    {showOrbits && orbitPoints && orbitPoints.length > 0 && (
+      <Line
+        points={orbitPoints}
+        color={isSelected ? '#4ECDC4' : body.color}
+        lineWidth={isSelected ? 2 : 1}
+        transparent
+        opacity={isSelected ? 0.5 : 0.2}
+      />
+    )}
 
+    <group position={position}>
       {/* 天体本体 - 应用自转轴倾角 */}
       <group rotation={[body.axialTilt * (Math.PI / 180), 0, 0]}>
         <mesh
@@ -352,6 +353,7 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
         <Planet key={sat.id} body={sat} parentPosition={position} isSatellite />
       ))}
     </group>
+    </>
   )
 }
 
