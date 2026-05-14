@@ -41,6 +41,8 @@ interface AppState {
   // 相机注视目标
   cameraLookAt: [number, number, number] | null;
   setCameraLookAt: (target: [number, number, number] | null) => void;
+  // 原子化设置相机焦点（避免 cameraTarget/cameraLookAt 分开更新导致渲染不同步）
+  setCameraFocus: (target: [number, number, number], lookAt: [number, number, number]) => void;
 
   // 是否显示知识面板
   showKnowledge: boolean;
@@ -214,6 +216,7 @@ export const useStore = create<AppState>((set) => ({
   setCameraTarget: (target) => set({ cameraTarget: target }),
   cameraLookAt: null,
   setCameraLookAt: (target) => set({ cameraLookAt: target }),
+  setCameraFocus: (target, lookAt) => set({ cameraTarget: target, cameraLookAt: lookAt }),
   isCameraAnimating: false,
   setCameraAnimating: (v) => set({ isCameraAnimating: v }),
 

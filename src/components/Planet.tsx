@@ -110,8 +110,7 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
   const currentDay = useStore((s) => s.currentDay)
   const selectedBody = useStore((s) => s.selectedBody)
   const setSelectedBody = useStore((s) => s.setSelectedBody)
-  const setCameraTarget = useStore((s) => s.setCameraTarget)
-  const setCameraLookAt = useStore((s) => s.setCameraLookAt)
+  const setCameraFocus = useStore((s) => s.setCameraFocus)
   const showLabels = useStore((s) => s.showLabels)
   const showOrbits = useStore((s) => s.showOrbits)
   const scaleMode = useStore((s) => s.scaleMode)
@@ -223,18 +222,19 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
             e.stopPropagation()
             playUISound('click')
             setSelectedBody(body)
+            // 计算世界坐标：卫星的 position 是相对母星的，需加上 parentPosition
+            const wx = position[0] + (isSatellite ? parentPosition[0] : 0)
+            const wy = position[1] + (isSatellite ? parentPosition[1] : 0)
+            const wz = position[2] + (isSatellite ? parentPosition[2] : 0)
             // 相机聚焦到该天体：从斜上方以合理距离观察
             const dist = Math.max(effectiveRadius * 5, 3)
             if (body.id === 'sun') {
-              setCameraTarget([dist, dist * 0.3, dist])
-              setCameraLookAt([0, 0, 0])
+              setCameraFocus([dist, dist * 0.3, dist], [0, 0, 0])
             } else {
-              setCameraTarget([
-                position[0] + dist,
-                position[1] + dist * 0.3,
-                position[2] + dist,
-              ])
-              setCameraLookAt([position[0], position[1], position[2]])
+              setCameraFocus(
+                [wx + dist, wy + dist * 0.3, wz + dist],
+                [wx, wy, wz]
+              )
             }
             addExploredBody(body.id)
             if (activeMissionId) {

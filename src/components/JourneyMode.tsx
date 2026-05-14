@@ -10,8 +10,7 @@ export default function JourneyMode() {
     currentJourneyIndex,
     setCurrentJourneyIndex,
     setJourneyMode,
-    setCameraTarget,
-    setCameraLookAt,
+    setCameraFocus,
     setShowJourneyHUD,
     currentDay,
   } = useStore();
@@ -35,16 +34,17 @@ export default function JourneyMode() {
     setShowJourneyHUD(true);
 
     if (stop.bodyId === 'sun') {
-      setCameraTarget([8, 3, 8]);
-      setCameraLookAt([0, 0, 0]);
+      setCameraFocus([8, 3, 8], [0, 0, 0]);
     } else {
       const body = celestialBodies.find((b) => b.id === stop.bodyId) ||
                    dwarfPlanets.find((b) => b.id === stop.bodyId);
       if (body) {
         const pos = getHeliocentricPosition(body.orbit, currentDayRef.current);
         const camDist = Math.max(body.visualRadius * 8, 3);
-        setCameraTarget([pos[0] + camDist, pos[1] + camDist * 0.5, pos[2] + camDist]);
-        setCameraLookAt(pos);
+        setCameraFocus(
+          [pos[0] + camDist, pos[1] + camDist * 0.5, pos[2] + camDist],
+          pos
+        );
       }
     }
 
@@ -52,7 +52,7 @@ export default function JourneyMode() {
     timerRef.current = setTimeout(() => {
       flyToStop(index + 1);
     }, 5000);
-  }, [setCameraTarget, setCameraLookAt, setCurrentJourneyIndex, setJourneyMode, setShowJourneyHUD]);
+  }, [setCameraFocus, setCurrentJourneyIndex, setJourneyMode, setShowJourneyHUD]);
 
   useEffect(() => {
     if (journeyMode === 'running') {

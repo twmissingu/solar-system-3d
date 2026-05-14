@@ -24,6 +24,7 @@ export default function SolarSystem() {
   const setCameraAnimating = useStore((s) => s.setCameraAnimating)
   const addTimeAdvanced = useStore((s) => s.addTimeAdvanced)
   const { camera } = useThree()
+  const controls = useThree((state) => state.controls) as { target: THREE.Vector3 } | null
 
   // 相机动画状态 ref（避免重渲染）
   const cameraAnimRef = useRef<{
@@ -82,6 +83,11 @@ export default function SolarSystem() {
       const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
       lookAtTargetRef.current.lerpVectors(anim.startTarget, anim.endTarget, ease)
       camera.lookAt(lookAtTargetRef.current)
+
+      // 同步 OrbitControls target 防止动画结束后回弹到 (0,0,0)
+      if (controls) {
+        controls.target.copy(lookAtTargetRef.current)
+      }
 
       if (t >= 1) {
         anim.active = false
