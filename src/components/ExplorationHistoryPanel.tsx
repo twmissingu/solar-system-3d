@@ -49,8 +49,7 @@ export default function ExplorationHistoryPanel() {
     setShowExplorationHistory,
     selectedBody,
     setSelectedBody,
-    setCameraTarget,
-    setCameraLookAt,
+    setCameraFocus,
     setShowScientistGallery,
     setShowSpacecraftPanel,
     setSelectedSpacecraft,
@@ -115,8 +114,7 @@ export default function ExplorationHistoryPanel() {
 
     if (targetBody) {
       setSelectedBody(targetBody)
-      setCameraTarget([dist, dist * 0.3, dist])
-      setCameraLookAt([0, 0, 0])
+      setCameraFocus([dist, dist * 0.3, dist], [0, 0, 0])
     }
     setShowExplorationHistory(false)
     setSelectedMilestoneId(null)

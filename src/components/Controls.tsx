@@ -61,8 +61,7 @@ export default function Controls() {
   const showLabels = useStore((s) => s.showLabels)
   const setShowLabels = useStore((s) => s.setShowLabels)
   const resetView = useStore((s) => s.resetView)
-  const setCameraTarget = useStore((s) => s.setCameraTarget)
-  const setCameraLookAt = useStore((s) => s.setCameraLookAt)
+  const setCameraFocus = useStore((s) => s.setCameraFocus)
   const setCurrentDay = useStore((s) => s.setCurrentDay)
   const selectedBody = useStore((s) => s.selectedBody)
   const setSelectedBody = useStore((s) => s.setSelectedBody)
@@ -119,15 +118,13 @@ export default function Controls() {
       basePos[1] + view.cameraPosition[1],
       basePos[2] + view.cameraPosition[2],
     ]
-    setCameraTarget(target)
-    setCameraLookAt(lookAt)
+    setCameraFocus(target, lookAt)
     setSelectedBody(null)
   }
 
   const handleLunarEclipse = () => {
     setCurrentDay(lunarEclipseDemo.julianDay - 2451545.0)
-    setCameraTarget([18, 4, 12])
-    setCameraLookAt([0, 0, 0])
+    setCameraFocus([18, 4, 12], [0, 0, 0])
     setSelectedBody(null)
 
     const { activeMissionId, addMissionObservedEvent } = useStore.getState()
