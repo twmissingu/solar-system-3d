@@ -4,6 +4,22 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+### 🔴 Bug 修复
+
+- **探索历程面板** — 点击历史事件/里程碑中的天体后，相机未正确注视目标（始终指向原点 `[0,0,0]`）。新增递归查找天体及母星逻辑，支持卫星在世界空间中的实时轨道位置计算，相机现在能正确聚焦任何行星或卫星
+- **航天器轨迹** — 轨迹标记 z 轴使用硬编码比例 `15`，与轨道系统 `ORBIT_SCALE` 不一致，导致轨迹位置偏移。统一使用 `ORBIT_SCALE`
+
+### 🔧 代码清理
+
+- **Planet.tsx** — 提取 `SPEED_MAP` 为模块级常量，避免每次 `useFrame` 重复创建对象
+- **CelestialSearch.tsx** — 删除未使用的变量 `state`
+- **useStore.ts** — 清理多余的空注释行
+- **tailwind.config.js** — 补充 `space-green` 颜色 Token
+
+---
+
 ## [0.3.1] - 2026-05-15
 
 ### 📝 文档改进
