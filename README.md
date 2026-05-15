@@ -37,6 +37,16 @@ Built with React Three Fiber, this pure-static web app runs entirely in the brow
 
 ---
 
+## 💡 Why This Project?
+
+Most astronomy education apps are either visually stunning but shallow, or textbook-dense with no interactivity. **Solar System 3D** bridges the gap.
+
+The guiding philosophy: *"Show you → Invite you to think."* Every module is designed not just to display information, but to provoke questions — through Socratic follow-ups, model transparency, and hands-on experimentation.
+
+Instead of memorizing that Mars has a 687-day orbit, you **predict** where it will be after N days and check your answer. Instead of being told about tidal forces, you **approach** a black hole's event horizon and feel (numerically) what happens.
+
+---
+
 ## ✨ Features
 
 ### 🌌 3D Solar System
@@ -89,7 +99,7 @@ Built with React Three Fiber, this pure-static web app runs entirely in the brow
 
 ```bash
 # Clone
-git clone https://github.com/your-username/solar-system-3d.git
+git clone https://github.com/twmissingu/solar-system-3d.git
 cd solar-system-3d
 
 # Install

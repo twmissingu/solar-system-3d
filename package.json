@@ -1,7 +1,7 @@
 {
   "name": "solar-system-3d",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "An interactive 3D solar system explorer for science education — built for curious minds aged 10–15",
   "type": "module",
   "license": "MIT",

@@ -4,6 +4,17 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.3.1] - 2026-05-15
+
+### 📝 文档改进
+
+- **README.md / README_zh.md** — 修复克隆 URL 占位符（`your-username` → `twmissingu`）
+- **README.md / README_zh.md** — 新增「为什么选择这个项目/Why This Project」章节，强化核心理念传达
+- **AGENTS.md** — 修复编号重复问题
+- **CHANGELOG.md** — 更新版本规划（[0.3.0] 已发布 → [0.4.0] 规划中）
+
+---
+
 ## [0.3.0] - 2026-05-14
 
 ### 🔴 Bug 修复（轨道 & 物理）
@@ -182,7 +193,7 @@
 
 ## 版本规划
 
-### [0.3.0]（规划中）
+### [0.4.0]（规划中）
 
 - [ ] VR 模式支持（WebXR）
 - [ ] 多语言支持（英文界面）

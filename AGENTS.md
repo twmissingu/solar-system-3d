@@ -207,8 +207,8 @@ npm run preview
    - 成就 `description` 优先使用**反问句**，植入思考钩子。
    - 跨学科 `connections` 中的追问条目以 `💡 思考：` 前缀标识。
    - 所有科学事实需标注不确定性（如"科学家认为..."、"主流假说..."）。
-7. **内容生产规范**：新增天文学家档案遵循 `scientists.ts` 的 `Scientist` 接口，必须包含 `searchKeyword` 字段供学生继续搜索。
-8. **纯前端限制**：无后端、无 LLM API。所有功能必须在前端实现（localStorage、Blob 下载、纯计算等）。
+8. **内容生产规范**：新增天文学家档案遵循 `scientists.ts` 的 `Scientist` 接口，必须包含 `searchKeyword` 字段供学生继续搜索。
+9. **纯前端限制**：无后端、无 LLM API。所有功能必须在前端实现（localStorage、Blob 下载、纯计算等）。
 
 ## 已知陷阱（历史 Bug 记录）
 
