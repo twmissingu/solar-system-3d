@@ -4,6 +4,8 @@ import { OrbitControls, Stars } from '@react-three/drei'
 import SolarSystem from './components/SolarSystem'
 import InfoPanel from './components/InfoPanel'
 import Controls from './components/Controls'
+import TopBar from './components/TopBar'
+import LeftToolbox from './components/LeftToolbox'
 import WelcomeOverlay from './components/WelcomeOverlay'
 import LoadingScreen from './components/LoadingScreen'
 import BlackHoleWelcome from './components/BlackHoleWelcome'
@@ -28,6 +30,7 @@ import ScaleRuler from './components/ScaleRuler'
 import StarMapPanel from './components/StarMapPanel'
 import ExplorationHistoryPanel from './components/ExplorationHistoryPanel'
 import { useStore } from './store/useStore'
+import { evaluateAchievements } from './utils/achievements'
 
 export default function App() {
   const appPhase = useStore((s) => s.appPhase)
@@ -37,6 +40,11 @@ export default function App() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [showWelcomeOverlay, setShowWelcomeOverlay] = useState(false)
+
+  // 启动时从 localStorage 恢复知识计数并重新评估成就
+  useEffect(() => {
+    evaluateAchievements()
+  }, [])
 
   // 加载完成
   const handleLoadingComplete = useCallback(() => {
@@ -173,6 +181,8 @@ export default function App() {
           {showWelcomeOverlay && (
             <WelcomeOverlay onClose={() => setShowWelcomeOverlay(false)} />
           )}
+          <TopBar />
+          <LeftToolbox />
           <InfoPanel />
           <Controls />
           <JourneyMode />

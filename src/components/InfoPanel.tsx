@@ -42,10 +42,12 @@ const tabs = [
 export default function InfoPanel() {
   const { selectedBody, showKnowledge, setShowKnowledge, planetScale } = useStore()
   const [infoTab, setInfoTab] = useState<(typeof tabs)[0]['id']>('knowledge')
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setInfoTab('knowledge')
+    setDescriptionExpanded(false)
   }, [selectedBody?.id])
 
   useEffect(() => {
@@ -117,9 +119,15 @@ export default function InfoPanel() {
                   <p className="text-[10px] text-sci-cyan/60 font-mono tracking-wider mb-2">
                     {selectedBody.name.toUpperCase()}
                   </p>
-                  <p className="text-xs text-sci-white/60 leading-relaxed line-clamp-2">
+                  <p className={`text-xs text-sci-white/60 leading-relaxed ${descriptionExpanded ? '' : 'line-clamp-2'}`}>
                     {selectedBody.description}
                   </p>
+                  <button
+                    onClick={() => setDescriptionExpanded((v) => !v)}
+                    className="text-[10px] text-sci-cyan/60 hover:text-sci-cyan transition-colors mt-0.5"
+                  >
+                    {descriptionExpanded ? '收起 ↑' : '展开全文 →'}
+                  </button>
                 </div>
               </div>
             </div>
@@ -172,7 +180,7 @@ export default function InfoPanel() {
             )}
 
             {/* 左侧图标Tab栏 */}
-            <div className="flex border-b border-sci-cyan/10 shrink-0">
+            <div className="flex flex-1 min-h-0 border-b border-sci-cyan/10">
               <div className="flex flex-row sm:flex-col gap-0.5 p-2 border-r border-sci-cyan/10 bg-space-800/30">
                 {tabs.map((tab) => {
                   const Icon = tab.Icon

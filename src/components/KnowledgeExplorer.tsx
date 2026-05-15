@@ -43,6 +43,7 @@ export default function KnowledgeExplorer({ knowledge }: KnowledgeExplorerProps)
   const [activeLevel, setActiveLevel] = useState<KnowledgeLevel>('bronze')
   const [followUpVisible, setFollowUpVisible] = useState(false)
   const [followUpIndex, setFollowUpIndex] = useState(0)
+  const [funFactExpanded, setFunFactExpanded] = useState(false)
 
   const isLevelUnlocked = useCallback(
     (level: KnowledgeLevel) => {
@@ -84,6 +85,7 @@ export default function KnowledgeExplorer({ knowledge }: KnowledgeExplorerProps)
   useEffect(() => {
     setFollowUpVisible(false)
     setFollowUpIndex(0)
+    setFunFactExpanded(false)
     setActiveLevel('bronze')
   }, [knowledge.id])
 
@@ -247,11 +249,17 @@ export default function KnowledgeExplorer({ knowledge }: KnowledgeExplorerProps)
       >
         <div className="flex items-start gap-2">
           <span className="text-sci-gold text-lg shrink-0">💡</span>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-xs text-sci-cyan font-medium mb-1">趣味知识</p>
-            <p className="text-sm text-sci-white/70 leading-relaxed">
+            <p className={`text-sm text-sci-white/70 leading-relaxed ${funFactExpanded ? '' : 'line-clamp-2'}`}>
               {currentLevelData.funFact}
             </p>
+            <button
+              onClick={() => setFunFactExpanded((v) => !v)}
+              className="text-[10px] text-sci-cyan/60 hover:text-sci-cyan transition-colors mt-0.5"
+            >
+              {funFactExpanded ? '收起 ↑' : '展开全文 →'}
+            </button>
           </div>
         </div>
       </motion.div>

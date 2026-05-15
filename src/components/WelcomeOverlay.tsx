@@ -5,7 +5,7 @@ import { generalIntro } from '../data/knowledge'
 
 const tips = [
   { Icon: MousePointerClick, text: '鼠标左键拖拽旋转，滚轮缩放，右键平移' },
-  { Icon: Pointer, text: '点击任意行星查看科普知识和真实数据' },
+  { Icon: Pointer, text: '点击任意行星查看科普知识和真实数据，浏览不同天体可逐步解锁更深层的知识内容' },
   { Icon: Timer, text: '底部时间轴控制行星运动速度' },
   { Icon: Moon, text: '试试「月全食演示」按钮，观看真实的月食现象' },
 ]

@@ -2,6 +2,7 @@ import { useRef, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useStore } from '../store/useStore'
 import { celestialBodies, dwarfPlanets, SIMULATION_BASE_RATE } from '../data/celestialData'
+import { getHeliocentricPosition } from '../utils/orbit'
 import Planet from './Planet'
 import AsteroidBelt from './AsteroidBelt'
 import * as THREE from 'three'
@@ -14,6 +15,8 @@ const SPEED_MAP: Record<Exclude<TimeSpeed, 'pause'>, number> = {
   '1000x': 1000,
 }
 
+const allBodies = [...celestialBodies, ...dwarfPlanets]
+
 export default function SolarSystem() {
   const setCurrentDay = useStore((s) => s.setCurrentDay)
   const timeSpeed = useStore((s) => s.timeSpeed)
@@ -23,6 +26,7 @@ export default function SolarSystem() {
   const setCameraLookAt = useStore((s) => s.setCameraLookAt)
   const setCameraAnimating = useStore((s) => s.setCameraAnimating)
   const addTimeAdvanced = useStore((s) => s.addTimeAdvanced)
+  const selectedBody = useStore((s) => s.selectedBody)
   const { camera } = useThree()
   const controls = useThree((state) => state.controls) as { target: THREE.Vector3 } | null
 
@@ -37,6 +41,9 @@ export default function SolarSystem() {
 
   // lookAt 目标缓存，避免每帧创建 Vector3
   const lookAtTargetRef = useRef(new THREE.Vector3())
+
+  // 跟踪目标缓存
+  const trackingTargetRef = useRef(new THREE.Vector3())
 
   // lookAt 动画
   const lookAtAnimRef = useRef<{
@@ -91,6 +98,23 @@ export default function SolarSystem() {
 
       if (t >= 1) {
         anim.active = false
+      }
+    }
+
+    // 星体跟踪：相机动画完成后，持续将 controls.target 更新到选中星体的轨道位置
+    // 跳过太阳和卫星（卫星轨道需要母星位置，无法在顶层计算）
+    if (
+      selectedBody &&
+      selectedBody.id !== 'sun' &&
+      allBodies.some((b) => b.id === selectedBody.id) &&
+      !cameraAnimRef.current?.active &&
+      !lookAtAnimRef.current?.active
+    ) {
+      const day = useStore.getState().currentDay
+      const [x, y, z] = getHeliocentricPosition(selectedBody.orbit, day)
+      trackingTargetRef.current.set(x, y, z)
+      if (controls) {
+        controls.target.copy(trackingTargetRef.current)
       }
     }
   })

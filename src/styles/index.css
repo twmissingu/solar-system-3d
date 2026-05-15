@@ -214,82 +214,63 @@
 
   /* ===== Dock栏样式 ===== */
   .dock-container {
-    @apply fixed bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1;
-    @apply px-3 py-2 rounded-xl;
-    background: rgba(5, 11, 20, 0.85);
-    backdrop-filter: blur(16px);
+    @apply flex flex-col gap-2;
+    @apply px-4 py-3 rounded-2xl;
+    min-width: 320px;
+    max-width: min(90vw, 720px);
+    background: rgba(5, 11, 20, 0.88);
+    backdrop-filter: blur(20px);
     border: 1px solid rgba(78, 205, 196, 0.15);
-    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(78, 205, 196, 0.05);
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(78, 205, 196, 0.05);
   }
 
-  .dock-item {
-    @apply relative flex items-center justify-center w-10 h-10 rounded-lg;
-    @apply max-sm:w-8 max-sm:h-8;
-    @apply text-sci-white/60 transition-all duration-200 cursor-pointer;
-    @apply hover:text-sci-cyan hover:bg-sci-cyan/10;
-  }
-
-  .dock-item.active {
-    @apply text-sci-cyan bg-sci-cyan/15;
-    box-shadow: 0 0 12px rgba(78, 205, 196, 0.15), inset 0 0 8px rgba(78, 205, 196, 0.05);
-  }
-
-  .dock-divider {
-    @apply w-px h-6 mx-1 shrink-0;
-    background: rgba(78, 205, 196, 0.12);
-  }
-
-  .dock-item .dock-tooltip {
-    @apply absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[10px] whitespace-nowrap;
-    @apply text-sci-white/80 bg-space-800/90 border border-sci-cyan/20;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.15s ease;
-  }
-
-  .dock-item:hover .dock-tooltip {
-    opacity: 1;
-  }
-
-  /* ===== 工具箱抽屉 ===== */
-  .toolbox-drawer {
-    @apply fixed bottom-0 sm:bottom-20 left-0 sm:left-1/2 right-0 sm:right-auto z-30;
-    @apply sm:-translate-x-1/2;
-    @apply flex flex-wrap justify-center gap-2;
-    @apply max-h-[50vh] sm:max-h-none overflow-y-auto sm:overflow-visible;
-    @apply px-4 py-4 sm:px-4 sm:py-3;
-    @apply rounded-t-xl sm:rounded-xl;
-    background: rgba(5, 11, 20, 0.95);
+  /* ===== 左侧工具箱 ===== */
+  .left-toolbox {
+    @apply fixed left-3 top-[88px] bottom-24 z-20;
+    @apply flex flex-col gap-1;
+    width: 44px;
+    @apply px-1.5 py-2 rounded-xl;
+    background: rgba(5, 11, 20, 0.82);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(78, 205, 196, 0.12);
-    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    transition: width 0.2s ease;
+    overflow: hidden;
+    white-space: nowrap;
   }
-  /* 移动端底部抽屉拖拽指示条 */
-  .toolbox-drawer::before {
-    content: '';
-    display: block;
-    width: 36px;
-    height: 4px;
-    border-radius: 2px;
-    background: rgba(78, 205, 196, 0.25);
-    margin: 0 auto 8px;
+  .left-toolbox:hover {
+    width: 156px;
   }
-  @media (min-width: 640px) {
-    .toolbox-drawer::before {
-      display: none;
-    }
+  .left-toolbox-section {
+    @apply flex flex-col gap-0.5;
   }
-
-  .toolbox-item {
-    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs;
-    @apply text-sci-white/70 border border-transparent transition-all duration-150 cursor-pointer;
-    @apply hover:text-sci-cyan hover:border-sci-cyan/30 hover:bg-sci-cyan/5;
+  .left-toolbox-section + .left-toolbox-section {
+    @apply pt-1.5 mt-1;
+    border-top: 1px solid rgba(78, 205, 196, 0.08);
   }
-
-  .toolbox-item-primary {
-    @apply toolbox-item;
-    @apply bg-sci-cyan/15 text-sci-cyan border-sci-cyan/30;
-    @apply hover:bg-sci-cyan/25;
+  .left-toolbox-section-label {
+    @apply text-[8px] text-sci-white/20 uppercase tracking-wider mb-0.5;
+    opacity: 0;
+    transition: opacity 0.15s ease 0.1s;
+  }
+  .left-toolbox:hover .left-toolbox-section-label {
+    opacity: 1;
+  }
+  .left-toolbox-item {
+    @apply flex items-center gap-2 w-full px-1.5 py-1.5 rounded-lg;
+    @apply text-sci-white/50 transition-all duration-150 cursor-pointer;
+    @apply hover:text-sci-cyan hover:bg-sci-cyan/10;
+  }
+  .left-toolbox-item.primary {
+    @apply text-sci-cyan;
+  }
+  .left-toolbox-item-label {
+    @apply text-[11px] font-medium;
+    opacity: 0;
+    transition: opacity 0.15s ease 0.1s;
+  }
+  .left-toolbox:hover .left-toolbox-item-label {
+    opacity: 1;
   }
 
   /* ===== 选中扫描环动画 ===== */

@@ -1,6 +1,32 @@
 import { create } from 'zustand';
 import { CelestialBody } from '../data/celestialData';
 
+function getInitialKnowledgeCount(): { bronze: number; silver: number; gold: number } {
+  try {
+    const bronze = Object.keys(localStorage).filter(
+      (k) => k.startsWith('visited-') && k.endsWith('-bronze')
+    ).length;
+    const silver = Object.keys(localStorage).filter(
+      (k) => k.startsWith('visited-') && k.endsWith('-silver')
+    ).length;
+    const gold = Object.keys(localStorage).filter(
+      (k) => k.startsWith('visited-') && k.endsWith('-gold')
+    ).length;
+    return { bronze, silver, gold };
+  } catch {
+    return { bronze: 0, silver: 0, gold: 0 };
+  }
+}
+
+function getInitialUnlockedAchievements(): string[] {
+  try {
+    const stored = localStorage.getItem('unlockedAchievements');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
 export type ViewMode = 'overview' | 'focused';
 export type TimeSpeed = 'pause' | '1x' | '10x' | '100x' | '1000x';
 export type TimeMode = 'simulation' | 'light-speed' | 'lifetime';
@@ -245,14 +271,18 @@ export const useStore = create<AppState>((set) => ({
     }),
 
   // Achievement system
-  unlockedAchievements: [],
+  unlockedAchievements: getInitialUnlockedAchievements(),
   unlockAchievement: (id) =>
     set((state) => {
       if (state.unlockedAchievements.includes(id)) {
         return state;
       }
+      const updated = [...state.unlockedAchievements, id];
+      try {
+        localStorage.setItem('unlockedAchievements', JSON.stringify(updated));
+      } catch {}
       return {
-        unlockedAchievements: [...state.unlockedAchievements, id],
+        unlockedAchievements: updated,
         achievementQueue: [...state.achievementQueue, id],
       };
     }),
@@ -285,7 +315,7 @@ export const useStore = create<AppState>((set) => ({
     })),
 
   // Knowledge counters
-  unlockedKnowledgeCount: { bronze: 0, silver: 0, gold: 0 },
+  unlockedKnowledgeCount: getInitialKnowledgeCount(),
   incrementKnowledgeCount: (level) =>
     set((state) => ({
       unlockedKnowledgeCount: {
