@@ -1,5 +1,4 @@
-import { useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   RotateCcw,
   Eye,
@@ -11,7 +10,7 @@ import {
   Compass,
 } from 'lucide-react'
 import { useStore } from '../store/useStore'
-import { presetViews, celestialBodies, dwarfPlanets } from '../data/celestialData'
+import { presetViews, celestialBodies } from '../data/celestialData'
 import { getHeliocentricPosition } from '../utils/orbit'
 import { formatSimulationDate } from '../utils/date'
 import { lightTravelMinutes, lifetimeOrbits } from '../utils/physics'
@@ -22,7 +21,7 @@ const speeds = [
   { value: '1x' as const, label: '1x', icon: Play },
   { value: '10x' as const, label: '10x', icon: Gauge },
   { value: '100x' as const, label: '100x', icon: Gauge },
-  { value: '1000x' as const, label: '1kx', icon: Gauge },
+  { value: '1000x' as const, label: '1000x', icon: Gauge },
 ]
 
 const timeModeTabs = [
@@ -47,26 +46,31 @@ export default function Controls() {
   const planetScale = useStore((s) => s.planetScale)
   const setPlanetScale = useStore((s) => s.setPlanetScale)
 
-  const lifetimeData = useMemo(() => {
-    return [...celestialBodies, ...dwarfPlanets]
-      .filter((b) => b.id !== 'sun')
-      .map((body) => ({
-        ...body,
-        orbits: lifetimeOrbits(body.orbit.period),
-      }))
-  }, [])
-
   const handlePresetView = (view: (typeof presetViews)[0]) => {
     let basePos: [number, number, number] = [0, 0, 0]
     let lookAt: [number, number, number] = view.lookAt
 
-    if (view.id === 'from-earth') {
-      const earth = celestialBodies.find((b) => b.id === 'earth')
-      if (earth) basePos = getHeliocentricPosition(earth.orbit, currentDay)
+    if (view.id === 'overview') {
+      setPlanetScale(8)
+    } else if (view.id === 'jupiter-moons') {
+      setPlanetScale(3)
+      const jupiter = celestialBodies.find((b) => b.id === 'jupiter')
+      if (jupiter) {
+        basePos = getHeliocentricPosition(jupiter.orbit, currentDay)
+        lookAt = basePos
+      }
     } else if (view.id === 'saturn-rings') {
+      setPlanetScale(3)
       const saturn = celestialBodies.find((b) => b.id === 'saturn')
       if (saturn) {
         basePos = getHeliocentricPosition(saturn.orbit, currentDay)
+        lookAt = basePos
+      }
+    } else if (view.id === 'earth-moon') {
+      setPlanetScale(3)
+      const earth = celestialBodies.find((b) => b.id === 'earth')
+      if (earth) {
+        basePos = getHeliocentricPosition(earth.orbit, currentDay)
         lookAt = basePos
       }
     }
@@ -121,81 +125,116 @@ export default function Controls() {
             </span>
           </div>
 
-          {/* Speed buttons / Light speed grid / Lifetime grid */}
-          {timeMode === 'simulation' && (
-            <div className="flex flex-wrap items-center gap-1.5">
-              {speeds.map((s) => {
-                const Icon = s.icon
-                return (
-                  <button
-                    key={s.value}
-                    onClick={() => setTimeSpeed(s.value)}
-                    className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium transition-all interactive-hover ${
-                      timeSpeed === s.value
-                        ? 'bg-sci-cyan/80 text-space-900'
-                        : 'text-sci-white/50 hover:text-sci-white hover:bg-sci-cyan/10'
-                    }`}
-                  >
-                    <Icon size={12} />
-                    {s.label}
-                  </button>
-                )
-              })}
-            </div>
-          )}
-
-          {timeMode === 'light-speed' && (
-            <div className="flex flex-col gap-1">
-              <p className="text-[10px] text-sci-white/50">
-                以光速前进时，每秒钟你可以穿越这些距离：
-              </p>
-              <div className="grid grid-cols-4 sm:grid-cols-8 gap-1">
-                {celestialBodies
-                  .filter((b) => b.id !== 'sun')
-                  .map((body) => {
-                    const minutes = lightTravelMinutes(body.orbit.a)
+          {/* Fixed-height content area with mode transition */}
+          <div className="h-16 overflow-hidden">
+            <AnimatePresence mode="wait">
+              {timeMode === 'simulation' && (
+                <motion.div
+                  key="simulation"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.15 }}
+                  className="h-full flex items-center gap-1.5"
+                >
+                  {speeds.map((s) => {
+                    const Icon = s.icon
                     return (
-                      <div
-                        key={body.id}
-                        className="flex flex-col items-center rounded bg-sci-cyan/5 border border-sci-cyan/10 px-1 py-0.5"
+                      <button
+                        key={s.value}
+                        onClick={() => setTimeSpeed(s.value)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium transition-all interactive-hover ${
+                          timeSpeed === s.value
+                            ? 'bg-sci-cyan/80 text-space-900'
+                            : 'text-sci-white/50 hover:text-sci-white hover:bg-sci-cyan/10'
+                        }`}
                       >
-                        <span className="text-[9px] text-sci-white/70 font-medium">{body.nameZh}</span>
-                        <span className="text-[9px] text-sci-cyan/80 font-mono">
-                          {minutes < 1
-                            ? `${(minutes * 60).toFixed(0)}s`
-                            : `${minutes.toFixed(1)}min`}
-                        </span>
-                      </div>
+                        <Icon size={12} />
+                        {s.label}
+                      </button>
                     )
                   })}
-              </div>
-            </div>
-          )}
+                </motion.div>
+              )}
 
-          {timeMode === 'lifetime' && (
-            <div className="flex flex-col gap-1">
-              <p className="text-[10px] text-sci-white/50">
-                如果你活到80岁，你能看到这些变化：
-              </p>
-              <div className="grid grid-cols-4 sm:grid-cols-8 gap-1">
-                {lifetimeData.map((body) => {
-                  const orbits = body.orbits
-                  const isInteger = Number.isInteger(orbits)
-                  return (
-                    <div
-                      key={body.id}
-                      className="flex flex-col items-center rounded bg-sci-cyan/5 border border-sci-cyan/10 px-1 py-0.5"
-                    >
-                      <span className="text-[9px] text-sci-white/70 font-medium">{body.nameZh}</span>
-                      <span className="text-[9px] text-sci-cyan/80 font-mono">
-                        {isInteger ? orbits : orbits.toFixed(orbits < 1 ? 2 : 1)}圈
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
+              {timeMode === 'light-speed' && (
+                <motion.div
+                  key="light-speed"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex flex-col gap-0.5"
+                >
+                  <p className="text-[9px] text-sci-white/50 leading-tight">
+                    光从太阳传播到各行星所需的时间：
+                  </p>
+                  <div className="grid grid-cols-4 gap-1 w-fit">
+                    {celestialBodies
+                      .filter((b) => b.id !== 'sun')
+                      .map((body) => {
+                        const minutes = lightTravelMinutes(body.orbit.a)
+                        return (
+                          <span
+                            key={body.id}
+                            className="planet-pill"
+                          >
+                            <span
+                              className="planet-dot"
+                              style={{ backgroundColor: body.color }}
+                            />
+                            <span className="font-medium">{body.nameZh}</span>
+                            <span className="text-sci-cyan/80 font-mono">
+                              {minutes < 1
+                                ? `${(minutes * 60).toFixed(0)}s`
+                                : `${minutes.toFixed(1)}min`}
+                            </span>
+                          </span>
+                        )
+                      })}
+                  </div>
+                </motion.div>
+              )}
+
+              {timeMode === 'lifetime' && (
+                <motion.div
+                  key="lifetime"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex flex-col gap-0.5"
+                >
+                  <p className="text-[9px] text-sci-white/50 leading-tight">
+                    80年寿命内各行星绕太阳公转的圈数：
+                  </p>
+                  <div className="grid grid-cols-4 gap-1 w-fit">
+                    {celestialBodies
+                      .filter((b) => b.id !== 'sun')
+                      .map((body) => {
+                        const orbits = lifetimeOrbits(body.orbit.period)
+                        const isInteger = Number.isInteger(orbits)
+                        return (
+                          <span
+                            key={body.id}
+                            className="planet-pill"
+                          >
+                            <span
+                              className="planet-dot"
+                              style={{ backgroundColor: body.color }}
+                            />
+                            <span className="font-medium">{body.nameZh}</span>
+                            <span className="text-sci-cyan/80 font-mono">
+                              {isInteger ? orbits : orbits.toFixed(orbits < 1 ? 2 : 1)}圈
+                            </span>
+                          </span>
+                        )
+                      })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Divider */}
@@ -254,7 +293,7 @@ export default function Controls() {
               className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium transition-all interactive-hover text-sci-white/50 hover:text-sci-cyan hover:bg-sci-cyan/10"
             >
               <RotateCcw size={12} />
-              重置视角
+              恢复默认
             </button>
           </div>
         </div>
@@ -274,7 +313,7 @@ export default function Controls() {
             >
               <Compass size={12} />
               <span className="hidden sm:inline">{view.nameZh}</span>
-              <span className="sm:hidden">{view.nameZh.replace('太阳系', '').replace('黄道面', '').replace('从地球看', '').replace('特写', '') || view.nameZh}</span>
+              <span className="sm:hidden">{view.nameZh.replace('与卫星群', '').replace('太阳系', '').replace('特写', '') || view.nameZh}</span>
             </button>
           ))}
         </div>

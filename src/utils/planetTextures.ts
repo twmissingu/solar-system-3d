@@ -147,66 +147,111 @@ function generateMercuryTexture(): HTMLCanvasElement {
   const { canvas, ctx } = createCanvas(1024, 512)
   const rand = seededRandom(1)
 
-  // 灰色底 + 全局地形噪声
+  // 暖灰底色 + 地形噪声
   const imgData = ctx.getImageData(0, 0, 1024, 512)
   const data = imgData.data
   for (let y = 0; y < 512; y++) {
     for (let x = 0; x < 1024; x++) {
-      const n = fBm(x * 0.008, y * 0.008, 5, 1)
-      const base = 100 + n * 50
-      const i = (y * 1024 + x) * 4
-      data[i] = data[i + 1] = data[i + 2] = Math.min(200, Math.max(60, base))
-      data[i + 3] = 255
+      const nx = x / 1024
+      const ny = y / 512
+      const n = fBm(nx * 10, ny * 8, 5, 1)
+
+      // 暖灰偏棕：R略高，B略低
+      const rBase = 105 + n * 48
+      const gBase = 95 + n * 42
+      const bBase = 78 + n * 35
+
+      // 亮地形区（高反照率）
+      const bright = fBm(nx * 3 + 10, ny * 3 + 20, 3, 5)
+      if (bright > 0.55) {
+        const boost = (bright - 0.55) * 60
+        data[(y * 1024 + x) * 4]     = Math.min(220, rBase + boost)
+        data[(y * 1024 + x) * 4 + 1] = Math.min(210, gBase + boost * 0.85)
+        data[(y * 1024 + x) * 4 + 2] = Math.min(190, bBase + boost * 0.7)
+      } else {
+        data[(y * 1024 + x) * 4]     = Math.min(210, Math.max(70, rBase))
+        data[(y * 1024 + x) * 4 + 1] = Math.min(200, Math.max(65, gBase))
+        data[(y * 1024 + x) * 4 + 2] = Math.min(180, Math.max(50, bBase))
+      }
+      data[(y * 1024 + x) * 4 + 3] = 255
     }
   }
   ctx.putImageData(imgData, 0, 0)
 
-  // 陨石坑 + 辐射纹
-  for (let i = 0; i < 120; i++) {
+  // 陨石坑
+  for (let i = 0; i < 180; i++) {
     const x = rand() * 1024
     const y = rand() * 512
-    const r = 3 + rand() * 20
+    const r = 3 + rand() * (i < 30 ? 45 : 18) // 前30个大坑
+    const depth = 0.3 + rand() * 0.5
 
-    // 年轻撞击坑有辐射纹
-    if (rand() > 0.6) {
-      for (let j = 0; j < 8; j++) {
+    // 辐射纹（年轻撞击）
+    if (rand() > 0.5 && r > 8) {
+      for (let j = 0; j < 10 + rand() * 6; j++) {
         const angle = rand() * Math.PI * 2
-        const len = r * (3 + rand() * 5)
-        const ray = ctx.createRadialGradient(x, y, 0, x + Math.cos(angle) * len, y + Math.sin(angle) * len, len * 0.3)
-        ray.addColorStop(0, 'rgba(180, 180, 180, 0)')
-        ray.addColorStop(0.3, 'rgba(200, 200, 200, 0.2)')
-        ray.addColorStop(1, 'rgba(200, 200, 200, 0)')
-        ctx.fillStyle = ray
+        const len = r * (3 + rand() * 6)
+        const g = ctx.createRadialGradient(x, y, 0, x + Math.cos(angle) * len, y + Math.sin(angle) * len, len * 0.25)
+        g.addColorStop(0, 'rgba(190, 185, 175, 0)')
+        g.addColorStop(0.2, 'rgba(200, 195, 185, 0.25)')
+        g.addColorStop(1, 'rgba(200, 195, 185, 0)')
+        ctx.fillStyle = g
         ctx.fillRect(0, 0, 1024, 512)
       }
     }
 
-    // 坑洞
-    const crater = ctx.createRadialGradient(x, y, r * 0.2, x, y, r)
-    crater.addColorStop(0, 'rgba(50, 50, 50, 0.6)')
-    crater.addColorStop(0.6, 'rgba(70, 70, 70, 0.3)')
-    crater.addColorStop(1, 'rgba(120, 120, 120, 0)')
+    // 坑洞阴影
+    const crater = ctx.createRadialGradient(x - r * 0.15, y - r * 0.15, r * 0.15, x, y, r)
+    crater.addColorStop(0, `rgba(45, 40, 35, ${depth * 0.7})`)
+    crater.addColorStop(0.5, `rgba(60, 55, 50, ${depth * 0.35})`)
+    crater.addColorStop(1, 'rgba(110, 105, 95, 0)')
     ctx.fillStyle = crater
     ctx.fillRect(0, 0, 1024, 512)
 
-    // 坑缘亮边
-    ctx.strokeStyle = 'rgba(160, 160, 160, 0.2)'
-    ctx.lineWidth = 1.5
+    // 坑缘亮边（受光侧）
+    ctx.strokeStyle = `rgba(170, 162, 150, ${0.15 + rand() * 0.15})`
+    ctx.lineWidth = 1.2 + rand() * 0.8
     ctx.beginPath()
-    ctx.arc(x, y, r * 0.8, 0, Math.PI * 2)
+    ctx.arc(x + r * 0.1, y + r * 0.1, r * 0.75, -0.3, Math.PI * 0.8)
     ctx.stroke()
   }
 
-  // 平滑平原（暗区）
-  for (let i = 0; i < 15; i++) {
-    const x = rand() * 1024
-    const y = rand() * 512
-    const r = 20 + rand() * 50
-    const plain = ctx.createRadialGradient(x, y, 0, x, y, r)
-    plain.addColorStop(0, 'rgba(80, 80, 85, 0.15)')
-    plain.addColorStop(1, 'rgba(80, 80, 85, 0)')
-    ctx.fillStyle = plain
+  // 大型撞击盆地（卡洛里盆地等）
+  for (let i = 0; i < 4; i++) {
+    const x = 150 + rand() * 700
+    const y = 50 + rand() * 400
+    const r = 40 + rand() * 35
+    const basin = ctx.createRadialGradient(x, y, 0, x, y, r)
+    basin.addColorStop(0, 'rgba(130, 120, 105, 0.25)')
+    basin.addColorStop(0.6, 'rgba(115, 105, 90, 0.15)')
+    basin.addColorStop(1, 'rgba(140, 130, 115, 0)')
+    ctx.fillStyle = basin
     ctx.fillRect(0, 0, 1024, 512)
+    // 盆地环状山脉
+    ctx.strokeStyle = 'rgba(155, 145, 130, 0.15)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.arc(x, y, r * 0.85, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.strokeStyle = 'rgba(140, 130, 115, 0.1)'
+    ctx.lineWidth = 1.5
+    ctx.beginPath()
+    ctx.arc(x, y, r * 1.05, 0, Math.PI * 2)
+    ctx.stroke()
+  }
+
+  // 收缩皱脊（scarp）暗线
+  for (let i = 0; i < 8; i++) {
+    const x0 = rand() * 1024
+    const y0 = rand() * 512
+    const segs = 5 + rand() * 8
+    ctx.strokeStyle = `rgba(60, 55, 48, ${0.06 + rand() * 0.06})`
+    ctx.lineWidth = 1 + rand() * 1.5
+    ctx.beginPath()
+    ctx.moveTo(x0, y0)
+    for (let j = 1; j < segs; j++) {
+      ctx.lineTo(x0 + (rand() - 0.5) * 120, y0 + (rand() - 0.5) * 40)
+    }
+    ctx.stroke()
   }
 
   return canvas
@@ -216,35 +261,67 @@ function generateMercuryTexture(): HTMLCanvasElement {
 function generateVenusTexture(): HTMLCanvasElement {
   const { canvas, ctx } = createCanvas(1024, 512)
 
-  // 淡黄色底
-  ctx.fillStyle = '#D4A84A'
+  // 暖黄底色
+  ctx.fillStyle = '#DDB05A'
   ctx.fillRect(0, 0, 1024, 512)
 
-  // 用 DomainWarp 生成旋涡云
   const imgData = ctx.getImageData(0, 0, 1024, 512)
   const data = imgData.data
   for (let y = 0; y < 512; y++) {
     for (let x = 0; x < 1024; x++) {
-      const n = domainWarp(x * 0.006, y * 0.006, 2)
-      const bright = 160 + n * 50
+      const nx = x / 1024
+      const ny = y / 512
+
+      // 纬向云带：急流条纹
+      const zonal = fBm(ny * 20 + Math.sin(nx * 6) * 0.2, nx * 2, 2, 7)
+      // domainWarp 旋涡
+      const warp = domainWarp(nx * 6, ny * 5, 2)
+      // 低纬更亮，极区略暗
+      const latFade = 1 - Math.abs(ny - 0.5) * 0.25
+
+      const bright = 175 + (zonal * 0.5 + warp * 0.5) * 40 * latFade
+
+      // Y 形 UV 暗纹（沿赤道的分散暗带）
+      let uvDark = 0
+      for (let k = 0; k < 5; k++) {
+        const cx = 0.2 + k * 0.18 + Math.sin(ny * 8 + k) * 0.06
+        const cy = 0.35 + Math.sin(k * 2.5) * 0.12
+        const dx = (nx - cx) / 0.12
+        const dy = (ny - cy) / 0.06
+        uvDark += Math.exp(-(dx * dx + dy * dy) * 1.5) * 0.3
+      }
+
+      const finalBright = bright - uvDark * 25 * latFade
+
       const i = (y * 1024 + x) * 4
-      data[i] = Math.min(240, bright)
-      data[i + 1] = Math.min(210, bright * 0.8)
-      data[i + 2] = Math.min(150, bright * 0.55)
+      data[i]     = Math.min(245, Math.max(140, finalBright))
+      data[i + 1] = Math.min(220, Math.max(110, finalBright * 0.82))
+      data[i + 2] = Math.min(160, Math.max(75,  finalBright * 0.52))
     }
   }
   ctx.putImageData(imgData, 0, 0)
 
-  // UV 暗斑（低层云特征）
-  for (let i = 0; i < 30; i++) {
-    const x = Math.random() * 1024
-    const y = Math.random() * 512
-    const r = 15 + Math.random() * 50
-    const dark = ctx.createRadialGradient(x, y, 0, x, y, r)
-    dark.addColorStop(0, 'rgba(100, 80, 50, 0.2)')
-    dark.addColorStop(1, 'rgba(100, 80, 50, 0)')
-    ctx.fillStyle = dark
+  // 南极漩涡（暗涡旋）
+  for (const side of ['south', 'north'] as const) {
+    const cy = side === 'south' ? 470 : 42
+    const vortex = ctx.createRadialGradient(512, cy, 0, 512, cy, 80)
+    vortex.addColorStop(0, 'rgba(90, 75, 45, 0.25)')
+    vortex.addColorStop(0.4, 'rgba(110, 90, 55, 0.12)')
+    vortex.addColorStop(1, 'rgba(140, 120, 80, 0)')
+    ctx.fillStyle = vortex
     ctx.fillRect(0, 0, 1024, 512)
+    // 漩涡臂
+    for (let a = 0; a < 4; a++) {
+      const angle = a * Math.PI / 2
+      const g = ctx.createRadialGradient(
+        512 + Math.cos(angle) * 30, cy + Math.sin(angle) * 30, 0,
+        512 + Math.cos(angle) * 60, cy + Math.sin(angle) * 60, 40
+      )
+      g.addColorStop(0, 'rgba(100, 82, 50, 0.15)')
+      g.addColorStop(1, 'rgba(100, 82, 50, 0)')
+      ctx.fillStyle = g
+      ctx.fillRect(0, 0, 1024, 512)
+    }
   }
 
   return canvas
@@ -513,7 +590,7 @@ function generateMarsTexture(): HTMLCanvasElement {
   const { canvas, ctx } = createCanvas(1024, 512)
 
   // 橙红底
-  ctx.fillStyle = '#B84A1E'
+  ctx.fillStyle = '#D06028'
   ctx.fillRect(0, 0, 1024, 512)
 
   const imgData = ctx.getImageData(0, 0, 1024, 512)
@@ -524,38 +601,69 @@ function generateMarsTexture(): HTMLCanvasElement {
       const ny = y / 512
       const latFactor = Math.abs(ny - 0.5) * 2
 
-      // 地形噪声
-      const terrain = fBm(nx * 16, ny * 16, 6, 4)
-      // 大尺度亮暗区域
-      const albedo = fBm(nx * 3, ny * 3, 4, 10)
+      // 地形噪声（高分辨率）
+      const terrain = fBm(nx * 18, ny * 16, 6, 4)
+      // 大尺度亮暗区（南半球高地亮，北半球平原暗）
+      const albedo = fBm(nx * 3.5, ny * 3.5, 4, 10)
+      // 纬度调暗（极区更亮因为冰）
+      const latDark = 1 - (1 - latFactor) * 0.15
 
-      // 海拔影响颜色
-      let r = 130 + terrain * 40 + albedo * 20
-      let g = 50 + terrain * 20 + albedo * 5
-      let b = 15 + terrain * 5
+      let r = 145 + terrain * 35 + albedo * 25
+      let g = 55 + terrain * 18 + albedo * 8
+      let b = 18 + terrain * 6 + albedo * 3
 
-      // 暗区（古老玄武岩）
-      if (albedo < 0.35) {
-        r -= 30
-        g -= 15
+      // 暗区（古老玄武岩平原 — 北半球）
+      if (albedo < 0.38) {
+        r -= 28
+        g -= 14
         b -= 5
       }
 
-      // 极地冰盖
-      if (latFactor > 0.85) {
-        const iceAmount = (latFactor - 0.85) * 6
-        r = r + (230 - r) * iceAmount
-        g = g + (230 - g) * iceAmount
-        b = b + (240 - b) * iceAmount
+      // 极地冰盖（螺旋状边缘模拟）
+      if (latFactor > 0.82) {
+        const iceAmount = (latFactor - 0.82) * 6
+        const spiral = Math.sin(nx * 30 + ny * 15) * 0.03
+        const iceEdge = iceAmount + spiral
+        r = r + (235 - r) * iceEdge
+        g = g + (235 - g) * iceEdge
+        b = b + (248 - b) * iceEdge
       }
 
-      // 水手号峡谷区域（深色线）
-      const canyonX = 0.65 + (ny - 0.4) * 0.05
-      const canyonY = 0.42 + (nx - 0.65) * 0.15
-      if (Math.abs(nx - 0.65) < 0.08 && Math.abs(ny - 0.45) < 0.03) {
-        r -= 25
-        g -= 10
+      // 水手号峡谷（蜿蜒裂谷）
+      const canyonNx = 0.65 + (ny - 0.44) * 0.04
+      const canyonNy = 0.44 + (nx - 0.65) * 0.08
+      const distCanyon = Math.sqrt(
+        ((nx - canyonNx) / 0.08) ** 2 + ((ny - canyonNy) / 0.025) ** 2
+      )
+      if (distCanyon < 0.6) {
+        const cDepth = (1 - distCanyon / 0.6) * 0.6
+        r -= cDepth * 40
+        g -= cDepth * 20
+        b -= cDepth * 8
+        // 峡谷北壁阴影
+        if (ny > canyonNy) {
+          const shadow = Math.min(cDepth * 0.5, 0.3)
+          r -= shadow * 25
+          g -= shadow * 12
+        }
       }
+      // 分支峡谷（水系网络）
+      for (let bC = 0; bC < 3; bC++) {
+        const bx = 0.58 + bC * 0.035
+        const by = 0.47 + bC * 0.015
+        const branchDist = Math.sqrt(
+          ((nx - bx) / 0.025) ** 2 + ((ny - by) / 0.012) ** 2
+        )
+        if (branchDist < 0.5) {
+          const bD = (1 - branchDist / 0.5) * 0.3
+          r -= bD * 20
+          g -= bD * 10
+        }
+      }
+
+      r *= latDark
+      g *= latDark
+      b *= latDark
 
       const i = (y * 1024 + x) * 4
       data[i] = Math.min(255, Math.max(0, r))
@@ -566,11 +674,38 @@ function generateMarsTexture(): HTMLCanvasElement {
   }
   ctx.putImageData(imgData, 0, 0)
 
-  // 奥林帕斯山（亮斑）
-  const olymGrad = ctx.createRadialGradient(700, 160, 0, 700, 160, 70)
-  olymGrad.addColorStop(0, 'rgba(210, 150, 90, 0.35)')
-  olymGrad.addColorStop(1, 'rgba(210, 150, 90, 0)')
+  // 奥林帕斯山（大型亮斑）
+  const olymGrad = ctx.createRadialGradient(700, 165, 0, 700, 165, 75)
+  olymGrad.addColorStop(0, 'rgba(220, 160, 95, 0.4)')
+  olymGrad.addColorStop(0.5, 'rgba(215, 155, 90, 0.2)')
+  olymGrad.addColorStop(1, 'rgba(200, 140, 80, 0)')
   ctx.fillStyle = olymGrad
+  ctx.fillRect(0, 0, 1024, 512)
+  // 火山口
+  ctx.fillStyle = 'rgba(180, 120, 60, 0.3)'
+  ctx.beginPath()
+  ctx.arc(700, 165, 8, 0, Math.PI * 2)
+  ctx.fill()
+
+  // 埃律西姆山（Elysium Mons）
+  const elyGrad = ctx.createRadialGradient(820, 290, 0, 820, 290, 40)
+  elyGrad.addColorStop(0, 'rgba(215, 155, 90, 0.3)')
+  elyGrad.addColorStop(1, 'rgba(200, 140, 80, 0)')
+  ctx.fillStyle = elyGrad
+  ctx.fillRect(0, 0, 1024, 512)
+
+  // 大瑟提斯高原（Syrtis Major Planum — 暗色火山岩区）
+  const syrtis = ctx.createRadialGradient(560, 325, 0, 560, 325, 55)
+  syrtis.addColorStop(0, 'rgba(80, 50, 30, 0.25)')
+  syrtis.addColorStop(1, 'rgba(80, 50, 30, 0)')
+  ctx.fillStyle = syrtis
+  ctx.fillRect(0, 0, 1024, 512)
+
+  // 希腊盆地（Hellas Planitia — 大型撞击坑）
+  const hellas = ctx.createRadialGradient(330, 340, 0, 330, 340, 50)
+  hellas.addColorStop(0, 'rgba(195, 160, 110, 0.2)')
+  hellas.addColorStop(1, 'rgba(195, 160, 110, 0)')
+  ctx.fillStyle = hellas
   ctx.fillRect(0, 0, 1024, 512)
 
   return canvas
@@ -680,25 +815,30 @@ function generateSaturnTexture(): HTMLCanvasElement {
   const imgData = ctx.getImageData(0, 0, 1024, 512)
   const data = imgData.data
 
+  // 条带定义：[起始y, 高度, R, G, B] — 暖金基调，赤道亮带增强，极区暗沉
   const bandColors: Array<{ y: number; h: number; c: [number, number, number] }> = [
-    { y: 0, h: 35, c: [220, 208, 175] },
-    { y: 35, h: 28, c: [205, 190, 155] },
-    { y: 63, h: 30, c: [225, 215, 185] },
-    { y: 93, h: 25, c: [195, 178, 140] },
-    { y: 118, h: 22, c: [215, 205, 175] },
-    { y: 140, h: 30, c: [185, 168, 130] },
-    { y: 170, h: 25, c: [210, 198, 168] },
-    { y: 195, h: 28, c: [200, 185, 148] },
-    { y: 223, h: 22, c: [218, 208, 178] },
-    { y: 245, h: 35, c: [190, 172, 135] },
-    { y: 280, h: 28, c: [212, 200, 170] },
-    { y: 308, h: 25, c: [195, 178, 140] },
-    { y: 333, h: 30, c: [220, 210, 180] },
-    { y: 363, h: 28, c: [188, 170, 132] },
-    { y: 391, h: 25, c: [215, 203, 172] },
-    { y: 416, h: 32, c: [200, 185, 148] },
-    { y: 448, h: 30, c: [210, 198, 168] },
-    { y: 478, h: 34, c: [195, 175, 138] },
+    { y: 0,   h: 32, c: [175, 162, 148] },  // 南极区
+    { y: 32,  h: 20, c: [200, 188, 165] },  // 南温带1
+    { y: 52,  h: 22, c: [215, 202, 178] },
+    { y: 74,  h: 18, c: [228, 215, 190] },
+    { y: 92,  h: 20, c: [210, 198, 172] },
+    { y: 112, h: 22, c: [235, 222, 198] },  // 南赤道带
+    { y: 134, h: 30, c: [248, 235, 205] },  // ← 赤道亮带（最亮）
+    { y: 164, h: 30, c: [250, 238, 208] },  // ← 赤道亮带延续
+    { y: 194, h: 22, c: [240, 228, 198] },
+    { y: 216, h: 18, c: [228, 215, 185] },  // 北赤道带
+    { y: 234, h: 20, c: [215, 202, 172] },
+    { y: 254, h: 22, c: [225, 212, 182] },
+    { y: 276, h: 25, c: [208, 195, 165] },
+    { y: 301, h: 22, c: [220, 206, 178] },
+    { y: 323, h: 20, c: [205, 192, 162] },
+    { y: 343, h: 22, c: [215, 200, 172] },
+    { y: 365, h: 25, c: [195, 180, 155] },
+    { y: 390, h: 28, c: [200, 185, 160] },
+    { y: 418, h: 25, c: [188, 172, 148] },
+    { y: 443, h: 22, c: [180, 165, 142] },
+    { y: 465, h: 22, c: [170, 155, 132] },
+    { y: 487, h: 25, c: [160, 145, 125] },  // 北极区
   ]
 
   for (let y = 0; y < 512; y++) {
@@ -706,40 +846,48 @@ function generateSaturnTexture(): HTMLCanvasElement {
       const nx = x / 1024
       const ny = y / 512
 
-      // 土星条带更柔和，噪声更温和
-      const bandWarp = fBm(nx * 5 + 40, ny * 4, 3, 7) * 0.1
+      // 条带扭曲（更柔和的波动）
+      const bandWarp = fBm(nx * 4 + 40, ny * 3.5, 3, 7) * 0.06
 
       let bandIdx = 0
       let cumulative = 0
       for (let b = 0; b < bandColors.length; b++) {
-        const bandHeight = bandColors[b].h / 512
-        if (ny * 512 < cumulative + bandHeight) {
+        if (ny * 512 < cumulative + bandColors[b].h) {
           bandIdx = b
           break
         }
-        cumulative += bandHeight
+        cumulative += bandColors[b].h
       }
 
       const bc = bandColors[bandIdx].c
-      const turb = fBm(nx * 6 + bandWarp, ny * 5, 3, 8) * 0.3
+      // 减半噪声幅度，保留质感但不破坏条带
+      const turb = fBm(nx * 6 + bandWarp, ny * 5, 3, 8) * 0.15
+      const fineNoise = fBm(nx * 20, ny * 18, 2, 12) * 0.04
 
-      let r = bc[0] + turb * 20
-      let g = bc[1] + turb * 18
-      let bVal = bc[2] + turb * 15
+      let r = bc[0] + (turb + fineNoise) * 30
+      let g = bc[1] + (turb + fineNoise) * 25
+      let bVal = bc[2] + (turb + fineNoise) * 20
 
-      // 北极六边形区域
-      if (ny < 0.06) {
-        const hexY = ny / 0.06
+      // 赤道亮带高斯增强（ny ≈ 0.3-0.4）
+      const eqDist = Math.abs(ny - 0.35)
+      if (eqDist < 0.12) {
+        const eqBoost = (1 - eqDist / 0.12) * 20
+        r += eqBoost; g += eqBoost; bVal += eqBoost * 0.8
+      }
+
+      // 北极六边形（更醒目的淡青色）
+      if (ny < 0.07) {
+        const hexY = ny / 0.07
         const angle = Math.atan2(nx - 0.5, 0.5) * 3
-        const hexRim = Math.abs(Math.sin(angle * 3)) * 0.3
-        const hexGlow = Math.max(0, 1 - Math.abs(hexY - hexRim) * 4)
-        r += hexGlow * 15
-        g += hexGlow * 10
-        bVal += hexGlow * 5
+        const hexRim = Math.abs(Math.sin(angle * 3)) * 0.35
+        const hexGlow = Math.max(0, 1 - Math.abs(hexY - hexRim) * 5)
+        r += hexGlow * 8
+        g += hexGlow * 15
+        bVal += hexGlow * 20
       }
 
       const i = (y * 1024 + x) * 4
-      data[i] = Math.min(255, Math.max(0, r))
+      data[i]     = Math.min(255, Math.max(0, r))
       data[i + 1] = Math.min(255, Math.max(0, g))
       data[i + 2] = Math.min(255, Math.max(0, bVal))
       data[i + 3] = 255
@@ -747,15 +895,26 @@ function generateSaturnTexture(): HTMLCanvasElement {
   }
   ctx.putImageData(imgData, 0, 0)
 
-  // 轻微条带
-  for (let i = 0; i < 10; i++) {
-    const cx = rand() * 1024
-    const cy = rand() * 512
-    const wr = 15 + rand() * 40
-    const wh = 4 + rand() * 12
-    ctx.fillStyle = 'rgba(255, 245, 230, 0.06)'
+  // 2-3 个淡色椭圆风暴斑点（白色卵形）
+  for (let i = 0; i < 3; i++) {
+    const cx = 100 + rand() * 824
+    const cy = 60 + rand() * 260 // 避开赤道亮带和极区
+    const wr = 20 + rand() * 35
+    const wh = 6 + rand() * 10
+    ctx.fillStyle = `rgba(255, 248, 235, ${0.08 + rand() * 0.06})`
     ctx.beginPath()
-    ctx.ellipse(cx, cy, wr, wh, rand() * 0.3, 0, Math.PI * 2)
+    ctx.ellipse(cx, cy, wr, wh, rand() * 0.4, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  // 薄层大气涡旋纹
+  for (let i = 0; i < 6; i++) {
+    const cx = rand() * 1024
+    const cy = 30 + rand() * 452
+    const wr = 40 + rand() * 60
+    const wh = 3 + rand() * 5
+    ctx.fillStyle = `rgba(255, 242, 220, ${0.03 + rand() * 0.03})`
+    ctx.beginPath()
+    ctx.ellipse(cx, cy, wr, wh, rand() * 0.2, 0, Math.PI * 2)
     ctx.fill()
   }
 
@@ -774,20 +933,39 @@ function generateUranusTexture(): HTMLCanvasElement {
       const nx = x / 1024
       const ny = y / 512
 
-      // 极淡的条带
-      const band = Math.sin(ny * 20 + Math.sin(nx * 8) * 0.3) * 0.04
-      const noise = fBm(nx * 6, ny * 6, 3, 7) * 0.03
+      // 纬度渐变：赤道浅青 → 极区深蓝绿
+      const latFade = Math.abs(ny - 0.5) * 2
 
-      // 青色基调，纬度渐变
-      const latVar = Math.abs(ny - 0.5) * 0.06
-      const r = 130 + (band + noise) * 80 - latVar * 80
-      const g = 175 + (band + noise) * 60 - latVar * 50
-      const b = 180 + (band + noise) * 50 - latVar * 40
+      // 多层条带
+      const band1 = Math.sin(ny * 28 + Math.sin(nx * 10) * 0.3) * 0.06
+      const band2 = Math.sin(ny * 16 + 1.2 + Math.sin(nx * 6) * 0.2) * 0.04
+      const noise = fBm(nx * 8, ny * 7, 3, 7) * 0.04
+      const band = band1 + band2 + noise
+
+      // 微弱对流斑点
+      const spot = fBm(nx * 12 + 30, ny * 8 + 50, 3, 11)
+      const spotBright = Math.max(0, spot - 0.55) * 0.6
+
+      const baseR = 190 - latFade * 55
+      const baseG = 218 - latFade * 48
+      const baseB = 228 - latFade * 42
+
+      let r = baseR + band * 60 + spotBright * 20
+      let g = baseG + band * 45 + spotBright * 15
+      let b = baseB + band * 35 + spotBright * 10
+
+      // 极冠（极区更暗更蓝）
+      if (latFade > 0.6) {
+        const polar = (latFade - 0.6) * 0.8
+        r -= polar * 30
+        g -= polar * 15
+        b += polar * 5
+      }
 
       const i = (y * 1024 + x) * 4
-      data[i] = Math.min(235, Math.max(100, r))
-      data[i + 1] = Math.min(235, Math.max(140, g))
-      data[i + 2] = Math.min(240, Math.max(150, b))
+      data[i]     = Math.min(235, Math.max(90,  r))
+      data[i + 1] = Math.min(240, Math.max(130, g))
+      data[i + 2] = Math.min(245, Math.max(150, b))
       data[i + 3] = 255
     }
   }
@@ -808,30 +986,67 @@ function generateNeptuneTexture(): HTMLCanvasElement {
       const nx = x / 1024
       const ny = y / 512
 
-      // 云带湍流
-      const band = fBm(nx * 5, ny * 8, 4, 9) * 0.15
-      const turb = fBm(nx * 8 + ny * 2, ny * 5, 3, 10) * 0.06
+      // 云带湍流（更高对比度）
+      const band = fBm(nx * 6, ny * 10, 4, 9) * 0.2
+      const turb = fBm(nx * 10 + ny * 2, ny * 5, 3, 10) * 0.08
+      const fine = fBm(nx * 24, ny * 18, 2, 14) * 0.04
 
-      const r = 25 + (band + turb) * 120
-      const g = 50 + (band + turb) * 120
-      const b = 130 + (band + turb) * 100
+      // 饱和度提升的深蓝基调
+      let r = 18 + (band + turb + fine) * 100
+      let g = 42 + (band + turb + fine) * 110
+      let b = 145 + (band + turb + fine) * 90
 
-      // 大暗斑
-      const ddx = (nx - 0.5) / 0.12
-      const ddy = (ny - 0.45) / 0.08
+      // 大暗斑（GDS-89）
+      const ddx = (nx - 0.5) / 0.10
+      const ddy = (ny - 0.45) / 0.075
       const darkSpot = Math.exp(-(ddx * ddx + ddy * ddy) * 2)
-      const finalR = r - darkSpot * 25
-      const finalG = g - darkSpot * 35
-      const finalB = b - darkSpot * 50
+      r -= darkSpot * 20
+      g -= darkSpot * 35
+      b -= darkSpot * 55
 
-      // 亮甲烷云
-      const cloudNoise = fBm(nx * 12 + 100, ny * 10, 4, 11)
-      const brightCloud = Math.max(0, cloudNoise - 0.6) * 2
+      // 暗斑边缘的亮伴生云
+      const edgeX = 0.5 + (nx - 0.5) * 1.3
+      const edgeY = 0.45 + (ny - 0.45) * 1.2
+      const edgeDist = Math.sqrt(
+        ((nx - 0.5) / 0.12) ** 2 + ((ny - 0.45) / 0.09) ** 2
+      )
+      if (edgeDist > 0.7 && edgeDist < 1.2) {
+        const edgeBright = (1 - Math.abs(edgeDist - 0.95) / 0.25) * 0.5
+        r += edgeBright * 50
+        g += edgeBright * 40
+        b += edgeBright * 30
+      }
+
+      // 第二暗斑（南半球小暗斑）
+      const ddx2 = (nx - 0.35) / 0.06
+      const ddy2 = (ny - 0.65) / 0.05
+      const darkSpot2 = Math.exp(-(ddx2 * ddx2 + ddy2 * ddy2) * 2)
+      r -= darkSpot2 * 10
+      g -= darkSpot2 * 18
+      b -= darkSpot2 * 30
+
+      // 高空甲烷云（亮白斑点，经向拉长）
+      const cloudNoise = fBm(nx * 14 + 100, ny * 8, 4, 11)
+      const brightCloud = Math.max(0, cloudNoise - 0.55) * 1.8
+      const cloudR = brightCloud * 70
+      const cloudG = brightCloud * 55
+      const cloudB = brightCloud * 40
+
+      // 南极暗斑
+      const southPolarDist = Math.sqrt(
+        ((ny - 0.92) / 0.06) ** 2
+      )
+      if (southPolarDist < 1) {
+        const sp = (1 - southPolarDist) * 0.3
+        r -= sp * 25
+        g -= sp * 20
+        b += sp * 5
+      }
 
       const i = (y * 1024 + x) * 4
-      data[i] = Math.min(255, Math.max(10, finalR + brightCloud * 80))
-      data[i + 1] = Math.min(255, Math.max(20, finalG + brightCloud * 60))
-      data[i + 2] = Math.min(255, Math.max(60, finalB + brightCloud * 40))
+      data[i]     = Math.min(255, Math.max(5,  r + cloudR))
+      data[i + 1] = Math.min(255, Math.max(15, g + cloudG))
+      data[i + 2] = Math.min(255, Math.max(55, b + cloudB))
       data[i + 3] = 255
     }
   }
@@ -1024,4 +1239,79 @@ export function getPlanetTexture(bodyId: string): THREE.CanvasTexture | null {
  */
 export function clearPlanetTextureCache(): void {
   textureCache.clear()
+}
+
+// ─── 光环纹理 ─────────────────────────────────────────
+
+/** 生成土星环的径向密度纹理（暖金明亮色调） */
+function generateRingTexture(): HTMLCanvasElement {
+  const { canvas, ctx } = createCanvas(512, 128)
+  const imgData = ctx.getImageData(0, 0, 512, 128)
+  const data = imgData.data
+
+  // 五段径向区域定义：[归一化起始y, 归一化结束y, 基准R, G, B]
+  const zones: Array<[number, number, number, number, number]> = [
+    [0.00, 0.27, 215, 205, 180],   // C 环：浅灰金
+    [0.27, 0.68, 245, 225, 185],   // B 环：暖金（最亮）
+    [0.68, 0.73, 35,  30,  25],    // 卡西尼缝：深暗
+    [0.73, 0.97, 235, 215, 175],   // A 环：浅金
+    [0.97, 1.00, 110, 100, 80],    // 外缘渐暗
+  ]
+
+  for (let y = 0; y < 128; y++) {
+    const v = y / 128
+
+    let zone: typeof zones[0] | null = null
+    for (const z of zones) {
+      if (v >= z[0] && v < z[1]) { zone = z; break }
+    }
+    if (!zone) zone = zones[0]
+
+    for (let x = 0; x < 512; x++) {
+      const u = x / 512
+
+      // 环形密度波动（径向条纹）：仅 25% 幅度的明暗变化
+      const radialWave = 0.75 + 0.25 * Math.sin(v * 50 + zone[0] * 35)
+      // 角向噪声：轻微不均匀感
+      const angularNoise = fBm(u * 6, v * 10, 2, 42) * 0.12
+      // 细颗粒冰晶感
+      const grain = fBm(u * 40 + v * 2, v * 30, 1, 7) * 0.08
+
+      const brightness = radialWave + angularNoise + grain
+
+      let r = zone[2] * brightness
+      let g = zone[3] * brightness
+      let b = zone[4] * brightness
+
+      // 卡西尼缝边缘堆积亮边
+      if (zone === zones[2]) {
+        const edgeDist = Math.min(Math.abs(v - 0.68), Math.abs(v - 0.73))
+        if (edgeDist < 0.012) {
+          const glow = (1 - edgeDist / 0.012) * 120
+          r += glow; g += glow * 0.9; b += glow * 0.7
+        }
+      }
+
+      const i = (y * 512 + x) * 4
+      data[i]     = Math.min(255, Math.max(0, r))
+      data[i + 1] = Math.min(255, Math.max(0, g))
+      data[i + 2] = Math.min(255, Math.max(0, b))
+      data[i + 3] = 255
+    }
+  }
+  ctx.putImageData(imgData, 0, 0)
+  return canvas
+}
+
+let ringTextureCache: THREE.CanvasTexture | null = null
+
+export function getRingTexture(): THREE.CanvasTexture {
+  if (ringTextureCache) return ringTextureCache
+  const canvas = generateRingTexture()
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.wrapS = THREE.RepeatWrapping
+  texture.wrapT = THREE.ClampToEdgeWrapping
+  texture.colorSpace = THREE.SRGBColorSpace
+  ringTextureCache = texture
+  return texture
 }

@@ -8,7 +8,7 @@ import type { TimeSpeed } from '../store/useStore'
 import { getHeliocentricPosition, getSatellitePosition } from '../utils/orbit'
 import { evaluateAchievements } from '../utils/achievements'
 import { playUISound } from '../utils/audio'
-import { getPlanetTexture } from '../utils/planetTextures'
+import { getPlanetTexture, getRingTexture } from '../utils/planetTextures'
 
 function SelectionRings({ radius }: { radius: number }) {
   const ringRef = useRef<THREE.Mesh>(null)
@@ -272,24 +272,50 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
             <meshBasicMaterial color="#FFFFFF" transparent opacity={0.08} side={THREE.DoubleSide} />
           </mesh>
         )}
-        {/* 土星光环 - 极薄的环面（继承轴向倾斜） */}
-        {body.hasRings && (
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <ringGeometry
-              args={[
-                effectiveRadius * (body.ringInnerRadius || 1.2),
-                effectiveRadius * (body.ringOuterRadius || 2.3),
-                128,
-              ]}
-            />
-            <meshStandardMaterial
-              color={body.ringColor || '#D4C5A3'}
-              transparent
-              opacity={0.55}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-        )}
+        {/* 土星光环 - 多层结构 + 卡西尼缝 */}
+        {body.hasRings && (() => {
+          const ringTexture = getRingTexture()
+          const inner = effectiveRadius * (body.ringInnerRadius || 1.2)
+          const outer = effectiveRadius * (body.ringOuterRadius || 2.3)
+          const span = outer - inner
+
+          // 各环段定义：[内径比例, 外径比例, 透明度]
+          const ringSegments: Array<[number, number, number]> = [
+            [0.00, 0.27, 0.45],  // C 环
+            [0.27, 0.68, 0.75],  // B 环（主环）
+            [0.73, 0.97, 0.60],  // A 环
+          ]
+
+          return (
+            <group rotation={[Math.PI / 2, 0, 0]}>
+              {ringSegments.map(([rStart, rEnd, opacity]) => (
+                <mesh key={`${rStart}-${rEnd}`}>
+                  <ringGeometry args={[inner + span * rStart, inner + span * rEnd, 128]} />
+                  <meshStandardMaterial
+                    map={ringTexture}
+                    transparent
+                    opacity={opacity}
+                    side={THREE.DoubleSide}
+                    depthWrite={false}
+                    emissive="#FFF8DC"
+                    emissiveIntensity={0.06}
+                  />
+                </mesh>
+              ))}
+              {/* 环阴影：土星球体表面赤道暗带 */}
+              <mesh>
+                <ringGeometry args={[effectiveRadius * 1.01, effectiveRadius * 1.25, 64]} />
+                <meshBasicMaterial
+                  color="#000000"
+                  transparent
+                  opacity={0.2}
+                  side={THREE.DoubleSide}
+                  depthWrite={false}
+                />
+              </mesh>
+            </group>
+          )
+        })()}
       </group>
 
       {/* 太阳光晕 */}

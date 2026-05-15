@@ -4,8 +4,9 @@ const DEG_TO_RAD = Math.PI / 180;
 
 // 场景距离缩放因子：1 AU = 85 场景单位（与 DISTANCE_SCALE 配合）
 export const ORBIT_SCALE = 85;
-// 卫星轨道缩放系数：保持与 ORBIT_SCALE 相同比例（原 SATELLITE_SCALE/ORBIT_SCALE=100）
-export const SATELLITE_SCALE = 8500;
+// 卫星轨道缩放系数：所有卫星轨道距离与行星视觉半径保持真实比例
+// 推导：SATELLITE_SCALE = VISUAL_SCALE × AU / EARTH_RADIUS_KM = 0.3 × 149597870.7 / 6371 ≈ 7044
+export const SATELLITE_SCALE = 7044;
 
 /**
  * 求解开普勒方程：M = E - e * sin(E)

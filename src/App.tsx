@@ -170,7 +170,7 @@ export default function App() {
               enableZoom={true}
               enableRotate={true}
               minDistance={2}
-              maxDistance={700}
+              maxDistance={2500}
               zoomSpeed={0.8}
               rotateSpeed={0.5}
               panSpeed={0.5}

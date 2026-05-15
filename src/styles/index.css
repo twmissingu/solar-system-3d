@@ -224,6 +224,24 @@
     box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(78, 205, 196, 0.05);
   }
 
+  /* 行星信息 pill — dock 内光速旅行/一生视角使用 */
+  .planet-pill {
+    @apply inline-flex items-center gap-1 px-1.5 py-0.5 rounded;
+    font-size: 9px;
+    line-height: 1;
+    white-space: nowrap;
+    color: rgba(232, 244, 253, 0.7);
+    background: rgba(78, 205, 196, 0.06);
+    border: 1px solid rgba(78, 205, 196, 0.1);
+  }
+  .planet-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
   /* ===== 左侧工具箱 ===== */
   .left-toolbox {
     @apply fixed left-3 top-[88px] bottom-24 z-20;
