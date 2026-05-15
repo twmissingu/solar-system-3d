@@ -10,7 +10,10 @@ import {
   getMilestoneById,
 } from '../data/explorationHistory'
 import { celestialBodies, dwarfPlanets, getVisualRadius } from '../data/celestialData'
+import { getMissionById } from '../data/missions'
 import { scientists } from '../data/scientists'
+import { playUISound } from '../utils/audio'
+import { evaluateAchievements } from '../utils/achievements'
 
 const eras: ExplorationEra[] = ['ancient', 'telescope', 'space-race', 'deep-space', 'future']
 
@@ -54,6 +57,10 @@ export default function ExplorationHistoryPanel() {
     setShowSpacecraftPanel,
     setSelectedSpacecraft,
     planetScale,
+    activeMissionIds,
+    addExploredBody,
+    addMissionExploredBody,
+    addMissionCompareBody,
   } = useStore()
 
   const [activeEra, setActiveEra] = useState<ExplorationEra>('ancient')
@@ -115,8 +122,21 @@ export default function ExplorationHistoryPanel() {
     const dist = milestone.cameraTarget?.distance || Math.max(effectiveRadius * 5, 3)
 
     if (targetBody) {
+      playUISound('click')
       setSelectedBody(targetBody)
       setCameraFocus([dist, dist * 0.3, dist], [0, 0, 0])
+      addExploredBody(targetBody.id)
+      activeMissionIds.forEach((mid) => {
+        const mission = getMissionById(mid)
+        if (!mission) return
+        if (mission.type === 'explore' || mission.type === 'identify') {
+          addMissionExploredBody(mid, targetBody.id)
+        }
+        if (mission.type === 'compare' && mission.target.bodyIds?.includes(targetBody.id)) {
+          addMissionCompareBody(mid, targetBody.id)
+        }
+      })
+      evaluateAchievements()
     }
     setShowExplorationHistory(false)
     setSelectedMilestoneId(null)
@@ -343,22 +363,14 @@ export default function ExplorationHistoryPanel() {
                   ))}
               </div>
 
-              {/* Actions */}
-              <div className="flex flex-wrap gap-2 pt-2 border-t border-sci-white/10">
-                {(selectedMilestone.relatedBodies?.length ?? 0) > 0 && (
-                  <button
-                    onClick={() => handleViewInScene(selectedMilestone)}
-                    className="sci-button-primary text-xs px-3 py-1.5 flex items-center gap-1"
-                  >
-                    🎯 在 3D 场景中查看
-                  </button>
-                )}
-                {selectedMilestone.searchKeyword && (
-                  <p className="text-[10px] text-sci-white/30 self-center ml-auto">
+              {/* Search keyword */}
+              {selectedMilestone.searchKeyword && (
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-sci-white/10">
+                  <p className="text-[10px] text-sci-white/30">
                     想了解更多？搜索：{selectedMilestone.searchKeyword}
                   </p>
-                )}
-              </div>
+                </div>
+              )}
             </motion.div>
           ) : (
             /* Timeline View */

@@ -39,6 +39,24 @@ function getMassLabel(mass: number): string {
   return `${mass}`;
 }
 
+function getSchwarzschildRadius(mass: number): string {
+  const km = 2.95 * mass;
+  if (km < 0.1) return `${(km * 1000).toFixed(0)} m`;
+  if (km < 1000) return `${km.toFixed(1)} km`;
+  if (km < 1000000) return `${(km / 1000).toFixed(1)} 千 km`;
+  return `${(km / 1000000).toFixed(1)} 百万 km`;
+}
+
+function getSizeComparison(mass: number): string {
+  const rKm = 2.95 * mass;
+  if (rKm < 5) return `约${rKm.toFixed(1)} km，比一座小城还小`;
+  if (rKm < 50) return `约${rKm.toFixed(0)} km，相当于一座中型城市直径`;
+  if (rKm < 500) return `约${rKm.toFixed(0)} km，是珠穆朗玛峰的 ${(rKm / 8.8).toFixed(0)} 倍高`;
+  if (rKm < 5000) return `约${(rKm / 1000).toFixed(1)} 千 km，约为月球直径的 ${(rKm / 1737.4 * 100).toFixed(0)}%`;
+  if (rKm < 70000) return `约${(rKm / 1000).toFixed(0)} 千 km，是地球直径的 ${(rKm / 6371).toFixed(1)} 倍`;
+  return `约${(rKm / 1000000).toFixed(1)} 百万 km，是太阳半径的 ${(rKm / 696000).toFixed(1)} 倍`;
+}
+
 export default function BlackHoleSimulator() {
   const showBlackHole = useStore((s) => s.showBlackHole)
   const setShowBlackHole = useStore((s) => s.setShowBlackHole)
@@ -120,6 +138,11 @@ export default function BlackHoleSimulator() {
     return Math.sqrt(Math.max(0, 1 - 1 / distance)) * 100;
   }, [distance]);
 
+  const surfaceGravity = useMemo(() => {
+    // 事件视界表面引力 ∝ 1/M，相对于 1 倍太阳质量黑洞归一化
+    return (1 / massMultiplier) * 100;
+  }, [massMultiplier]);
+
   const status = useMemo(() => getStatus(distance, massMultiplier), [distance, massMultiplier]);
 
   const baseStars = useRef(
@@ -155,9 +178,6 @@ export default function BlackHoleSimulator() {
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-40 flex items-center justify-center backdrop-blur-md"
       style={{ background: 'rgba(5, 11, 20, 0.9)' }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) handleClose();
-      }}
     >
       <motion.div
         initial={{ scale: 0.92, opacity: 0 }}
@@ -296,13 +316,31 @@ export default function BlackHoleSimulator() {
                   实时数据
                 </h3>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-sci-white/70">潮汐力</span>
-                  <span className="text-sci-white font-mono font-bold">
-                    {tidalForce.toFixed(2)} G
+                  <span className="text-sci-white/70">事件视界半径</span>
+                  <span className="text-sci-gold font-mono font-bold">
+                    {getSchwarzschildRadius(massMultiplier)}
                   </span>
                 </div>
                 <p className="text-[10px] text-sci-white/50">
-                  你的脚感受到的引力是头的 {(tidalForce * 100).toFixed(0)} 倍
+                  {getSizeComparison(massMultiplier)}
+                </p>
+                <div className="flex justify-between items-center text-sm mt-1">
+                  <span className="text-sci-white/70">视界表面引力</span>
+                  <span className="text-sci-white font-mono font-bold">
+                    {surfaceGravity.toFixed(3)}%
+                  </span>
+                </div>
+                <p className="text-[10px] text-sci-white/50">
+                  相对于 1 倍太阳质量黑洞，质量越大表面引力越小
+                </p>
+                <div className="flex justify-between items-center text-sm mt-1">
+                  <span className="text-sci-white/70">潮汐力</span>
+                  <span className="text-sci-danger font-mono font-bold">
+                    {tidalForce.toFixed(3)} G
+                  </span>
+                </div>
+                <p className="text-[10px] text-sci-white/50">
+                  你的脚感受到的引力是头的 {(tidalForce * 100).toFixed(1)} 倍
                 </p>
                 <div className="flex justify-between items-center text-sm mt-1">
                   <span className="text-sci-white/70">时间膨胀</span>

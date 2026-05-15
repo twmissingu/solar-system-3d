@@ -2,7 +2,8 @@ import { useRef, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useStore } from '../store/useStore'
 import { celestialBodies, dwarfPlanets, SIMULATION_BASE_RATE } from '../data/celestialData'
-import { getHeliocentricPosition } from '../utils/orbit'
+import type { OrbitalElements } from '../data/celestialData'
+import { getHeliocentricPosition, getSatellitePosition } from '../utils/orbit'
 import Planet from './Planet'
 import AsteroidBelt from './AsteroidBelt'
 import * as THREE from 'three'
@@ -16,6 +17,17 @@ const SPEED_MAP: Record<Exclude<TimeSpeed, 'pause'>, number> = {
 }
 
 const allBodies = [...celestialBodies, ...dwarfPlanets]
+
+// 卫星 → 母星轨道查找表（用于卫星追踪）
+const satelliteParentMap: Record<string, { parentOrbit: OrbitalElements }> = {}
+function buildSatelliteIndex() {
+  celestialBodies.forEach((body) => {
+    body.satellites?.forEach((sat) => {
+      satelliteParentMap[sat.id] = { parentOrbit: body.orbit }
+    })
+  })
+}
+buildSatelliteIndex()
 
 export default function SolarSystem() {
   const setCurrentDay = useStore((s) => s.setCurrentDay)
@@ -102,19 +114,38 @@ export default function SolarSystem() {
     }
 
     // 星体跟踪：相机动画完成后，持续将 controls.target 更新到选中星体的轨道位置
-    // 跳过太阳和卫星（卫星轨道需要母星位置，无法在顶层计算）
     if (
       selectedBody &&
       selectedBody.id !== 'sun' &&
-      allBodies.some((b) => b.id === selectedBody.id) &&
       !cameraAnimRef.current?.active &&
       !lookAtAnimRef.current?.active
     ) {
       const day = useStore.getState().currentDay
-      const [x, y, z] = getHeliocentricPosition(selectedBody.orbit, day)
-      trackingTargetRef.current.set(x, y, z)
-      if (controls) {
-        controls.target.copy(trackingTargetRef.current)
+      let tx: number, ty: number, tz: number
+      let canTrack = false
+
+      if (allBodies.some((b) => b.id === selectedBody.id)) {
+        // 顶层行星/矮行星
+        ;[tx, ty, tz] = getHeliocentricPosition(selectedBody.orbit, day)
+        canTrack = true
+      } else {
+        // 卫星：母星日心坐标 + 卫星相对坐标
+        const parent = satelliteParentMap[selectedBody.id]
+        if (parent) {
+          const [px, py, pz] = getHeliocentricPosition(parent.parentOrbit, day)
+          const [sx, sy, sz] = getSatellitePosition(selectedBody.orbit, day)
+          tx = px + sx
+          ty = py + sy
+          tz = pz + sz
+          canTrack = true
+        }
+      }
+
+      if (canTrack) {
+        trackingTargetRef.current.set(tx!, ty!, tz!)
+        if (controls) {
+          controls.target.copy(trackingTargetRef.current)
+        }
       }
     }
   })

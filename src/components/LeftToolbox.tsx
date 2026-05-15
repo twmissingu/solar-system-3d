@@ -16,10 +16,10 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useStore } from '../store/useStore'
-import { celestialBodies, dwarfPlanets, lunarEclipseDemo } from '../data/celestialData'
+import { lunarEclipseDemo } from '../data/celestialData'
+import { getMissionById } from '../data/missions'
 import { evaluateAchievements } from '../utils/achievements'
 import { playUISound } from '../utils/audio'
-import { achievements } from '../data/achievements'
 
 type ToolboxItem = {
   icon: LucideIcon
@@ -40,9 +40,12 @@ function handleLunarEclipse() {
   state.setCameraFocus([18, 4, 12], [0, 0, 0])
   state.setSelectedBody(null)
 
-  if (state.activeMissionId) {
-    state.addMissionObservedEvent('moon')
-  }
+  state.activeMissionIds.forEach((mid) => {
+    const mission = getMissionById(mid)
+    if (mission?.type === 'observe' && mission.target.bodyId === 'moon') {
+      state.addMissionObservedEvent(mid, 'moon')
+    }
+  })
 
   evaluateAchievements()
   state.unlockAchievement('eclipse_witness')
@@ -55,7 +58,7 @@ const sections: ToolboxSection[] = [
       {
         icon: Moon,
         label: '月食实验',
-        onClick: () => { playUISound('click'); handleLunarEclipse() },
+        onClick: () => { playUISound('click'); handleLunarEclipse(); useStore.getState().setShowEclipseLab(true) },
         primary: true,
       },
       {
@@ -114,7 +117,6 @@ const sections: ToolboxSection[] = [
         label: '航天器',
         onClick: () => {
           playUISound('click')
-          useStore.getState().setSelectedSpacecraft('voyager1')
           useStore.getState().setShowSpacecraftPanel(true)
         },
       },
@@ -152,82 +154,9 @@ const sections: ToolboxSection[] = [
         label: '探索徽章',
         onClick: () => { playUISound('click'); useStore.getState().setShowAchievementPanel(true) },
       },
-      {
-        icon: FileText,
-        label: '导出报告',
-        onClick: () => {
-          playUISound('click')
-          generateExplorationReport()
-        },
-      },
     ],
   },
 ]
-
-function generateExplorationReport() {
-  const state = useStore.getState()
-  const allBodies = [...celestialBodies, ...dwarfPlanets]
-  const exploredNames = state.exploredBodies
-    .map((id) => allBodies.find((b) => b.id === id)?.nameZh)
-    .filter(Boolean)
-    .join('、') || '暂无'
-
-  const achievementNames = state.unlockedAchievements
-    .map((id) => {
-      const a = achievements.find((ach: { id: string }) => ach.id === id)
-      return a ? `${a.icon} ${a.name}` : id
-    })
-    .join('、') || '暂无'
-
-  const yearsAdvanced = (state.totalTimeAdvanced / 365.25).toFixed(1)
-
-  const report = `# 我的宇宙探索报告
-
-> 生成时间：${new Date().toLocaleString('zh-CN')}
-
----
-
-## 探索数据
-
-- **已探索天体**：${exploredNames}
-- **已解锁成就**：${achievementNames}
-- **完成任务数**：${state.completedMissions.length} 个
-- **累计推进时间**：约 ${yearsAdvanced} 年
-
----
-
-## 我的宇宙足迹
-
-${state.exploredBodies.length > 0
-  ? state.exploredBodies.map((id) => {
-      const body = allBodies.find((b) => b.id === id)
-      return body ? `- **${body.nameZh}**：${body.description.slice(0, 50)}...` : ''
-    }).join('\n')
-  : '开始探索，留下你的宇宙足迹吧！'}
-
----
-
-## 科学态度宣言
-
-> 我承诺，在这个应用里看到的一切都是科学家的**当前最佳理解**，而非永恒真理。
-> 科学的价值不在于永远正确，而在于永远好奇。
-
----
-
-*本报告由太阳系3D探索应用自动生成*
-*数据来源：简化轨道模型，仅供科普教育参考*
-`
-
-  const blob = new Blob([report], { type: 'text/markdown;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `宇宙探索报告_${new Date().toISOString().slice(0, 10)}.md`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
-}
 
 export default function LeftToolbox() {
   return (

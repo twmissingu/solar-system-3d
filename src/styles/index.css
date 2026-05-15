@@ -244,15 +244,14 @@
 
   /* ===== 左侧工具箱 ===== */
   .left-toolbox {
-    @apply fixed left-3 top-[88px] bottom-24 z-20;
+    @apply fixed left-3 top-[88px] bottom-16 z-20;
     @apply flex flex-col gap-1;
-    width: 44px;
+    width: 120px;
     @apply px-1.5 py-2 rounded-xl;
     background: rgba(5, 11, 20, 0.82);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(78, 205, 196, 0.12);
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    transition: width 0.2s ease;
     overflow: hidden;
     white-space: nowrap;
   }
@@ -268,11 +267,6 @@
   }
   .left-toolbox-section-label {
     @apply text-[8px] text-sci-white/20 uppercase tracking-wider mb-0.5;
-    opacity: 0;
-    transition: opacity 0.15s ease 0.1s;
-  }
-  .left-toolbox:hover .left-toolbox-section-label {
-    opacity: 1;
   }
   .left-toolbox-item {
     @apply flex items-center gap-2 w-full px-1.5 py-1.5 rounded-lg;
@@ -284,11 +278,8 @@
   }
   .left-toolbox-item-label {
     @apply text-[11px] font-medium;
-    opacity: 0;
-    transition: opacity 0.15s ease 0.1s;
-  }
-  .left-toolbox:hover .left-toolbox-item-label {
-    opacity: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* ===== 选中扫描环动画 ===== */

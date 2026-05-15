@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import { CelestialBody } from '../data/celestialData';
 
+export interface MissionProgress {
+  exploredBodiesInMission: string[];
+  compareBodies: string[];
+  observedEvents: string[];
+}
+
+export const MAX_ACTIVE_MISSIONS = 3;
+
 function getInitialKnowledgeCount(): { bronze: number; silver: number; gold: number } {
   try {
     const bronze = Object.keys(localStorage).filter(
@@ -166,9 +174,6 @@ interface AppState {
   isCameraAnimating: boolean;
   setCameraAnimating: (v: boolean) => void;
 
-  // Social sharing
-  showSharePanel: boolean;
-  setShowSharePanel: (show: boolean) => void;
 
   // Scientist gallery
   showScientistGallery: boolean;
@@ -188,24 +193,20 @@ interface AppState {
   explorationHistorySelectedMilestone: string | null;
   setExplorationHistorySelectedMilestone: (id: string | null) => void;
 
-  // Mission system (needed by Task 2)
-  activeMissionId: string | null;
-  setActiveMissionId: (id: string | null) => void;
-  missionProgress: {
-    exploredBodiesInMission: string[];
-    compareBodies: string[];
-    observedEvents: string[];
-  };
-  resetMissionProgress: () => void;
-  addMissionExploredBody: (bodyId: string) => void;
-  addMissionCompareBody: (bodyId: string) => void;
-  addMissionObservedEvent: (eventId: string) => void;
+  // Mission system — 支持最多 3 个同时进行
+  activeMissionIds: string[];
+  missionProgressMap: Record<string, MissionProgress>;
+  hintIndexMap: Record<string, number>;
+  addActiveMission: (id: string) => void;
+  removeActiveMission: (id: string) => void;
+  addMissionExploredBody: (missionId: string, bodyId: string) => void;
+  addMissionCompareBody: (missionId: string, bodyId: string) => void;
+  addMissionObservedEvent: (missionId: string, eventId: string) => void;
   completedMissions: string[];
   completeMission: (id: string) => void;
   showMissionPanel: boolean;
   setShowMissionPanel: (show: boolean) => void;
-  currentHintIndex: number;
-  nextHint: () => void;
+  nextHint: (missionId: string) => void;
 
   // 欢迎页阶段管理
   appPhase: AppPhase;
@@ -358,67 +359,98 @@ export const useStore = create<AppState>((set) => ({
   setSandboxOrbitAU: (au) => set({ sandboxOrbitAU: au }),
 
   // Mission system
-  activeMissionId: null,
-  setActiveMissionId: (id) =>
+  activeMissionIds: [],
+  missionProgressMap: {},
+  hintIndexMap: {},
+  addActiveMission: (id) =>
     set((state) => {
-      if (state.activeMissionId === id) return state;
+      if (state.activeMissionIds.length >= MAX_ACTIVE_MISSIONS) return state;
+      if (state.activeMissionIds.includes(id)) return state;
       return {
-        activeMissionId: id,
-        missionProgress: {
-          exploredBodiesInMission: [],
-          compareBodies: [],
-          observedEvents: [],
+        activeMissionIds: [...state.activeMissionIds, id],
+        missionProgressMap: {
+          ...state.missionProgressMap,
+          [id]: { exploredBodiesInMission: [], compareBodies: [], observedEvents: [] },
         },
-        currentHintIndex: 0,
+        hintIndexMap: { ...state.hintIndexMap, [id]: 0 },
       };
     }),
-  missionProgress: {
-    exploredBodiesInMission: [],
-    compareBodies: [],
-    observedEvents: [],
-  },
-  resetMissionProgress: () =>
-    set({
-      missionProgress: {
-        exploredBodiesInMission: [],
-        compareBodies: [],
-        observedEvents: [],
-      },
+  removeActiveMission: (id) =>
+    set((state) => {
+      if (!state.activeMissionIds.includes(id)) return state;
+      const next = state.activeMissionIds.filter((mid) => mid !== id);
+      const newMap = { ...state.missionProgressMap };
+      delete newMap[id];
+      const newHints = { ...state.hintIndexMap };
+      delete newHints[id];
+      return {
+        activeMissionIds: next,
+        missionProgressMap: newMap,
+        hintIndexMap: newHints,
+      };
     }),
-  addMissionExploredBody: (bodyId) =>
-    set((state) => ({
-      missionProgress: {
-        ...state.missionProgress,
-        exploredBodiesInMission: state.missionProgress.exploredBodiesInMission.includes(bodyId)
-          ? state.missionProgress.exploredBodiesInMission
-          : [...state.missionProgress.exploredBodiesInMission, bodyId],
-      },
-    })),
-  addMissionCompareBody: (bodyId) =>
-    set((state) => ({
-      missionProgress: {
-        ...state.missionProgress,
-        compareBodies: state.missionProgress.compareBodies.includes(bodyId)
-          ? state.missionProgress.compareBodies
-          : [...state.missionProgress.compareBodies, bodyId],
-      },
-    })),
-  addMissionObservedEvent: (eventId) =>
-    set((state) => ({
-      missionProgress: {
-        ...state.missionProgress,
-        observedEvents: state.missionProgress.observedEvents.includes(eventId)
-          ? state.missionProgress.observedEvents
-          : [...state.missionProgress.observedEvents, eventId],
-      },
-    })),
+  addMissionExploredBody: (missionId, bodyId) =>
+    set((state) => {
+      const progress = state.missionProgressMap[missionId];
+      if (!progress) return {};
+      if (progress.exploredBodiesInMission.includes(bodyId)) return {};
+      return {
+        missionProgressMap: {
+          ...state.missionProgressMap,
+          [missionId]: {
+            ...progress,
+            exploredBodiesInMission: [...progress.exploredBodiesInMission, bodyId],
+          },
+        },
+      };
+    }),
+  addMissionCompareBody: (missionId, bodyId) =>
+    set((state) => {
+      const progress = state.missionProgressMap[missionId];
+      if (!progress) return {};
+      if (progress.compareBodies.includes(bodyId)) return {};
+      return {
+        missionProgressMap: {
+          ...state.missionProgressMap,
+          [missionId]: {
+            ...progress,
+            compareBodies: [...progress.compareBodies, bodyId],
+          },
+        },
+      };
+    }),
+  addMissionObservedEvent: (missionId, eventId) =>
+    set((state) => {
+      const progress = state.missionProgressMap[missionId];
+      if (!progress) return {};
+      if (progress.observedEvents.includes(eventId)) return {};
+      return {
+        missionProgressMap: {
+          ...state.missionProgressMap,
+          [missionId]: {
+            ...progress,
+            observedEvents: [...progress.observedEvents, eventId],
+          },
+        },
+      };
+    }),
   completedMissions: [],
   completeMission: (id) =>
-    set((state) => ({
-      completedMissions: state.completedMissions.includes(id)
-        ? state.completedMissions
-        : [...state.completedMissions, id],
-    })),
+    set((state) => {
+      if (state.completedMissions.includes(id)) return state;
+      // 清理对应的进度和活跃任务
+      const newActiveIds = state.activeMissionIds.filter((mid) => mid !== id);
+      const newMap = { ...state.missionProgressMap };
+      delete newMap[id];
+      const newHints = { ...state.hintIndexMap };
+      delete newHints[id];
+      return {
+        completedMissions: [...state.completedMissions, id],
+        activeMissionIds: newActiveIds,
+        missionProgressMap: newMap,
+        hintIndexMap: newHints,
+      };
+    }),
   showSpacecraftPanel: false,
   setShowSpacecraftPanel: (show) => set({ showSpacecraftPanel: show }),
   selectedSpacecraft: null,
@@ -437,11 +469,13 @@ export const useStore = create<AppState>((set) => ({
 
   showMissionPanel: false,
   setShowMissionPanel: (show) => set({ showMissionPanel: show }),
-  currentHintIndex: 0,
-  nextHint: () =>
-    set((state) => ({
-      currentHintIndex: Math.min(state.currentHintIndex + 1, 999),
-    })),
+  nextHint: (missionId) =>
+    set((state) => {
+      const idx = state.hintIndexMap[missionId] ?? 0;
+      return {
+        hintIndexMap: { ...state.hintIndexMap, [missionId]: Math.min(idx + 1, 999) },
+      };
+    }),
 
   // Voting
   userVotes: {},
@@ -462,8 +496,7 @@ export const useStore = create<AppState>((set) => ({
   setNarrativeStep: (step) => set({ narrativeStep: step }),
 
   // Social sharing
-  showSharePanel: false,
-  setShowSharePanel: (show) => set({ showSharePanel: show }),
+
 
   // Scientist gallery
   showScientistGallery: false,

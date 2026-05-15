@@ -34,7 +34,7 @@ export default function NarrativePanel() {
   const completedMissions = useStore((s) => s.completedMissions)
   const completeMissionInStore = useStore((s) => s.completeMission)
 
-  const [selectedMissionId, setSelectedMissionId] = useState<string | null>(null);
+  const [selectedMissionId, setSelectedMissionId] = useState<string | null>(activeNarrative);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const typeTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -127,23 +127,39 @@ export default function NarrativePanel() {
 
     playUISound('click');
 
+    // 先推进步骤，再关闭面板，这样重开时显示下一步
+    const advanceStep = (): boolean => {
+      if (!currentMission) return false;
+      if (narrativeStep < currentMission.steps.length - 1) {
+        setNarrativeStep(narrativeStep + 1);
+        return true;
+      }
+      // 已是最后一步 → 完成任务
+      completeMissionInStore(currentMission.id);
+      setSelectedMissionId(null);
+      setActiveNarrative(null);
+      setNarrativeStep(0);
+      playUISound('success');
+      return false;
+    };
+
     if (currentStep.targetBodyId) {
-      // This will trigger in the 3D scene; close panel and let user interact
+      advanceStep();
       setShowNarrative(false);
-      // Try to find body and select it if possible (data not directly available here)
-      // The user will click the planet manually per the narrative instructions
     }
 
     if (currentStep.action.includes('沙盘')) {
+      advanceStep();
       setShowSandbox(true);
       setShowNarrative(false);
     }
 
     if (currentStep.action.includes('轨道设计器')) {
+      advanceStep();
       setShowHohmannDesigner(true);
       setShowNarrative(false);
     }
-  }, [currentStep, handleNextStep, setShowNarrative, setShowSandbox, setShowHohmannDesigner]);
+  }, [currentStep, currentMission, handleNextStep, narrativeStep, setNarrativeStep, setShowNarrative, setShowSandbox, setShowHohmannDesigner, setActiveNarrative, completeMissionInStore]);
 
   const handleStartMission = useCallback(
     (missionId: string) => {

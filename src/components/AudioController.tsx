@@ -19,7 +19,7 @@ export default function AudioController() {
       initial={{ x: -50, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ delay: 1.2 }}
-      className="fixed bottom-24 left-3 sm:bottom-28 sm:left-4 z-30"
+      className="fixed bottom-3 left-3 z-30"
     >
       <div className="relative">
         <button

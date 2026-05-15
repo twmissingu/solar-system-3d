@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from 'react'
+import { Suspense, lazy, useMemo, useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BookOpen, Microscope, Layers, Telescope, Sparkles, X, Circle, RotateCw, Orbit, Ruler, Thermometer, Flame } from 'lucide-react'
 import { useStore } from '../store/useStore'
@@ -8,7 +8,7 @@ import InstrumentsPanel from './InstrumentsPanel'
 import InterdisciplinaryPanel from './InterdisciplinaryPanel'
 import ObservationGuide from './ObservationGuide'
 import ScienceFrontiers from './ScienceFrontiers'
-import PlanetPreview from './PlanetPreview'
+const PlanetPreview = lazy(() => import('./PlanetPreview'))
 import { dwarfPlanets, EARTH_RADIUS_KM } from '../data/celestialData'
 
 const EARTH_ROTATION_HOURS = 23.93
@@ -93,7 +93,9 @@ export default function InfoPanel() {
             <div className="p-4 sm:p-5 border-b border-sci-cyan/10 shrink-0">
               <div className="flex items-start gap-4">
                 <div className="shrink-0">
-                  <PlanetPreview bodyId={selectedBody.id} size={64} />
+                  <Suspense fallback={<div className="w-16 h-16 rounded-full bg-space-700" />}>
+                    <PlanetPreview bodyId={selectedBody.id} size={64} />
+                  </Suspense>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">

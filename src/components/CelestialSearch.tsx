@@ -5,6 +5,7 @@ import { useStore } from '../store/useStore'
 import { allBodies, FlatBodyEntry } from '../utils/flattenBodies'
 import { getHeliocentricPosition, getSatellitePosition } from '../utils/orbit'
 import { getVisualRadius } from '../data/celestialData'
+import { getMissionById } from '../data/missions'
 import { evaluateAchievements } from '../utils/achievements'
 import { playUISound } from '../utils/audio'
 
@@ -139,9 +140,17 @@ export default function CelestialSearch() {
 
       // 如果有活跃任务，记录探索
       const state = useStore.getState()
-      if (state.activeMissionId) {
-        state.addMissionExploredBody(body.id)
-      }
+      const { activeMissionIds, addMissionExploredBody, addMissionCompareBody } = useStore.getState()
+      activeMissionIds.forEach((mid) => {
+        const mission = getMissionById(mid)
+        if (!mission) return
+        if (mission.type === 'explore' || mission.type === 'identify') {
+          addMissionExploredBody(mid, body.id)
+        }
+        if (mission.type === 'compare' && mission.target.bodyIds?.includes(body.id)) {
+          addMissionCompareBody(mid, body.id)
+        }
+      })
     },
     [currentDay, setSelectedBody, setCameraFocus, addExploredBody, resetView, planetScale],
   )

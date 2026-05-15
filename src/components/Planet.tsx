@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { Html, Line } from '@react-three/drei'
 import * as THREE from 'three'
 import { CelestialBody, getVisualRadius, SIMULATION_BASE_RATE } from '../data/celestialData'
+import { getMissionById } from '../data/missions'
 import { useStore } from '../store/useStore'
 import type { TimeSpeed } from '../store/useStore'
 import { getHeliocentricPosition, getSatellitePosition } from '../utils/orbit'
@@ -116,7 +117,8 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
   const showOrbits = useStore((s) => s.showOrbits)
   const addExploredBody = useStore((s) => s.addExploredBody)
   const addMissionExploredBody = useStore((s) => s.addMissionExploredBody)
-  const activeMissionId = useStore((s) => s.activeMissionId)
+  const addMissionCompareBody = useStore((s) => s.addMissionCompareBody)
+  const activeMissionIds = useStore((s) => s.activeMissionIds)
   const timeSpeed = useStore((s) => s.timeSpeed)
 
   const isSelected = selectedBody?.id === body.id
@@ -235,9 +237,17 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
               )
             }
             addExploredBody(body.id)
-            if (activeMissionId) {
-              addMissionExploredBody(body.id)
-            }
+            // 遍历所有活跃任务，按任务类型记录进度
+            activeMissionIds.forEach((mid) => {
+              const mission = getMissionById(mid)
+              if (!mission) return
+              if (mission.type === 'explore' || mission.type === 'identify') {
+                addMissionExploredBody(mid, body.id)
+              }
+              if (mission.type === 'compare' && mission.target.bodyIds?.includes(body.id)) {
+                addMissionCompareBody(mid, body.id)
+              }
+            })
             evaluateAchievements()
           }}
           castShadow

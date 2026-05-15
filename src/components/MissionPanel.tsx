@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Compass, Target, GitCompare, Eye, X } from 'lucide-react';
-import { useStore } from '../store/useStore';
+import { Compass, Target, GitCompare, Eye, X, AlertCircle } from 'lucide-react';
+import { useStore, MAX_ACTIVE_MISSIONS } from '../store/useStore';
 import { missions, getMissionById, Mission, MissionType } from '../data/missions';
 import { getAchievementById } from '../data/achievements';
 import { evaluateAchievements } from '../utils/achievements';
@@ -65,28 +65,171 @@ function getMissionProgress(
   return { current: 0, total: 1, done: false };
 }
 
+function MissionCard({
+  mission,
+  progress,
+  hintIndex,
+  onComplete,
+  onAbandon,
+}: {
+  mission: Mission;
+  progress: { exploredBodiesInMission: string[]; compareBodies: string[]; observedEvents: string[] };
+  hintIndex: number;
+  onComplete: () => void;
+  onAbandon: () => void;
+}) {
+  const nextHint = useStore((s) => s.nextHint);
+  const progressData = getMissionProgress(mission, progress);
+
+  return (
+    <div className="sci-panel p-3 sm:p-4 flex flex-col gap-3">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-sci-cyan shrink-0">{TypeIcons[mission.type]}</span>
+          <h3 className="text-sm font-bold text-sci-white truncate">{mission.title}</h3>
+        </div>
+        <span
+          className="text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0"
+          style={{
+            color: difficultyColors[mission.difficulty],
+            borderColor: `${difficultyColors[mission.difficulty]}40`,
+            backgroundColor: `${difficultyColors[mission.difficulty]}15`,
+          }}
+        >
+          {difficultyLabels[mission.difficulty]}
+        </span>
+      </div>
+
+      <p className="text-xs text-sci-white/60 leading-relaxed">{mission.description}</p>
+
+      {/* Progress */}
+      <div className="space-y-2">
+        {(mission.type === 'explore' || mission.type === 'identify') && mission.target.bodyIds && (
+          <div>
+            <div className="flex justify-between text-xs text-sci-white/60 mb-1">
+              <span>探索进度</span>
+              <span>{progressData.current} / {progressData.total}</span>
+            </div>
+            <div className="h-2 bg-space-700 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-sci-cyan rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${(progressData.current / progressData.total) * 100}%` }}
+                transition={{ duration: 0.4 }}
+              />
+            </div>
+          </div>
+        )}
+
+        {(mission.type === 'identify' && !mission.target.bodyIds) && (
+          <div className="flex items-center gap-2 text-sm">
+            {progressData.done ? (
+              <><span className="text-sci-success">✓</span><span className="text-green-300">已找到目标天体</span></>
+            ) : (
+              <><span className="text-sci-white/40">○</span><span className="text-sci-white/50">寻找目标天体中...</span></>
+            )}
+          </div>
+        )}
+
+        {mission.type === 'compare' && mission.target.bodyIds && (
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs text-sci-white/60">比较目标</span>
+            {mission.target.bodyIds.map((bodyId) => {
+              const done = progress.compareBodies.includes(bodyId);
+              return (
+                <div key={bodyId} className="flex items-center gap-2 text-sm">
+                  {done ? (
+                    <><span className="text-sci-success">✓</span><span className="text-green-300">{bodyNameMap.get(bodyId) || bodyId}</span></>
+                  ) : (
+                    <><span className="text-sci-white/40">○</span><span className="text-sci-white/50">{bodyNameMap.get(bodyId) || bodyId}</span></>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {mission.type === 'observe' && (
+          <div className="flex items-center gap-2 text-sm">
+            {progressData.done ? (
+              <><span className="text-sci-success">✓</span><span className="text-green-300">已观察目标事件</span></>
+            ) : (
+              <><span className="text-sci-white/40">○</span><span className="text-sci-white/50">等待观察目标事件...</span></>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Hints */}
+      <div className="space-y-1.5">
+        <h4 className="text-[10px] font-bold text-sci-white/50 uppercase tracking-wider">提示</h4>
+        <div className="flex flex-col gap-1">
+          {mission.hints.slice(0, hintIndex + 1).map((hint, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2 }}
+              className="text-[11px] text-sci-white/70 bg-space-700/30 border border-sci-white/10 rounded px-2.5 py-1.5"
+            >
+              {hint}
+            </motion.div>
+          ))}
+        </div>
+        {hintIndex < mission.hints.length - 1 && (
+          <button onClick={() => nextHint(mission.id)} className="sci-button text-[10px] px-2.5 py-1">
+            还需要更多提示？
+          </button>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-col gap-2 pt-1">
+        {progressData.done && (
+          <div className="space-y-1.5">
+            {mission.rewardAchievementId && (
+              <p className="text-[10px] text-sci-cyan">
+                完成奖励：解锁成就「{getAchievementById(mission.rewardAchievementId)?.name || mission.rewardAchievementId}」
+              </p>
+            )}
+            <button onClick={onComplete} className="sci-button-primary w-full text-xs py-2">
+              完成任务
+            </button>
+          </div>
+        )}
+        <button onClick={onAbandon} className="sci-button w-full text-xs py-1.5">
+          放弃任务
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function MissionPanel({ onClose }: MissionPanelProps) {
   const [tab, setTab] = useState<'available' | 'active' | 'completed'>('available');
-  const [expandedCompletedId, setExpandedCompletedId] = useState<string | null>(null)
+  const [expandedCompletedId, setExpandedCompletedId] = useState<string | null>(null);
 
   const {
-    activeMissionId,
-    setActiveMissionId,
+    activeMissionIds,
+    addActiveMission,
+    removeActiveMission,
     completedMissions,
     completeMission,
-    missionProgress,
-    resetMissionProgress,
+    missionProgressMap,
+    hintIndexMap,
     unlockAchievement,
     incrementMissionCount,
-    currentHintIndex,
-    nextHint,
   } = useStore();
 
-  const activeMission = activeMissionId ? getMissionById(activeMissionId) : null;
+  const activeMissions = useMemo(
+    () => activeMissionIds.map((mid) => getMissionById(mid)).filter(Boolean) as Mission[],
+    [activeMissionIds]
+  );
 
   const availableMissions = useMemo(
-    () => missions.filter((m) => !completedMissions.includes(m.id) && m.id !== activeMissionId),
-    [completedMissions, activeMissionId]
+    () => missions.filter((m) => !completedMissions.includes(m.id) && !activeMissionIds.includes(m.id)),
+    [completedMissions, activeMissionIds]
   );
 
   const completedMissionList = useMemo(
@@ -94,31 +237,31 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
     [completedMissions]
   );
 
+  const canAcceptMore = activeMissionIds.length < MAX_ACTIVE_MISSIONS;
+
   const handleAcceptMission = (missionId: string) => {
-    setActiveMissionId(missionId);
+    addActiveMission(missionId);
     setTab('active');
   };
 
-  const handleAbandonMission = () => {
-    setActiveMissionId(null);
-    setTab('available');
+  const handleAbandonMission = (missionId: string) => {
+    removeActiveMission(missionId);
   };
 
-  const handleCompleteMission = () => {
-    if (!activeMission) return;
-    completeMission(activeMission.id);
+  const handleCompleteMission = (missionId: string) => {
+    const mission = getMissionById(missionId);
+    if (!mission) return;
+    completeMission(missionId);
     incrementMissionCount();
-    if (activeMission.rewardAchievementId) {
-      unlockAchievement(activeMission.rewardAchievementId);
+    if (mission.rewardAchievementId) {
+      unlockAchievement(mission.rewardAchievementId);
     }
     evaluateAchievements();
-    setActiveMissionId(null);
-    setTab('completed');
   };
 
   const tabConfig = [
     { key: 'available' as const, label: '可接任务', count: availableMissions.length },
-    { key: 'active' as const, label: '进行中', count: activeMissionId ? 1 : 0 },
+    { key: 'active' as const, label: '进行中', count: activeMissionIds.length },
     { key: 'completed' as const, label: '已完成', count: completedMissionList.length },
   ];
 
@@ -180,6 +323,14 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
+                {/* 任务上限提示 */}
+                {!canAcceptMore && (
+                  <div className="flex items-center gap-2 mb-3 text-xs text-sci-warning bg-sci-warning/10 border border-sci-warning/20 rounded px-3 py-2">
+                    <AlertCircle size={14} />
+                    <span>同时最多进行 {MAX_ACTIVE_MISSIONS} 个任务，请先完成或放弃已有任务</span>
+                  </div>
+                )}
+
                 {availableMissions.length === 0 ? (
                   <p className="text-sci-white/50 text-sm text-center py-8">暂无可用任务</p>
                 ) : (
@@ -206,7 +357,12 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
                         <div className="flex justify-end">
                           <button
                             onClick={() => handleAcceptMission(mission.id)}
-                            className="sci-button-primary text-xs px-3 py-1.5"
+                            disabled={!canAcceptMore}
+                            className={`text-xs px-3 py-1.5 rounded font-medium transition-all ${
+                              canAcceptMore
+                                ? 'sci-button-primary'
+                                : 'bg-sci-white/5 text-sci-white/30 cursor-not-allowed'
+                            }`}
                           >
                             接受
                           </button>
@@ -226,169 +382,20 @@ export default function MissionPanel({ onClose }: MissionPanelProps) {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                {!activeMission ? (
+                {activeMissions.length === 0 ? (
                   <p className="text-sci-white/50 text-sm text-center py-8">当前没有进行中的任务</p>
                 ) : (
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-sci-cyan shrink-0">{TypeIcons[activeMission.type]}</span>
-                        <h3 className="text-base font-bold text-sci-white truncate">{activeMission.title}</h3>
-                      </div>
-                      <span
-                        className="text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0"
-                        style={{
-                          color: difficultyColors[activeMission.difficulty],
-                          borderColor: `${difficultyColors[activeMission.difficulty]}40`,
-                          backgroundColor: `${difficultyColors[activeMission.difficulty]}15`,
-                        }}
-                      >
-                        {difficultyLabels[activeMission.difficulty]}
-                      </span>
-                    </div>
-                    <p className="text-sm text-sci-white/70 leading-relaxed">{activeMission.description}</p>
-
-                    {/* Progress */}
-                    <div className="space-y-3">
-                      {(() => {
-                        const progress = getMissionProgress(activeMission, missionProgress);
-                        if (activeMission.type === 'explore') {
-                          return (
-                            <div>
-                              <div className="flex justify-between text-xs text-sci-white/60 mb-1">
-                                <span>探索进度</span>
-                                <span>
-                                  {progress.current} / {progress.total}
-                                </span>
-                              </div>
-                              <div className="h-2 bg-space-700 rounded-full overflow-hidden">
-                                <motion.div
-                                  className="h-full bg-sci-cyan rounded-full"
-                                  initial={{ width: 0 }}
-                                  animate={{
-                                    width: `${Math.min(100, progress.total > 0 ? (progress.current / progress.total) * 100 : 0)}%`,
-                                  }}
-                                  transition={{ duration: 0.4 }}
-                                />
-                              </div>
-                            </div>
-                          );
-                        }
-                        if (activeMission.type === 'identify') {
-                          return (
-                            <div className="flex items-center gap-2 text-sm">
-                              {progress.done ? (
-                                <>
-                                  <span className="text-sci-success">✓</span>
-                                  <span className="text-green-300">已找到目标天体</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span className="text-sci-white/40">○</span>
-                                  <span className="text-sci-white/50">寻找目标天体中...</span>
-                                </>
-                              )}
-                            </div>
-                          );
-                        }
-                        if (activeMission.type === 'compare') {
-                          return (
-                            <div className="flex flex-col gap-1.5">
-                              <span className="text-xs text-sci-white/60 mb-1">比较目标</span>
-                              {activeMission.target.bodyIds?.map((bodyId) => {
-                                const done = missionProgress.compareBodies.includes(bodyId);
-                                return (
-                                  <div key={bodyId} className="flex items-center gap-2 text-sm">
-                                    {done ? (
-                                      <>
-                                        <span className="text-sci-success">✓</span>
-                                        <span className="text-green-300">{bodyNameMap.get(bodyId) || bodyId}</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <span className="text-sci-white/40">○</span>
-                                        <span className="text-sci-white/50">{bodyNameMap.get(bodyId) || bodyId}</span>
-                                      </>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          );
-                        }
-                        if (activeMission.type === 'observe') {
-                          return (
-                            <div className="flex items-center gap-2 text-sm">
-                              {progress.done ? (
-                                <>
-                                  <span className="text-sci-success">✓</span>
-                                  <span className="text-green-300">已观察目标事件</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span className="text-sci-white/40">○</span>
-                                  <span className="text-sci-white/50">等待观察目标事件...</span>
-                                </>
-                              )}
-                            </div>
-                          );
-                        }
-                        return null;
-                      })()}
-                    </div>
-
-                    {/* Hints */}
-                    <div className="space-y-2">
-                      <h4 className="text-xs font-bold text-sci-white/50 uppercase tracking-wider">提示</h4>
-                      <div className="flex flex-col gap-1.5">
-                        {activeMission.hints.slice(0, currentHintIndex + 1).map((hint, i) => (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="text-xs text-sci-white/70 bg-space-700/30 border border-sci-white/10 rounded px-3 py-2"
-                          >
-                            {hint}
-                          </motion.div>
-                        ))}
-                      </div>
-                      {currentHintIndex < activeMission.hints.length - 1 && (
-                        <button
-                          onClick={() => nextHint()}
-                          className="sci-button text-xs px-3 py-1.5"
-                        >
-                          还需要更多提示？
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex flex-col gap-2 pt-2">
-                      {getMissionProgress(activeMission, missionProgress).done && (
-                        <div className="space-y-2">
-                          {activeMission.rewardAchievementId && (
-                            <p className="text-xs text-sci-cyan">
-                              完成奖励：解锁成就「
-                              {getAchievementById(activeMission.rewardAchievementId)?.name || activeMission.rewardAchievementId}
-                              」
-                            </p>
-                          )}
-                          <button
-                            onClick={handleCompleteMission}
-                            className="sci-button-primary w-full text-sm py-2"
-                          >
-                            完成任务
-                          </button>
-                        </div>
-                      )}
-                      <button
-                        onClick={handleAbandonMission}
-                        className="sci-button w-full text-sm py-2"
-                      >
-                        放弃当前任务
-                      </button>
-                    </div>
+                  <div className="flex flex-col gap-3">
+                    {activeMissions.map((mission) => (
+                      <MissionCard
+                        key={mission.id}
+                        mission={mission}
+                        progress={missionProgressMap[mission.id] || { exploredBodiesInMission: [], compareBodies: [], observedEvents: [] }}
+                        hintIndex={hintIndexMap[mission.id] ?? 0}
+                        onComplete={() => handleCompleteMission(mission.id)}
+                        onAbandon={() => handleAbandonMission(mission.id)}
+                      />
+                    ))}
                   </div>
                 )}
               </motion.div>
