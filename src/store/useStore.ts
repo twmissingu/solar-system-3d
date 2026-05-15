@@ -495,9 +495,6 @@ export const useStore = create<AppState>((set) => ({
   narrativeStep: 0,
   setNarrativeStep: (step) => set({ narrativeStep: step }),
 
-  // Social sharing
-
-
   // Scientist gallery
   showScientistGallery: false,
   setShowScientistGallery: (show) => set({ showScientistGallery: show }),

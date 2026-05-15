@@ -9,7 +9,8 @@ import {
   eraConfig,
   getMilestoneById,
 } from '../data/explorationHistory'
-import { celestialBodies, dwarfPlanets, getVisualRadius } from '../data/celestialData'
+import { celestialBodies, dwarfPlanets, getVisualRadius, type OrbitalElements } from '../data/celestialData'
+import { getHeliocentricPosition, getSatellitePosition } from '../utils/orbit'
 import { getMissionById } from '../data/missions'
 import { scientists } from '../data/scientists'
 import { playUISound } from '../utils/audio'
@@ -38,6 +39,24 @@ function buildScientistNameMap(): Map<string, string> {
 
 const scientistNameMap = buildScientistNameMap()
 
+// 用于递归查找天体及其母星的内部类型
+interface BodyNode { id: string; orbit?: OrbitalElements; satellites?: BodyNode[] }
+
+function findBodyWithParent(
+  bodies: BodyNode[],
+  targetId: string,
+  parent?: BodyNode
+): { body: BodyNode; parent?: BodyNode } | undefined {
+  for (const b of bodies) {
+    if (b.id === targetId) return { body: b, parent }
+    if (b.satellites) {
+      const found = findBodyWithParent(b.satellites, targetId, b)
+      if (found) return found
+    }
+  }
+  return undefined
+}
+
 const eraColors: Record<ExplorationEra, string> = {
   ancient: '#CD7F32',
   telescope: '#C0C0C0',
@@ -61,6 +80,7 @@ export default function ExplorationHistoryPanel() {
     addExploredBody,
     addMissionExploredBody,
     addMissionCompareBody,
+    currentDay,
   } = useStore()
 
   const [activeEra, setActiveEra] = useState<ExplorationEra>('ancient')
@@ -124,7 +144,27 @@ export default function ExplorationHistoryPanel() {
     if (targetBody) {
       playUISound('click')
       setSelectedBody(targetBody)
-      setCameraFocus([dist, dist * 0.3, dist], [0, 0, 0])
+
+      // 计算目标天体在世界空间中的实际位置（支持卫星递归），使相机正确注视该天体
+      let lookAtX = 0, lookAtY = 0, lookAtZ = 0
+      if (targetBody.id !== 'sun') {
+        const found = findBodyWithParent(allBodies, targetBody.id)
+        if (found?.parent && targetBody.orbit) {
+          // 卫星：母星日心坐标 + 卫星相对轨道位置
+          const parentPos = getHeliocentricPosition(found.parent.orbit!, currentDay)
+          const satPos = getSatellitePosition(targetBody.orbit, currentDay)
+          lookAtX = parentPos[0] + satPos[0]
+          lookAtY = parentPos[1] + satPos[1]
+          lookAtZ = parentPos[2] + satPos[2]
+        } else if (targetBody.orbit) {
+          // 行星/矮行星：直接日心坐标
+          const targetPos = getHeliocentricPosition(targetBody.orbit, currentDay)
+          lookAtX = targetPos[0]
+          lookAtY = targetPos[1]
+          lookAtZ = targetPos[2]
+        }
+      }
+      setCameraFocus([dist, dist * 0.3, dist], [lookAtX, lookAtY, lookAtZ])
       addExploredBody(targetBody.id)
       activeMissionIds.forEach((mid) => {
         const mission = getMissionById(mid)

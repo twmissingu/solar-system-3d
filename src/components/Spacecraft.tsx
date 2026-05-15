@@ -48,7 +48,7 @@ function SpacecraftTrajectory({ spacecraft }: { spacecraft: Spacecraft }) {
         const pos: [number, number, number] = [
           Math.cos(angleRad) * tp.distanceAU * ORBIT_SCALE,
           0.5,
-          Math.sin(angleRad) * tp.distanceAU * 15,
+          Math.sin(angleRad) * tp.distanceAU * ORBIT_SCALE,
         ]
         return (
           <mesh key={tp.date || idx} position={pos} onClick={handleMarkerClick}>

@@ -11,6 +11,8 @@ import { evaluateAchievements } from '../utils/achievements'
 import { playUISound } from '../utils/audio'
 import { getPlanetTexture, getRingTexture } from '../utils/planetTextures'
 
+const SPEED_MAP: Record<Exclude<TimeSpeed, 'pause'>, number> = { '1x': 1, '10x': 10, '100x': 100, '1000x': 1000 }
+
 function SelectionRings({ radius }: { radius: number }) {
   const ringRef = useRef<THREE.Mesh>(null)
   const sweepRef = useRef<THREE.Mesh>(null)
@@ -142,7 +144,7 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
     // 卫星渲染在父级 group 内部（由递归 body.satellites?.map 产生），
     // 父 group 已通过 position prop 提供父天体的世界坐标偏移，
     // 因此卫星只需返回相对于父天体的轨道位置，无需再加 parentPosition。
-    // 卫星轨道固定为 SATELLITE_SCALE=8500 计算值，planetScale 仅影响视觉大小
+    // 卫星轨道固定为 SATELLITE_SCALE=7044 计算值，planetScale 仅影响视觉大小
     if (isSatellite) return pos as [number, number, number]
     return [
       pos[0] + parentPosition[0],
@@ -164,8 +166,7 @@ export default function Planet({ body, parentPosition = [0, 0, 0], isSatellite =
       meshRef.current.rotateZ(Math.PI)
     } else if (body.rotationPeriod > 0) {
       // 正常自转：用 timeSpeed 同步时间加速，金星逆向自转
-      const speedMap: Record<Exclude<TimeSpeed, 'pause'>, number> = { '1x': 1, '10x': 10, '100x': 100, '1000x': 1000 }
-      const speed = timeSpeed === 'pause' ? 0 : speedMap[timeSpeed] || 1
+      const speed = timeSpeed === 'pause' ? 0 : SPEED_MAP[timeSpeed] || 1
       const dayFraction = (delta * SIMULATION_BASE_RATE * speed) / (body.rotationPeriod / 24)
       const rotationRad = dayFraction * Math.PI * 2
       const direction = body.id === 'venus' ? -1 : 1

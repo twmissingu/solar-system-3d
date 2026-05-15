@@ -139,7 +139,6 @@ export default function CelestialSearch() {
       evaluateAchievements()
 
       // 如果有活跃任务，记录探索
-      const state = useStore.getState()
       const { activeMissionIds, addMissionExploredBody, addMissionCompareBody } = useStore.getState()
       activeMissionIds.forEach((mid) => {
         const mission = getMissionById(mid)

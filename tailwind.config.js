@@ -16,6 +16,7 @@ export default {
           gold: '#FDB813',
           ice: '#AED6F1',
           white: '#E8F4FD',
+          green: '#3BC9A0',
           success: '#3BC9A0',
           danger: '#FF6B6B',
           warning: '#FDB813',
