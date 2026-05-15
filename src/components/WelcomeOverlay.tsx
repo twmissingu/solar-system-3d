@@ -88,7 +88,8 @@ export default function WelcomeOverlay({ onClose }: WelcomeOverlayProps) {
               </button>
 
               <p className="text-[10px] text-sci-white/25 max-w-sm mx-auto leading-relaxed">
-                免责声明：本展示为简化模型，行星尺寸已放大以便观察，不代表真实比例。
+                免责声明：本展示为简化模型，天体与轨道各自保持内部真实比例关系。
+                天体直径统一缩放便于观察，不代表绝对真实视觉效果。
                 轨道计算基于二体开普勒近似，未包含行星摄动效应，长期位置存在偏差。
                 仅供科普教育参考，非精密天文数据。
               </p>

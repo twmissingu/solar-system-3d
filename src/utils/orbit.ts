@@ -2,10 +2,10 @@ import { OrbitalElements } from '../data/celestialData';
 
 const DEG_TO_RAD = Math.PI / 180;
 
-// 场景距离缩放因子：1 AU = 15 场景单位（与 DISTANCE_SCALE 配合）
-const ORBIT_SCALE = 15;
-// 卫星轨道缩放系数（卫星半长轴仅为 AU 量级的千分之一，需要更大缩放）
-const SATELLITE_SCALE = 1500;
+// 场景距离缩放因子：1 AU = 85 场景单位（与 DISTANCE_SCALE 配合）
+export const ORBIT_SCALE = 85;
+// 卫星轨道缩放系数：保持与 ORBIT_SCALE 相同比例（原 SATELLITE_SCALE/ORBIT_SCALE=100）
+export const SATELLITE_SCALE = 8500;
 
 /**
  * 求解开普勒方程：M = E - e * sin(E)
@@ -27,7 +27,7 @@ function solveKepler(M: number, e: number, maxIter = 50, epsilon = 1e-8): number
 }
 
 /**
- * 计算天体在给定时间的日心黄道坐标（场景单位，已乘 ORBIT_SCALE=15）
+ * 计算天体在给定时间的日心黄道坐标（场景单位，已乘 ORBIT_SCALE=85）
  * 使用开普勒轨道近似
  * @param orbit 轨道根数
  * @param days 相对于历元的日数

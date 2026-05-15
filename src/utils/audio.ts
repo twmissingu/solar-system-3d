@@ -55,51 +55,6 @@ export function playUISound(type: 'hover' | 'click' | 'success') {
   }
 }
 
-export function playAmbientDrone(planetId: string) {
-  if (isMuted) return () => {};
-  try {
-    const ctx = getAudioContext();
-    if (ctx.state === 'suspended') {
-      ctx.resume().catch(() => {});
-    }
-    const freqMap: Record<string, number> = {
-      sun: 110, mercury: 220, venus: 196, earth: 164.81,
-      mars: 146.83, jupiter: 82.41, saturn: 73.42,
-      uranus: 65.41, neptune: 58.27, pluto: 55,
-    };
-    const baseFreq = freqMap[planetId] || 110;
-
-    const osc1 = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc1.frequency.value = baseFreq;
-    osc1.type = 'sine';
-    osc2.frequency.value = baseFreq * 1.5;
-    osc2.type = 'triangle';
-
-    gain.gain.value = 0.05;
-
-    if (!masterGain) return () => {};
-    osc1.connect(gain);
-    osc2.connect(gain);
-    gain.connect(masterGain);
-
-    osc1.start();
-    osc2.start();
-
-    return () => {
-      try { osc1.stop(); } catch {}
-      try { osc2.stop(); } catch {}
-      try { osc1.disconnect(); } catch {}
-      try { osc2.disconnect(); } catch {}
-      try { gain.disconnect(); } catch {}
-    };
-  } catch {
-    return () => {};
-  }
-}
-
 export function toggleMute(): boolean {
   isMuted = !isMuted;
   if (masterGain) {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useStore } from '../store/useStore';
 import { journeyStops } from '../data/journeyData';
 import { getHeliocentricPosition } from '../utils/orbit';
-import { celestialBodies, dwarfPlanets } from '../data/celestialData';
+import { celestialBodies, dwarfPlanets, getVisualRadius } from '../data/celestialData';
 
 export default function JourneyMode() {
   const {
@@ -13,6 +13,7 @@ export default function JourneyMode() {
     setCameraFocus,
     setShowJourneyHUD,
     currentDay,
+    planetScale,
   } = useStore();
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -40,7 +41,10 @@ export default function JourneyMode() {
                    dwarfPlanets.find((b) => b.id === stop.bodyId);
       if (body) {
         const pos = getHeliocentricPosition(body.orbit, currentDayRef.current);
-        const camDist = Math.max(body.visualRadius * 8, 3);
+        const camDist = Math.max(
+          (body.id === 'sun' ? getVisualRadius(body.radiusKm) : getVisualRadius(body.radiusKm) * planetScale) * 8,
+          3
+        );
         setCameraFocus(
           [pos[0] + camDist, pos[1] + camDist * 0.5, pos[2] + camDist],
           pos

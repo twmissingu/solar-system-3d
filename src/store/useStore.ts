@@ -3,7 +3,6 @@ import { CelestialBody } from '../data/celestialData';
 
 export type ViewMode = 'overview' | 'focused';
 export type TimeSpeed = 'pause' | '1x' | '10x' | '100x' | '1000x';
-export type ScaleMode = 'exaggerated' | 'realistic';
 export type TimeMode = 'simulation' | 'light-speed' | 'lifetime';
 export type JourneyMode = 'idle' | 'running' | 'paused' | 'completed';
 export type AppPhase = 'loading' | 'welcome' | 'transition' | 'main';
@@ -48,12 +47,12 @@ interface AppState {
   showKnowledge: boolean;
   setShowKnowledge: (show: boolean) => void;
 
-  // 尺度模式
-  scaleMode: ScaleMode;
-  setScaleMode: (mode: ScaleMode) => void;
-
   // 重置状态
   resetView: () => void;
+
+  // 行星放大倍率（1x = 真实比例，滑块 1~10）
+  planetScale: number;
+  setPlanetScale: (scale: number) => void;
 
   // Achievement system
   unlockedAchievements: string[];
@@ -223,8 +222,8 @@ export const useStore = create<AppState>((set) => ({
   showKnowledge: false,
   setShowKnowledge: (show) => set({ showKnowledge: show }),
 
-  scaleMode: 'exaggerated',
-  setScaleMode: (mode) => set({ scaleMode: mode }),
+  planetScale: 3,
+  setPlanetScale: (scale) => set({ planetScale: Math.max(1, Math.min(10, scale)) }),
 
   resetView: () =>
     set({
@@ -233,7 +232,7 @@ export const useStore = create<AppState>((set) => ({
       cameraTarget: null,
       cameraLookAt: null,
       showKnowledge: false,
-      scaleMode: 'exaggerated',
+      planetScale: 3,
       timeSpeed: '1x',
       currentDay: 0,
       timeMode: 'simulation',

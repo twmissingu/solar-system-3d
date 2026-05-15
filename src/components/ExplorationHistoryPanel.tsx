@@ -9,7 +9,7 @@ import {
   eraConfig,
   getMilestoneById,
 } from '../data/explorationHistory'
-import { celestialBodies, dwarfPlanets, getRealVisualRadius } from '../data/celestialData'
+import { celestialBodies, dwarfPlanets, getVisualRadius } from '../data/celestialData'
 import { scientists } from '../data/scientists'
 
 const eras: ExplorationEra[] = ['ancient', 'telescope', 'space-race', 'deep-space', 'future']
@@ -53,7 +53,7 @@ export default function ExplorationHistoryPanel() {
     setShowScientistGallery,
     setShowSpacecraftPanel,
     setSelectedSpacecraft,
-    scaleMode,
+    planetScale,
   } = useStore()
 
   const [activeEra, setActiveEra] = useState<ExplorationEra>('ancient')
@@ -108,7 +108,9 @@ export default function ExplorationHistoryPanel() {
     targetBody = findBody(allBodies)
 
     const effectiveRadius = targetBody
-      ? (scaleMode === 'realistic' ? getRealVisualRadius(targetBody.radiusKm) : targetBody.visualRadius)
+      ? (targetBody.id === 'sun'
+        ? getVisualRadius(targetBody.radiusKm)
+        : getVisualRadius(targetBody.radiusKm) * planetScale)
       : 1
     const dist = milestone.cameraTarget?.distance || Math.max(effectiveRadius * 5, 3)
 

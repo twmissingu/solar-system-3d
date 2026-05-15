@@ -3,19 +3,20 @@ export const AU = 149597870.7; // km
 export const SUN_RADIUS_KM = 696340;
 export const EARTH_RADIUS_KM = 6371;
 
-// 视觉缩放因子：用于在3D场景中放大行星，使其可见但不破坏轨道相对距离
-export const VISUAL_RADIUS_SCALE = 30;
-export const DISTANCE_SCALE = 1; // 距离用真实比例（1 AU 对应场景中的相对单位）
+// 天体显示半径统一缩放基准
+// 所有天体（含太阳）使用同一公式：(radiusKm / EARTH_RADIUS_KM) * VISUAL_SCALE
+// 轨道距离使用独立的 ORBIT_SCALE（在 orbit.ts 中），两者各自保持内部真实比例
+export const VISUAL_SCALE = 0.3;
 
-// 真实比例基准：地球在真实比例模式下的显示半径
-export const REAL_SCALE_BASE = 0.3;
+// 模拟基础速率：每天0.5模拟天/实时秒
+export const SIMULATION_BASE_RATE = 0.5;
 
 /**
- * 计算天体在真实比例模式下的显示半径
- * 以地球半径为基准，保持真实比例关系
+ * 计算天体的显示半径
+ * 所有天体使用统一公式，保持相互间的真实直径比例
  */
-export function getRealVisualRadius(radiusKm: number): number {
-  return (radiusKm / EARTH_RADIUS_KM) * REAL_SCALE_BASE;
+export function getVisualRadius(radiusKm: number): number {
+  return (radiusKm / EARTH_RADIUS_KM) * VISUAL_SCALE;
 }
 
 export interface OrbitalElements {
@@ -33,7 +34,8 @@ export interface CelestialBody {
   name: string;
   nameZh: string;
   radiusKm: number;
-  visualRadius: number; // 场景中的显示半径（已缩放）
+  /** @deprecated 不再使用，渲染统一使用 getVisualRadius() */
+  visualRadius?: number;
   color: string;
   textureColor?: string; // 简化纹理用色值
   orbit: OrbitalElements;
@@ -100,7 +102,7 @@ export const celestialBodies: CelestialBody[] = [
       e: 0.0067,
       i: 3.394,
       L: 181.979,
-      longPeri: 131.533,
+      longPeri: 131.563,
       longNode: 76.681,
       period: 224.7,
     },
@@ -510,7 +512,7 @@ export const celestialBodies: CelestialBody[] = [
 // 月全食演示数据：2025年3月14日 真实月全食事件
 export const lunarEclipseDemo = {
   date: "2025-03-14",
-  julianDay: 2460747.5,
+  julianDay: 2460750.0,
   description:
     "2025年3月14日发生了一次月全食。此时地球正好位于太阳和月球之间，地球的阴影完全覆盖了月球，月球呈现出暗红色。",
   targetBody: "moon",
@@ -549,15 +551,15 @@ export const dwarfPlanets: CelestialBody[] = [
         visualRadius: 0.15,
         color: "#A0A0A0",
         textureColor: "#A0A0A0",
-        orbit: {
-          a: 0.000117,
-          e: 0.0022,
-          i: 0.001,
-          L: 0,
-          longPeri: 0,
-          longNode: 0,
-          period: 6.387,
-        },
+    orbit: {
+      a: 0.000117,
+      e: 0.0022,
+      i: 0.001,
+      L: 180,
+      longPeri: 0,
+      longNode: 0,
+      period: 6.387,
+    },
         rotationPeriod: 153.29,
         axialTilt: 0,
         description: "卡戎是冥王星最大的卫星，与冥王星形成了相互潮汐锁定的双星系统。",
@@ -724,7 +726,7 @@ export const presetViews = [
     name: "从地球看太阳",
     nameZh: "从地球看太阳",
     description: "站在地球上看太阳在天空中的大小",
-    cameraPosition: [1.0, 0.3, 0] as [number, number, number],
+    cameraPosition: [5.7, 1.7, 0] as [number, number, number],
     lookAt: [0, 0, 0] as [number, number, number],
   },
   {

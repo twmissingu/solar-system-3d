@@ -109,13 +109,13 @@ export default function App() {
         >
           {/* 3D Canvas */}
           <Canvas
-            camera={{ position: [0, 80, 180], fov: 50, near: 0.1, far: 2000 }}
+            camera={{ position: [0, 300, 1000], fov: 50, near: 0.1, far: 4000 }}
             gl={{ antialias: true, alpha: false }}
             shadows
             style={{ background: '#050B14' }}
           >
             <color attach="background" args={['#050B14']} />
-            <fog attach="fog" args={['#050B14', 50, 900]} />
+            <fog attach="fog" args={['#050B14', 50, 3500]} />
 
             <ambientLight intensity={0.08} color="#2A3F5F" />
 

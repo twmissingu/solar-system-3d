@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useStore } from '../store/useStore'
-import { celestialBodies, dwarfPlanets } from '../data/celestialData'
+import { celestialBodies, dwarfPlanets, SIMULATION_BASE_RATE } from '../data/celestialData'
 import Planet from './Planet'
 import AsteroidBelt from './AsteroidBelt'
 import * as THREE from 'three'
@@ -54,7 +54,7 @@ export default function SolarSystem() {
 
     if (timeSpeed !== 'pause') {
       const speed = SPEED_MAP[timeSpeed] || 1
-      const dayDelta = clampedDelta * speed * 0.5
+      const dayDelta = clampedDelta * speed * SIMULATION_BASE_RATE
       setCurrentDay((prev) => prev + dayDelta)
       addTimeAdvanced(Math.abs(dayDelta))
     }

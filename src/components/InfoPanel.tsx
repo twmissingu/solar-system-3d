@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen, Microscope, Layers, Telescope, Sparkles, X } from 'lucide-react'
+import { BookOpen, Microscope, Layers, Telescope, Sparkles, X, Circle, RotateCw, Orbit, Ruler, Thermometer, Flame } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { getKnowledgeForBody } from '../data/knowledgeV2'
 import KnowledgeExplorer from './KnowledgeExplorer'
@@ -9,11 +9,27 @@ import InterdisciplinaryPanel from './InterdisciplinaryPanel'
 import ObservationGuide from './ObservationGuide'
 import ScienceFrontiers from './ScienceFrontiers'
 import PlanetPreview from './PlanetPreview'
-import { getRealVisualRadius, dwarfPlanets, celestialBodies } from '../data/celestialData'
+import { dwarfPlanets, EARTH_RADIUS_KM } from '../data/celestialData'
 
-const EARTH_RADIUS_KM = 6371
-const EARTH_ROTATION_HOURS = 24
+const EARTH_ROTATION_HOURS = 23.93
 const EARTH_ORBIT_PERIOD = 365.25
+
+/**
+ * 对数对比条宽度：地球 (1x) 在 50%，每数量级差 25%
+ * 0.01x → 0%   |   0.1x → 25%   |   1x → 50%   |   10x → 75%   |   100x → 100%
+ */
+function getBarRatio(ratio: number): number {
+  if (ratio <= 0) return 0
+  return Math.min(100, Math.max(0, ((Math.log10(ratio) + 2) / 4) * 100))
+}
+
+function getBarColor(ratio: number): string {
+  const pct = getBarRatio(ratio)
+  if (pct <= 25) return '#4ECDC4'
+  if (pct <= 50) return '#5B7CFF'
+  if (pct <= 75) return '#FDB813'
+  return '#E27B58'
+}
 
 const tabs = [
   { id: 'knowledge' as const, label: '知识探索', Icon: BookOpen },
@@ -23,21 +39,8 @@ const tabs = [
   { id: 'frontiers' as const, label: '科学前沿', Icon: Sparkles },
 ]
 
-function getComparisonPercent(value: number, baseline: number): number {
-  if (baseline === 0) return 0
-  const pct = (value / baseline) * 100
-  return Math.min(pct, 100)
-}
-
-function getBarColor(percent: number): string {
-  if (percent <= 20) return '#4ECDC4'
-  if (percent <= 50) return '#5B7CFF'
-  if (percent <= 100) return '#FDB813'
-  return '#E27B58'
-}
-
 export default function InfoPanel() {
-  const { selectedBody, showKnowledge, setShowKnowledge, scaleMode } = useStore()
+  const { selectedBody, showKnowledge, setShowKnowledge, planetScale } = useStore()
   const [infoTab, setInfoTab] = useState<(typeof tabs)[0]['id']>('knowledge')
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -58,23 +61,19 @@ export default function InfoPanel() {
 
   const isSun = selectedBody.id === 'sun'
 
-  // 数据对比计算
-  const diameterPct = isSun ? 100 : getComparisonPercent(selectedBody.radiusKm * 2, EARTH_RADIUS_KM * 2)
-  const rotationPct = isSun ? getComparisonPercent(selectedBody.rotationPeriod, EARTH_ROTATION_HOURS * 25) : getComparisonPercent(selectedBody.rotationPeriod, EARTH_ROTATION_HOURS * 5)
-  const orbitPct = isSun ? 0 : getComparisonPercent(selectedBody.orbit.period, EARTH_ORBIT_PERIOD * 2)
-
+  // 数据对比计算（以地球为基准，使用对数缩放条）
   const dataItems = isSun
     ? [
-        { label: '直径', value: `${(selectedBody.radiusKm * 2).toLocaleString()} km`, percent: 100 },
-        { label: '自转周期', value: `${selectedBody.rotationPeriod.toFixed(1)} 小时`, percent: rotationPct },
-        { label: '表面温度', value: '约 5778 K', percent: 100 },
-        { label: '核心温度', value: '约 1500 万 K', percent: 100 },
+        { label: '直径', Icon: Circle, value: `${(selectedBody.radiusKm * 2).toLocaleString()} km`, ratio: selectedBody.radiusKm / EARTH_RADIUS_KM, earthSuffix: `${(selectedBody.radiusKm / EARTH_RADIUS_KM).toFixed(1)} 倍` },
+        { label: '自转周期', Icon: RotateCw, value: `${selectedBody.rotationPeriod.toFixed(1)} 小时`, ratio: selectedBody.rotationPeriod / EARTH_ROTATION_HOURS, earthSuffix: `${(selectedBody.rotationPeriod / EARTH_ROTATION_HOURS).toFixed(1)} 倍` },
+        { label: '表面温度', Icon: Thermometer, value: '约 5778 K', ratio: null, earthSuffix: '' },
+        { label: '核心温度', Icon: Flame, value: '约 1500 万 K', ratio: null, earthSuffix: '' },
       ]
     : [
-        { label: '直径', value: `${(selectedBody.radiusKm * 2).toLocaleString()} km`, percent: diameterPct, suffix: `≈地球的${(selectedBody.radiusKm / EARTH_RADIUS_KM).toFixed(1)}倍` },
-        { label: '自转周期', value: `${selectedBody.rotationPeriod.toFixed(1)} 小时`, percent: rotationPct },
-        { label: '公转周期', value: `${selectedBody.orbit.period.toLocaleString()} 天`, percent: orbitPct, suffix: `≈${(selectedBody.orbit.period / EARTH_ORBIT_PERIOD).toFixed(1)}年` },
-        { label: '轨道半长轴', value: `${selectedBody.orbit.a} AU`, percent: getComparisonPercent(selectedBody.orbit.a, 30) },
+        { label: '直径', Icon: Circle, value: `${(selectedBody.radiusKm * 2).toLocaleString()} km`, ratio: selectedBody.radiusKm / EARTH_RADIUS_KM, earthSuffix: `${(selectedBody.radiusKm / EARTH_RADIUS_KM).toFixed(1)} 倍` },
+        { label: '自转周期', Icon: RotateCw, value: `${selectedBody.rotationPeriod.toFixed(1)} 小时`, ratio: selectedBody.rotationPeriod / EARTH_ROTATION_HOURS, earthSuffix: `${(selectedBody.rotationPeriod / EARTH_ROTATION_HOURS).toFixed(1)} 倍` },
+        { label: '公转周期', Icon: Orbit, value: `${selectedBody.orbit.period.toLocaleString()} 天`, ratio: selectedBody.orbit.period / EARTH_ORBIT_PERIOD, earthSuffix: `${(selectedBody.orbit.period / EARTH_ORBIT_PERIOD).toFixed(1)} 年` },
+        { label: '轨道半长轴', Icon: Ruler, value: `${selectedBody.orbit.a} AU`, ratio: selectedBody.orbit.a / 1, earthSuffix: `${selectedBody.orbit.a.toFixed(1)} 倍` },
       ]
 
   return (
@@ -125,38 +124,49 @@ export default function InfoPanel() {
               </div>
             </div>
 
-            {/* 数据指标 - 可视化对比条 */}
-            <div className="px-4 sm:px-5 py-3 border-b border-sci-cyan/10 shrink-0 space-y-2.5">
-              {dataItems.map((item) => (
-                <div key={item.label}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] text-sci-white/40 uppercase tracking-wider">{item.label}</span>
-                    <span className="text-[10px] sm:text-xs text-sci-white/80 font-mono">
-                      {item.value}
-                      {item.suffix && <span className="text-sci-white/40 ml-1">{item.suffix}</span>}
-                    </span>
+            {/* 数据指标 - 2×2 网格对比卡片 */}
+            <div className="grid grid-cols-2 gap-2 px-4 sm:px-5 py-3 border-b border-sci-cyan/10 shrink-0">
+              {dataItems.map((item) => {
+                const barPct = item.ratio !== null ? getBarRatio(item.ratio) : 0
+                return (
+                  <div
+                    key={item.label}
+                    className="bg-space-800/40 border border-sci-cyan/10 rounded-lg p-2.5 space-y-1.5"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <item.Icon size={12} className="text-sci-cyan/60 shrink-0" />
+                      <span className="text-[10px] text-sci-white/40 uppercase tracking-wider">{item.label}</span>
+                    </div>
+                    <div className="flex items-baseline justify-between gap-1">
+                      <span className="text-[11px] sm:text-xs text-sci-white/90 font-mono font-medium truncate">
+                        {item.value}
+                      </span>
+                      {item.ratio !== null && (
+                        <span className="text-[10px] text-sci-cyan font-mono shrink-0">◉ {item.earthSuffix}</span>
+                      )}
+                    </div>
+                    {item.ratio !== null && (
+                      <div className="data-bar-bg">
+                        <div
+                          className="data-bar-fill"
+                          style={{
+                            width: `${barPct}%`,
+                            backgroundColor: getBarColor(item.ratio),
+                          }}
+                        />
+                      </div>
+                    )}
                   </div>
-                  <div className="data-bar-bg">
-                    <div
-                      className="data-bar-fill"
-                      style={{
-                        width: `${Math.min(item.percent, 100)}%`,
-                        backgroundColor: getBarColor(item.percent),
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
 
-            {/* 尺度对比 */}
-            {scaleMode === 'exaggerated' && !isSun && (
+            {/* 天体放大比例说明 */}
+            {selectedBody && (
               <div className="px-4 sm:px-5 py-2 border-b border-sci-cyan/10 bg-sci-cyan/5">
                 <p className="text-[10px] text-sci-cyan/70">
-                  当前显示直径已放大 {(() => {
-                    const realRadius = getRealVisualRadius(selectedBody.radiusKm)
-                    return realRadius > 0 ? (selectedBody.visualRadius / realRadius).toFixed(1) : '—'
-                  })()} 倍，真实比例下此天体极小
+                  太阳系所有天体按真实直径比例显示。
+                  当前天体放大 <span className="text-sci-cyan font-mono">{planetScale}x</span>（太阳固定为真实大小），仅影响视觉大小，不影响轨道位置。
                 </p>
               </div>
             )}

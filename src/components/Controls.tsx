@@ -25,7 +25,6 @@ import {
   X,
   ChevronDown,
   ChevronUp,
-  Layers,
   History,
 } from 'lucide-react'
 import { useStore } from '../store/useStore'
@@ -36,6 +35,7 @@ import { getHeliocentricPosition } from '../utils/orbit'
 import { formatSimulationDate } from '../utils/date'
 import { lightTravelMinutes, formatLightTime, lifetimeOrbits } from '../utils/physics'
 import { playUISound } from '../utils/audio'
+import CelestialSearch from './CelestialSearch'
 
 const speeds = [
   { value: 'pause' as const, label: '暂停', icon: Pause },
@@ -67,8 +67,6 @@ export default function Controls() {
   const setSelectedBody = useStore((s) => s.setSelectedBody)
   const currentDay = useStore((s) => s.currentDay)
   const showKnowledge = useStore((s) => s.showKnowledge)
-  const scaleMode = useStore((s) => s.scaleMode)
-  const setScaleMode = useStore((s) => s.setScaleMode)
   const setShowMissionPanel = useStore((s) => s.setShowMissionPanel)
   const setShowAchievementPanel = useStore((s) => s.setShowAchievementPanel)
   const setSelectedSpacecraft = useStore((s) => s.setSelectedSpacecraft)
@@ -86,6 +84,8 @@ export default function Controls() {
   const setShowScaleRuler = useStore((s) => s.setShowScaleRuler)
   const setShowStarMap = useStore((s) => s.setShowStarMap)
   const setShowExplorationHistory = useStore((s) => s.setShowExplorationHistory)
+  const planetScale = useStore((s) => s.planetScale)
+  const setPlanetScale = useStore((s) => s.setPlanetScale)
 
   const [toolboxOpen, setToolboxOpen] = useState(false)
 
@@ -124,7 +124,8 @@ export default function Controls() {
 
   const handleLunarEclipse = () => {
     setCurrentDay(lunarEclipseDemo.julianDay - 2451545.0)
-    setCameraFocus([18, 4, 12], [0, 0, 0])
+    // ORBIT_SCALE=85，相机置于地球（~85单位）附近观察月食
+    setCameraFocus([102, 23, 68], [0, 0, 0])
     setSelectedBody(null)
 
     const { activeMissionId, addMissionObservedEvent } = useStore.getState()
@@ -271,7 +272,6 @@ ${state.exploredBodies.length > 0
         { icon: BookOpen, label: '故事任务', onClick: () => { playUISound('click'); setShowNarrative(true); setToolboxOpen(false); } },
         { icon: Award, label: '探索徽章', onClick: () => { playUISound('click'); setShowAchievementPanel(true); setToolboxOpen(false); } },
         { icon: FileText, label: '导出报告', onClick: () => { playUISound('click'); generateExplorationReport(); setToolboxOpen(false); } },
-        { icon: Layers, label: scaleMode === 'exaggerated' ? '真实比例' : '放大比例', onClick: () => { playUISound('click'); setScaleMode(scaleMode === 'exaggerated' ? 'realistic' : 'exaggerated'); } },
       ],
     },
   ]
@@ -295,6 +295,7 @@ ${state.exploredBodies.length > 0
           <p className="text-[10px] sm:text-xs text-sci-cyan/50 mt-0.5 hidden sm:block">
             太阳系3D探索 · 科学教育
           </p>
+          <CelestialSearch />
         </div>
       </motion.div>
 
@@ -437,6 +438,25 @@ ${state.exploredBodies.length > 0
                 </p>
               </div>
             )}
+
+          {/* 行星放大倍率滑块 */}
+          <div className="flex items-center gap-2 pt-2 mt-1 border-t border-sci-cyan/10">
+            <span className="text-[10px] text-sci-white/50 flex items-center gap-1 shrink-0">
+              天体放大
+            </span>
+            <input
+              type="range"
+              min={1}
+              max={10}
+              step={0.5}
+              value={planetScale}
+              onChange={(e) => { playUISound('click'); setPlanetScale(parseFloat(e.target.value)) }}
+              className="sci-slider flex-1"
+            />
+            <span className="text-[10px] text-sci-cyan font-mono w-8 text-right">
+              {planetScale}x
+            </span>
+          </div>
           </div>
         </motion.div>
 

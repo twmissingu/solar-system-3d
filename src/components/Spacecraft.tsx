@@ -3,6 +3,7 @@ import { Line } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { spacecraftData, type Spacecraft } from '../data/spacecraft'
 import { useStore } from '../store/useStore'
+import { ORBIT_SCALE } from '../utils/orbit'
 
 function SpacecraftTrajectory({ spacecraft }: { spacecraft: Spacecraft }) {
   const { setSelectedSpacecraft, setShowSpacecraftPanel } = useStore()
@@ -12,8 +13,8 @@ function SpacecraftTrajectory({ spacecraft }: { spacecraft: Spacecraft }) {
 
     for (const tp of spacecraft.trajectory) {
       const angleRad = (tp.angle * Math.PI) / 180
-      const x = Math.cos(angleRad) * tp.distanceAU * 15
-      const z = Math.sin(angleRad) * tp.distanceAU * 15
+      const x = Math.cos(angleRad) * tp.distanceAU * ORBIT_SCALE
+      const z = Math.sin(angleRad) * tp.distanceAU * ORBIT_SCALE
       const y = 0.5
       pts.push([x, y, z])
     }
@@ -45,7 +46,7 @@ function SpacecraftTrajectory({ spacecraft }: { spacecraft: Spacecraft }) {
       {spacecraft.trajectory.map((tp, idx) => {
         const angleRad = (tp.angle * Math.PI) / 180
         const pos: [number, number, number] = [
-          Math.cos(angleRad) * tp.distanceAU * 15,
+          Math.cos(angleRad) * tp.distanceAU * ORBIT_SCALE,
           0.5,
           Math.sin(angleRad) * tp.distanceAU * 15,
         ]
